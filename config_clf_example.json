@@ -1,6 +1,6 @@
 {
     "output_folder": "clf_outputs/",
-    "weka_jar_path": "weka-3-8-3/weka.jar",
+    "weka_jar_path": "data/java/weka.jar",
     "n_jobs": 2,
     "classifiers": [
         {
