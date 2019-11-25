@@ -30,8 +30,8 @@ def od_worker(queue: Queue, times_file: str):
             file_split = file_save_path.split("/")[-1].split("_")
 
             with open(times_file, "a") as tf:
-                tf.write(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + od_time)
-                
+                print(str(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + od_time), file=tf)
+
         except Exception as exc:
             print(
                 "Error:\n\t{} {}\n\t".format(
