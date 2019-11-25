@@ -5,14 +5,11 @@ import sys
 from hashlib import md5
 from multiprocessing import Process, Queue
 
-import pandas as pd
-
 from pv056_2019.data_loader import DataLoader
 from pv056_2019.schemas import ODStepConfigSchema
 
 
 def od_worker(queue: Queue, times_file: str):
-    data_times = []
     while not queue.empty():
         od_settings, train_file_path, file_save_path = queue.get()
         print(
@@ -31,9 +28,10 @@ def od_worker(queue: Queue, times_file: str):
 
             print(train_file_path)
             file_split = file_save_path.split("/")[-1].split("_")
-            data_times.append([file_split[0], file_split[1], file_split[2], od_time])
-            times = pd.DataFrame(data=data_times, columns=["dataset", "fold", "od_hex", "od_time"])
-            times.to_csv(times_file, sep=",")
+
+            with open(times_file, "a") as tf:
+                tf.write(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + od_time)
+                
         except Exception as exc:
             print(
                 "Error:\n\t{} {}\n\t".format(
@@ -59,6 +57,9 @@ def main():
     train_data_loader = DataLoader(conf.train_split_dir, regex=r".*_train\.arff")
 
     queue = Queue()
+
+    with open(conf.times_output, "w") as tf:
+        tf.write("dataset,fold,od_hex,od_time")
 
     for od_settings in conf.od_methods:
         hex_name = md5(od_settings.json(sort_keys=True).encode("UTF-8")).hexdigest()
