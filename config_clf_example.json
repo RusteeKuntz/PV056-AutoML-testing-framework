@@ -1,7 +1,9 @@
 {
     "output_folder": "clf_outputs/",
     "weka_jar_path": "data/java/weka.jar",
-    "n_jobs": 2,
+    "n_jobs": 5,
+    "output_times": "clf_times.csv",
+    "timeout": 1800,
     "classifiers": [
         {
             "class_name": "weka.classifiers.trees.J48",
