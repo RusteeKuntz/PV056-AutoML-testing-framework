@@ -76,7 +76,7 @@ class RunClassifiersCongfigSchema(BaseModel):
     weka_jar_path: str
     classifiers: List[ClassifierSchema]
     n_jobs: int = 1
-    output_times: str
+    times_output: str
     timeout: int
 
     @validator("n_jobs")
