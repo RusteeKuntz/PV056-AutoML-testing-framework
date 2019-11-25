@@ -6,6 +6,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 import arff
+import time
 import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
@@ -114,7 +115,9 @@ class DataFrameArff(pd.DataFrame):
             "attributes": [x for x in self._arff_data["attributes"] if x[0] != ID_NAME],
         }
 
+        time_start = time.time()
         detector.compute_scores(dataframe_without_id, self[self.columns[-1]])
+        time_end = time.time()
 
         new_frame = DataFrameArff(self.values, columns=self.columns)
         new_frame._arff_data = self._arff_data
@@ -126,7 +129,7 @@ class DataFrameArff(pd.DataFrame):
             -1, (OD_VALUE_NAME, detector.data_type)
         )
 
-        return new_frame
+        return new_frame, time_end - time_start
 
     def select_by_index(self, index: np.array):
         dataframe = self.iloc[index]

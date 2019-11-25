@@ -5,11 +5,14 @@ import sys
 from hashlib import md5
 from multiprocessing import Process, Queue
 
+import pandas as pd
+
 from pv056_2019.data_loader import DataLoader
 from pv056_2019.schemas import ODStepConfigSchema
 
 
-def od_worker(queue: Queue):
+def od_worker(queue: Queue, times_file: str):
+    data_times = []
     while not queue.empty():
         od_settings, train_file_path, file_save_path = queue.get()
         print(
@@ -22,8 +25,15 @@ def od_worker(queue: Queue):
 
         try:
             dataframe = DataLoader._load_arff_file(train_file_path)
-            od_frame = dataframe.apply_outlier_detector(od_settings)
+
+            od_frame, od_time = dataframe.apply_outlier_detector(od_settings)
             od_frame.arff_dump(file_save_path)
+
+            print(train_file_path)
+            file_split = file_save_path.split("/")[-1].split("_")
+            data_times.append([file_split[0], file_split[1], file_split[2], od_time])
+            times = pd.DataFrame(data=data_times, columns=["dataset", "fold", "od_hex", "od_time"])
+            times.to_csv(times_file, sep=",")
         except Exception as exc:
             print(
                 "Error:\n\t{} {}\n\t".format(
@@ -65,7 +75,7 @@ def main():
 
             queue.put([od_settings, train_file_path, file_save_path])
 
-    pool = [Process(target=od_worker, args=(queue,)) for _ in range(conf.n_jobs)]
+    pool = [Process(target=od_worker, args=(queue, conf.times_output,)) for _ in range(conf.n_jobs)]
 
     try:
         [process.start() for process in pool]

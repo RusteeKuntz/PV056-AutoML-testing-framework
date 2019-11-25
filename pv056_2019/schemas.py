@@ -32,6 +32,7 @@ class ODStepConfigSchema(BaseModel):
     od_methods: List[OutlierDetectorSchema]
     train_od_dir: str
     n_jobs: int = 1
+    times_output: str
 
     @validator("n_jobs")
     def n_jobs_validator(cls, value):
