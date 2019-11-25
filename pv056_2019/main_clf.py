@@ -77,7 +77,7 @@ def main():
     with open(conf.times_output, "w") as tf:
         print("dataset,fold,od_hex,removed,od_time", file=tf)
 
-    pool = [Process(target=weka_worker, args=(queue, conf.output_times, conf.timeout,)) for _ in range(conf.n_jobs)]
+    pool = [Process(target=weka_worker, args=(queue, conf.times_output, conf.timeout,)) for _ in range(conf.n_jobs)]
 
     try:
         [process.start() for process in pool]
