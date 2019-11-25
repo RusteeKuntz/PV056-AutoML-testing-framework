@@ -30,7 +30,7 @@ def od_worker(queue: Queue, times_file: str):
             file_split = file_save_path.split("/")[-1].split("_")
 
             with open(times_file, "a") as tf:
-                print(str(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + od_time), file=tf)
+                print(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + str(od_time), file=tf)
 
         except Exception as exc:
             print(
@@ -59,7 +59,7 @@ def main():
     queue = Queue()
 
     with open(conf.times_output, "w") as tf:
-        tf.write("dataset,fold,od_hex,od_time")
+        print("dataset,fold,od_hex,od_time", file=tf)
 
     for od_settings in conf.od_methods:
         hex_name = md5(od_settings.json(sort_keys=True).encode("UTF-8")).hexdigest()
