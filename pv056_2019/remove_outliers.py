@@ -63,7 +63,7 @@ def main():
                     ]
                     print("   ", train_file_path, "{}%".format(percentage))
                     name_split = os.path.basename(train_file_path).split("_")
-                    name_split.insert(-1, "removed-{:03d}".format(percentage))
+                    name_split.insert(-1, "removed-{0:.2f}".format(round(percentage, 2)))
 
                     file_name = "_".join(name_split)
                     file_save_path = os.path.join(conf.train_removed_dir, file_name)

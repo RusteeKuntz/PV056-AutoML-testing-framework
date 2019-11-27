@@ -45,7 +45,7 @@ class ODStepConfigSchema(BaseModel):
 class RemoveOutliersConfigSchema(BaseModel):
     test_split_dir: str
     train_od_dir: str
-    percentage: Union[int, List[int]]
+    percentage: Union[float, List[float]]
     train_removed_dir: str
 
     @validator("percentage")
