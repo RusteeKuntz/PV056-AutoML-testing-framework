@@ -82,6 +82,8 @@ class KDN(AbstractDetector):
     def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
         if "n_neighbors" in self.settings:
             k = int(self.settings["n_neighbors"])
+        else:
+            k = 5  # default value for NN
         bin_dataframe = dataframe._binarize_categorical_values()
         self.clf = KDNMetric()
         self.values = self.clf.countKDN(bin_dataframe, classes, k)
