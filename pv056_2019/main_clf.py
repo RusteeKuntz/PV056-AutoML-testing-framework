@@ -28,18 +28,19 @@ def weka_worker(queue, times_file, timeout):
             start_time = time.time()
             subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout)
             time_diff = time.time() - start_time
-        except TimeoutError:
+        except subprocess.TimeoutExpired:
             time_diff = timeout
 
-        cls = args[16].split(".")[-1]
+        clf = args[16].split(".")[-1]
+        clf_hex = args[10].split("/")[-1].split("_")[-1].split(".")[0]
         file_split = args[6].split("/")[-1].split("_")
         dataset = file_split[0]
         fold = file_split[1]
-        hex = file_split[2]
+        od_hex = file_split[2]
         rm = file_split[3].split("-")[1]
 
         with open(times_file, "a") as tf:
-            print(",".join([dataset, fold, hex, rm, str(time_diff)]), file=tf)
+            print(",".join([dataset, fold, clf, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
 
         print(";".join([args[16], args[6], args[8]]), flush=True)
 
@@ -75,7 +76,7 @@ def main():
     clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
 
     with open(conf.times_output, "w") as tf:
-        print("dataset,fold,od_hex,removed,od_time", file=tf)
+        print("dataset,fold,clf,clf_hex,od_hex,removed,clf_time", file=tf)
 
     pool = [Process(target=weka_worker, args=(queue, conf.times_output, conf.timeout,)) for _ in range(conf.n_jobs)]
 
