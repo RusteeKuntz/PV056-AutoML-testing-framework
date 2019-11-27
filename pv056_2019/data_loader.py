@@ -139,9 +139,9 @@ class DataFrameArff(pd.DataFrame):
         return arff_dataframe
 
     def select_by_od_quantile(self, quantile):
-        value = self[OD_VALUE_NAME].quantile(q=quantile)
+        value = self[OD_VALUE_NAME]
 
-        dataframe = self[self[OD_VALUE_NAME] <= value]
+        dataframe = self.iloc[np.sort(np.argsort(value, kind='quicksort')[:round(quantile * len(value))]), :]
 
         arff_dataframe = DataFrameArff(dataframe.values, columns=self.columns)
         arff_dataframe._arff_data = self._arff_data
