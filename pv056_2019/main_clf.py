@@ -5,10 +5,13 @@ import os
 import time
 import subprocess
 import sys
+import numpy as np
 from multiprocessing import Process, Queue
 
 from pv056_2019.classifiers import ClassifierManager
 from pv056_2019.schemas import RunClassifiersCongfigSchema
+
+BLACKLIST_FILE = "clf_blacklist.csv"
 
 
 def _valid_config_path(path):
@@ -24,17 +27,25 @@ def weka_worker(queue, times_file, timeout):
     while not queue.empty():
         args = queue.get()
         time_diff: float
-        try:
-            start_time = time.time()
-            subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout)
-            time_diff = time.time() - start_time
-        except subprocess.TimeoutExpired:
-            time_diff = timeout
+        blacklist = np.genfromtxt(BLACKLIST_FILE, delimiter=",")
 
-        clf = args[16].split(".")[-1]
-        clf_hex = args[10].split("/")[-1].split("_")[-1].split(".")[0]
         file_split = args[6].split("/")[-1].split("_")
         dataset = file_split[0]
+        clf = args[16].split(".")[-1]
+
+        if not (clf, dataset) in blacklist:
+            try:
+                start_time = time.time()
+                subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout)
+                time_diff = time.time() - start_time
+            except subprocess.TimeoutExpired:
+                time_diff = timeout
+                with open(BLACKLIST_FILE, "a") as bf:
+                    print(clf + "," + dataset, file=bf)
+        else:
+            time_diff = timeout
+
+        clf_hex = args[10].split("/")[-1].split("_")[-1].split(".")[0]
         fold = file_split[1]
         od_hex = file_split[2]
         rm = file_split[3].split("-")[1]
@@ -77,6 +88,7 @@ def main():
 
     with open(conf.times_output, "w") as tf:
         print("dataset,fold,clf,clf_hex,od_hex,removed,clf_time", file=tf)
+    open(BLACKLIST_FILE, "w")
 
     pool = [Process(target=weka_worker, args=(queue, conf.times_output, conf.timeout,)) for _ in range(conf.n_jobs)]
 
