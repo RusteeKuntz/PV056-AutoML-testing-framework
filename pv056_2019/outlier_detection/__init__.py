@@ -18,6 +18,7 @@ from pv056_2019.outlier_detection.DCP import DCPMetric
 from pv056_2019.outlier_detection.DS import DSMetric
 from pv056_2019.outlier_detection.KDN import KDNMetric
 from pv056_2019.outlier_detection.CODB import CODBMetric
+from pv056_2019.outlier_detection.RFOEX import RFOEXMetric
 
 
 DETECTORS: Dict[str, Any] = {}
@@ -55,6 +56,18 @@ class LOF(AbstractDetector):
 
 
 @detector
+class RFOEX(AbstractDetector):
+    name = "RF-OEX"
+    data_type = "REAL"
+
+    def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
+        bin_dataframe = dataframe._binarize_categorical_values()
+
+        self.clf = RFOEXMetric()
+        self.values = self.clf.countRFOEX(bin_dataframe, classes, self)
+        return self
+
+@detector
 class NN(AbstractDetector):
     name = "NearestNeighbors"
     data_type = "REAL"
@@ -82,8 +95,6 @@ class KDN(AbstractDetector):
     def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
         if "n_neighbors" in self.settings:
             k = int(self.settings["n_neighbors"])
-        else:
-            k = 10
         bin_dataframe = dataframe._binarize_categorical_values()
         self.clf = KDNMetric()
         self.values = self.clf.countKDN(bin_dataframe, classes, k)
