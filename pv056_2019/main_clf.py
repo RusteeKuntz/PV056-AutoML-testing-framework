@@ -11,7 +11,10 @@ from multiprocessing import Process, Queue
 from pv056_2019.classifiers import ClassifierManager
 from pv056_2019.schemas import RunClassifiersCongfigSchema
 
+
 BLACKLIST_FILE = "clf_blacklist.csv"
+global times_file
+global timeout
 
 
 def _valid_config_path(path):
@@ -23,7 +26,7 @@ def _valid_config_path(path):
         return path
 
 
-def weka_worker(queue, times_file, timeout):
+def weka_worker(queue):
     while not queue.empty():
         args = queue.get()
         time_diff: float
@@ -77,6 +80,14 @@ def main():
     with open(args.config_clf, "r") as config_file:
         conf = RunClassifiersCongfigSchema(**json.load(config_file))
 
+    global times_file
+    global timeout
+    times_file = conf.times_output
+    timeout = conf.timeout
+    with open(conf.times_output, "w") as tf:
+        print("dataset,fold,clf,clf_hex,od_hex,removed,clf_time", file=tf)
+    open(BLACKLIST_FILE, "w+").close()
+
     with open(args.datasets_csv, "r") as datasets_csv_file:
         reader = csv.reader(datasets_csv_file, delimiter=",")
         datasets = sorted([row for row in reader], key=lambda x: os.path.getsize(x[0]))
@@ -86,11 +97,8 @@ def main():
     queue = Queue()
     clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
 
-    with open(conf.times_output, "w") as tf:
-        print("dataset,fold,clf,clf_hex,od_hex,removed,clf_time", file=tf)
-    open(BLACKLIST_FILE, "w")
 
-    pool = [Process(target=weka_worker, args=(queue, conf.times_output, conf.timeout,)) for _ in range(conf.n_jobs)]
+    pool = [Process(target=weka_worker, args=(queue,)) for _ in range(conf.n_jobs)]
 
     try:
         [process.start() for process in pool]
