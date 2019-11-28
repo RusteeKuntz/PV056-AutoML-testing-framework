@@ -117,6 +117,8 @@ optional arguments:
     * Directory where generated **train** datasets with outlier detection values should be saved
 * *n_jobs*
     * number of parallel workers
+* *times_output*
+    * path to file where the run times should be stored
 * *od_methods*
     * List with Outlier detection methods
     * Outlier detection method schema:
@@ -128,6 +130,7 @@ optional arguments:
     "train_split_dir": "data/train_split/",
     "train_od_dir": "data/train_od/",
     "n_jobs": 2,
+    "times_output": "od_times.csv",
     "od_methods": [
         {
             "name": "IsolationForest",
@@ -230,7 +233,7 @@ optional arguments:
 * *train_removed_dir*
     * Directory where train data with **removed** outliers should be saved
 * *percentage*
-    * How many percents of the largest outliers should be removed (0-100)
+    * How many percents of the largest outliers should be removed (0.0-100.0)
     * int or List[int]
 ```json
 {
@@ -280,6 +283,10 @@ optional arguments:
     * path to a weka.jar file
 * *n_jobs*
     * number of parallel workers
+* *times_output*
+    * path to file where the run times should be stored
+* *timeout*
+    * max run time before a classifier is terminated (in seconds)
 * *classifiers*
     * list of classifiers which you want to run
     * you can run an arbitrary number of classifiers, even same classifier with different configuration
@@ -301,6 +308,8 @@ optional arguments:
     "output_folder": "clf_outputs/",
     "weka_jar_path": "weka-3-8-3/weka.jar",
     "n_jobs": 2,
+    "times_output": "clf_times.csv",
+    "timeout": 1800,
     "classifiers": [
         {
             "class_name": "weka.classifiers.trees.J48",
