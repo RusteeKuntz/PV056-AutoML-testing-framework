@@ -73,7 +73,7 @@ optional arguments:
 ```
 #### Example usage
 ```
-(venv)$ pv056-split-data -c config_split_example.json -d datasets.csv
+(venv)$ pv056-split-data -c configs/split/default.json -d datasets.csv
 ```
 
 #### Example config file
@@ -107,7 +107,7 @@ optional arguments:
 ```
 #### Example usage
 ```
-(venv)$ pv056-apply-od-methods -c config_apply_od_example.json
+(venv)$ pv056-apply-od-methods -c configs/od/default.json
 ```
 
 #### Example config file
@@ -222,7 +222,7 @@ optional arguments:
 ```
 #### Example usage
 ```
-(venv)$ pv056-remove-outliers  -c config_remove_outliers_example.json -d datasets.csv
+(venv)$ pv056-remove-outliers  -c configs/rm/default.json -d datasets.csv
 ```
 
 #### Example config file
@@ -273,7 +273,7 @@ optional arguments:
 
 #### Example usage
 ```
-(venv)$ pv056-run-clf -c config_clf_example.json -d datasets.csv
+(venv)$ pv056-run-clf -c configs/clf/default.json -d datasets.csv
 ```
 
 #### Example of config file for weka classifiers
