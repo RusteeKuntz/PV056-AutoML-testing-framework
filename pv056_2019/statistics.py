@@ -7,6 +7,8 @@ import sys
 import numpy as np
 import pandas as pd
 
+from pv056_2019.schemas import StatisticsSchema
+
 
 def compile_reg(s):
     try:
@@ -20,39 +22,25 @@ def main():
     parser = argparse.ArgumentParser(
         description="Script for counting basic statistic (Accuracy, )"
     )
-    parser.add_argument(
-        "--results-dir", "-r", required=True, help="Directory with results in .csv"
-    )
-    parser.add_argument(
-        "--pattern",
-        "-p",
-        type=compile_reg,
-        default=".*",
-        help="Regex for filename (Python regex)",
-    )
-
-    parser.add_argument(
-        "--raw",
-        action="store_true",
-        help="Show raw data (without aggregation by dataset split)",
-    )
+    parser.add_argument("--config-file", "-c", required=True, help="JSON configuration")
 
     args = vars(parser.parse_args())
 
+    with open(args["config_file"]) as json_file:
+        conf = StatisticsSchema(**json.load(json_file))
+
     reg = re.compile(r"removed-0*")
-    files = sorted([x for x in os.listdir(args["results_dir"]) if x.endswith(".csv")])
+    files = sorted([x for x in os.listdir(conf.results_dir) if x.endswith(".csv")])
 
     config_file_paths = [
-        x for x in os.listdir(args["results_dir"]) if x.endswith(".json")
+        x for x in os.listdir(conf.results_dir) if x.endswith(".json")
     ]
 
     config_dict = {}
     for config_file_path in config_file_paths:
-        with open(os.path.join(args["results_dir"], config_file_path)) as config_file:
+        with open(os.path.join(conf.results_dir, config_file_path)) as config_file:
             basename = os.path.basename(config_file_path)
-
             conf_hash = basename.split("_")[1].replace(".json", "")
-
             config_dict[conf_hash] = json.load(config_file)
 
     headers = [
@@ -66,7 +54,7 @@ def main():
     ]
     data = []
     for fl in files:
-        if not args["pattern"].match(fl):
+        if not conf.pattern.match(fl):
             continue
 
         file_split = fl.split("_")
@@ -83,13 +71,13 @@ def main():
 
         od_name = config_dict[conf_hash]["ad_config"].get("name", "")
 
-        dataframe = pd.read_csv(os.path.join(args["results_dir"], fl))
+        dataframe = pd.read_csv(os.path.join(conf.results_dir, fl))
         all_results = dataframe.shape[0]
         accuracy = np.sum(dataframe["error"] != "+") / all_results
 
         data.append([datest, split, classifier, od_name, removed, conf_hash, accuracy])
 
-    if not args["raw"]:
+    if conf.aggregate:
         dataframe = pd.DataFrame(data, columns=headers)
         aggregated_frame = dataframe.groupby(
             ["Dataset", "Classifier", "Outlier detection", "Removed", "Configuration"]
