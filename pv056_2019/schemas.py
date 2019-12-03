@@ -1,3 +1,5 @@
+import re
+
 from typing import List, Union
 
 from pydantic import BaseModel, validator
@@ -85,3 +87,18 @@ class RunClassifiersCongfigSchema(BaseModel):
             raise ValueError("n_jobs must be greater than 0")
 
         return value
+
+
+class StatisticsSchema(BaseModel):
+    results_dir: str
+    od_times_path: str
+    clf_times_path: str
+    aggregate: bool
+    pattern: str
+
+    @validator("pattern")
+    def pattern_validator(cls, value):
+        try:
+            re.compile(value)
+        except re.error:
+            raise ValueError("Pattern is not a valid regular expression")

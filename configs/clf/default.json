@@ -2,7 +2,7 @@
   "output_folder": "/var/tmp/xuser/automl/clf_outputs/",
   "weka_jar_path": "data/java/weka.jar",
   "n_jobs": 5,
-  "times_output": "clf_times.csv",
+  "times_output": "/var/tmp/xuser/automl/clf_times.csv",
   "timeout": 1800,
   "classifiers": [
     {

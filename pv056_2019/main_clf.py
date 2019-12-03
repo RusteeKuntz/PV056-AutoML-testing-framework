@@ -5,12 +5,13 @@ import os
 import time
 import subprocess
 import sys
+import warnings
+
 import numpy as np
 from multiprocessing import Process, Queue
 
 from pv056_2019.classifiers import ClassifierManager
 from pv056_2019.schemas import RunClassifiersCongfigSchema
-
 
 BLACKLIST_FILE = "clf_blacklist.csv"
 global times_file
@@ -30,7 +31,10 @@ def weka_worker(queue):
     while not queue.empty():
         args = queue.get()
         time_diff: float
-        blacklist = np.genfromtxt(BLACKLIST_FILE, delimiter=",")
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            blacklist = np.genfromtxt(BLACKLIST_FILE, delimiter=",")
 
         file_split = args[6].split("/")[-1].split("_")
         dataset = file_split[0]
@@ -96,7 +100,6 @@ def main():
 
     queue = Queue()
     clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
-
 
     pool = [Process(target=weka_worker, args=(queue,)) for _ in range(conf.n_jobs)]
 

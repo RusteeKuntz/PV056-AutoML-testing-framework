@@ -2,7 +2,7 @@
     "train_split_dir": "/var/tmp/xuser/automl/data/train_split/",
     "train_od_dir": "/var/tmp/xuser/automl/data/train_od/",
     "n_jobs": 5,
-    "times_output": "od_times.csv",
+    "times_output": "/var/tmp/xuser/automl/od_times.csv",
     "od_methods": [
         {
             "name": "IsolationForest",
