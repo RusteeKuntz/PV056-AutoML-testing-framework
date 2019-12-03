@@ -1,0 +1,8 @@
+{
+    "test_split_dir": "/var/tmp/xuser/automl/data/test_split/",
+    "train_od_dir": "/var/tmp/xuser/automl/data/train_od/",
+    "train_removed_dir": "/var/tmp/xuser/automl/data/train_removed/",
+    "percentage": [
+        0, 0.5, 1, 2, 3, 4, 5
+    ]
+}

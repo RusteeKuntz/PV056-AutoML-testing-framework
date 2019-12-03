@@ -1,0 +1,69 @@
+{
+  "output_folder": "/var/tmp/xuser/automl/clf_outputs/",
+  "weka_jar_path": "data/java/weka.jar",
+  "n_jobs": 5,
+  "times_output": "clf_times.csv",
+  "timeout": 1800,
+  "classifiers": [
+    {
+      "class_name": "weka.classifiers.trees.J48"
+    },
+    {
+      "class_name": "weka.classifiers.lazy.IBk"
+    },
+    {
+      "class_name": "weka.classifiers.bayes.BayesNet"
+    },
+    {
+      "class_name": "weka.classifiers.lazy.LWL"
+    },
+    {
+      "class_name": "weka.classifiers.rules.JRip"
+    },
+    {
+      "class_name": "weka.classifiers.functions.SimpleLogistic"
+    },
+    {
+      "class_name": "weka.classifiers.functions.Logistic"
+    },
+    {
+      "class_name": "weka.classifiers.functions.MultilayerPerceptron"
+    },
+    {
+      "class_name": "weka.classifiers.bayes.NaiveBayes"
+    },
+    {
+      "class_name": "weka.classifiers.rules.OneR"
+    },
+    {
+      "class_name": "weka.classifiers.rules.PART"
+    },
+    {
+      "class_name": "weka.classifiers.trees.RandomTree"
+    },
+    {
+      "class_name": "weka.classifiers.trees.RandomForest"
+    },
+    {
+      "class_name": "weka.classifiers.functions.SMO"
+    },
+    {
+      "class_name": "weka.classifiers.meta.AdaBoostM1"
+    },
+    {
+      "class_name": "weka.classifiers.rules.DecisionTable"
+    },
+    {
+      "class_name": "weka.classifiers.trees.LMT"
+    },
+    {
+      "class_name": "weka.classifiers.trees.REPTree"
+    },
+    {
+      "class_name": "weka.classifiers.functions.SGD"
+    },
+    {
+      "class_name": "weka.classifiers.rules.ZeroR"
+    }
+  ]
+}
