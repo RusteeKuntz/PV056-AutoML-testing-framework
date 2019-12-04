@@ -31,7 +31,7 @@ class ClassifierManager:
                 "Input weka.jar file, '{0}' does not exist.".format(self.weka_jar_path)
             )
 
-        self._regex_removed = re.compile(r"_removed-\d{3}")
+        self._regex_removed = re.compile(r"_removed-\d+\.\d+")
 
     @staticmethod
     def _create_final_config_file(dataset_conf_path, classifier):
