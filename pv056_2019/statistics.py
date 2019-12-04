@@ -46,13 +46,13 @@ def main():
             config_dict[conf_hash] = json.load(config_file)
 
     headers = [
-        "Dataset",
-        "Split",
-        "Classifier",
-        "Outlier detection",
-        "Removed",
-        "Configuration",
-        "Accuracy",
+        "dataset",
+        "fold",
+        "clf",
+        "od_name",
+        "removed",
+        "clf_hex",
+        "accuracy",
     ]
     data = []
     for fl in files:
@@ -69,7 +69,7 @@ def main():
 
         datest, split, classifier, conf_hash, removed = file_split
 
-        classifier = config_dict[conf_hash]["model_config"].get("class_name")
+        classifier = config_dict[conf_hash]["model_config"].get("class_name").split(".")[-1]
 
         od_name = config_dict[conf_hash]["ad_config"].get("name", "")
 
@@ -79,16 +79,31 @@ def main():
 
         data.append([datest, split, classifier, od_name, removed, conf_hash, accuracy])
 
+    od_times = pd.read_csv(conf.od_times_path)
+    clf_times = pd.read_csv(conf.clf_times_path)
+
+    times = od_times.merge(clf_times, on=["dataset", "fold", "od_hex"])
+    times['fold'] = times['fold'].astype(str)
+
+    dataframe = pd.DataFrame(data, columns=headers)
+    dataframe['removed'] = dataframe['removed'].astype(float)
+
+    dataframe = dataframe.merge(times, on=["dataset", "fold", "clf", "clf_hex", "removed"], how="right")
+
+    dataframe['clf_params'] = [str(config_dict[ax]["model_config"].get("args")) for ax in dataframe['clf_hex']]
+    dataframe['od_params'] = [str(config_dict[ax]["ad_config"].get("parameters")).replace(",", ";") for ax in dataframe['clf_hex']]
+    with open(conf.output_table, "w+") as ot:
+        print(dataframe.to_csv(), file=ot)
+
     if conf.aggregate:
-        dataframe = pd.DataFrame(data, columns=headers)
-        aggregated_frame = dataframe.groupby(
-            ["Dataset", "Classifier", "Outlier detection", "Removed", "Configuration"]
+        dataframe = dataframe.groupby(
+            ["dataset", "clf", "clf_family", "clf_params", "od_name", "od_params", "removed"]
         ).mean()
-        aggregated_frame = aggregated_frame.loc[:, aggregated_frame.columns != "Split"]
-        print(aggregated_frame.to_csv())
-    else:
-        dataframe = pd.DataFrame(data, columns=headers)
-        print(dataframe.to_csv(index=False, header=False))
+        dataframe = dataframe.loc[:, dataframe.columns != "fold"]
+
+    print(dataframe.to_csv())
+    with open(conf.output_table, "w+") as ot:
+        print(dataframe.to_csv(), file=ot)
 
 
 if __name__ == "__main__":

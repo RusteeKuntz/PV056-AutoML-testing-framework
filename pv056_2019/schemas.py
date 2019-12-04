@@ -93,6 +93,7 @@ class StatisticsSchema(BaseModel):
     results_dir: str
     od_times_path: str
     clf_times_path: str
+    output_table: str
     aggregate: bool = True
     pattern: str = ".*"
 
