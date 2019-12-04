@@ -5,17 +5,14 @@ import os
 import time
 import subprocess
 import sys
-import warnings
 
-import numpy as np
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Manager
 
 from pv056_2019.classifiers import ClassifierManager
 from pv056_2019.schemas import RunClassifiersCongfigSchema
 
-BLACKLIST_FILE = "clf_blacklist.csv"
-global times_file
-global timeout
+times_file: str
+timeout: int
 
 
 def _valid_config_path(path):
@@ -27,14 +24,10 @@ def _valid_config_path(path):
         return path
 
 
-def weka_worker(queue):
+def weka_worker(queue, blacklist):
     while not queue.empty():
         args = queue.get()
         time_diff: float
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            blacklist = np.genfromtxt(BLACKLIST_FILE, delimiter=",")
 
         file_split = args[6].split("/")[-1].split("_")
         dataset = file_split[0]
@@ -47,8 +40,7 @@ def weka_worker(queue):
                 time_diff = time.time() - start_time
             except subprocess.TimeoutExpired:
                 time_diff = timeout
-                with open(BLACKLIST_FILE, "a") as bf:
-                    print(clf + "," + dataset, file=bf)
+                blacklist.append((clf, dataset))
         else:
             time_diff = timeout
 
@@ -90,7 +82,7 @@ def main():
     timeout = conf.timeout
     with open(conf.times_output, "w") as tf:
         print("dataset,fold,clf,clf_hex,od_hex,removed,clf_time", file=tf)
-    open(BLACKLIST_FILE, "w+").close()
+    # open(BLACKLIST_FILE, "w+").close()
 
     with open(args.datasets_csv, "r") as datasets_csv_file:
         reader = csv.reader(datasets_csv_file, delimiter=",")
@@ -98,17 +90,20 @@ def main():
 
     clf_man = ClassifierManager(conf.output_folder, conf.weka_jar_path)
 
-    queue = Queue()
-    clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
+    with Manager() as manager:
+        blacklist = manager.list()
 
-    pool = [Process(target=weka_worker, args=(queue,)) for _ in range(conf.n_jobs)]
+        queue = Queue()
+        clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
 
-    try:
-        [process.start() for process in pool]
-        [process.join() for process in pool]
-    except KeyboardInterrupt:
-        [process.terminate() for process in pool]
-        print("\nInterupted!", flush=True, file=sys.stderr)
+        pool = [Process(target=weka_worker, args=(queue, blacklist)) for _ in range(conf.n_jobs)]
+
+        try:
+            [process.start() for process in pool]
+            [process.join() for process in pool]
+        except KeyboardInterrupt:
+            [process.terminate() for process in pool]
+            print("\nInterupted!", flush=True, file=sys.stderr)
 
     print("Done")
 
