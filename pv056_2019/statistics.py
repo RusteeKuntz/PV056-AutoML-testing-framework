@@ -32,6 +32,8 @@ def main():
     reg = re.compile(r"removed-0*")
     files = sorted([x for x in os.listdir(conf.results_dir) if x.endswith(".csv")])
 
+    pattern = compile_reg(conf.pattern)
+
     config_file_paths = [
         x for x in os.listdir(conf.results_dir) if x.endswith(".json")
     ]
@@ -54,7 +56,7 @@ def main():
     ]
     data = []
     for fl in files:
-        if not conf.pattern.match(fl):
+        if not pattern.match(fl):
             continue
 
         file_split = fl.split("_")

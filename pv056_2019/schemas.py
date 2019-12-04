@@ -93,12 +93,6 @@ class StatisticsSchema(BaseModel):
     results_dir: str
     od_times_path: str
     clf_times_path: str
-    aggregate: bool
-    pattern: str
+    aggregate: bool = True
+    pattern: str = ".*"
 
-    @validator("pattern")
-    def pattern_validator(cls, value):
-        try:
-            re.compile(value)
-        except re.error:
-            raise ValueError("Pattern is not a valid regular expression")
