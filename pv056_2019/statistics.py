@@ -90,10 +90,10 @@ def main():
 
     dataframe = dataframe.merge(times, on=["dataset", "fold", "clf", "clf_hex", "removed"], how="right")
 
-    dataframe['clf_params'] = [str(config_dict[ax]["model_config"].get("args")) for ax in dataframe['clf_hex']]
-    dataframe['od_params'] = [str(config_dict[ax]["ad_config"].get("parameters")).replace(",", ";") for ax in dataframe['clf_hex']]
-    with open(conf.output_table, "w+") as ot:
-        print(dataframe.to_csv(), file=ot)
+    dataframe['clf_params'] = [str(config_dict[ax]["model_config"].get("args"))
+                               for ax in dataframe['clf_hex']]
+    dataframe['od_params'] = [str(config_dict[ax]["ad_config"].get("parameters")).replace(",", ";")
+                              for ax in dataframe['clf_hex']]
 
     if conf.aggregate:
         dataframe = dataframe.groupby(
