@@ -44,13 +44,14 @@ def weka_worker(queue, blacklist):
         else:
             time_diff = timeout
 
-        clf_hex = args[10].split("/")[-1].split("_")[-1].split(".")[0]
+        clf_fam = ".".join(args[16].split(".")[2:-1])
+        clf_hex = args[10].split("/")[-1].split("_")[-2]
         fold = file_split[1]
         od_hex = file_split[2]
         rm = file_split[3].split("-")[1]
 
         with open(times_file, "a") as tf:
-            print(",".join([dataset, fold, clf, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
+            print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
 
         print(";".join([args[16], args[6], args[8]]), flush=True)
 
@@ -81,8 +82,7 @@ def main():
     times_file = conf.times_output
     timeout = conf.timeout
     with open(conf.times_output, "w") as tf:
-        print("dataset,fold,clf,clf_hex,od_hex,removed,clf_time", file=tf)
-    # open(BLACKLIST_FILE, "w+").close()
+        print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
 
     with open(args.datasets_csv, "r") as datasets_csv_file:
         reader = csv.reader(datasets_csv_file, delimiter=",")
@@ -96,7 +96,7 @@ def main():
         queue = Queue()
         clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
 
-        pool = [Process(target=weka_worker, args=(queue, blacklist)) for _ in range(conf.n_jobs)]
+        pool = [Process(target=weka_worker, args=(queue, blacklist,)) for _ in range(conf.n_jobs)]
 
         try:
             [process.start() for process in pool]
