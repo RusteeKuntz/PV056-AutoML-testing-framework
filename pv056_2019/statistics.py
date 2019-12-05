@@ -3,6 +3,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -105,6 +106,9 @@ def main():
     dataframe = dataframe.round(5)
     print(dataframe.to_csv())
     with open(conf.output_table, "w+") as ot:
+        print(dataframe.to_csv(), file=ot)
+    backup_ts = datetime.now().strftime("_backup_%d-%m-%Y_%H-%M.csv")
+    with open(conf.output_table.replace(".csv", backup_ts), "w+") as ot:
         print(dataframe.to_csv(), file=ot)
 
 

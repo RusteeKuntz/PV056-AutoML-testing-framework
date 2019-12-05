@@ -5,7 +5,7 @@ import os
 import time
 import subprocess
 import sys
-
+from datetime import datetime
 from multiprocessing import Process, Queue, Manager
 
 from pv056_2019.classifiers import ClassifierManager
@@ -24,7 +24,7 @@ def _valid_config_path(path):
         return path
 
 
-def weka_worker(queue, blacklist):
+def weka_worker(queue, blacklist, backup_ts):
     while not queue.empty():
         args = queue.get()
         time_diff: float
@@ -51,6 +51,8 @@ def weka_worker(queue, blacklist):
         rm = file_split[3].split("-")[1]
 
         with open(times_file, "a") as tf:
+            print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
+        with open(times_file.replace(".csv", backup_ts), "a") as tf:
             print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
 
         print(";".join([args[16], args[6], args[8]]), flush=True)
@@ -83,6 +85,9 @@ def main():
     timeout = conf.timeout
     with open(conf.times_output, "w") as tf:
         print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
+    backup_ts = datetime.now().strftime("_backup_%d-%m-%Y_%H-%M.csv")
+    with open(conf.times_output.replace(".csv", backup_ts), "w") as tf:
+        print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
 
     with open(args.datasets_csv, "r") as datasets_csv_file:
         reader = csv.reader(datasets_csv_file, delimiter=",")
@@ -96,7 +101,7 @@ def main():
         queue = Queue()
         clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
 
-        pool = [Process(target=weka_worker, args=(queue, blacklist,)) for _ in range(conf.n_jobs)]
+        pool = [Process(target=weka_worker, args=(queue, blacklist, backup_ts,)) for _ in range(conf.n_jobs)]
 
         try:
             [process.start() for process in pool]

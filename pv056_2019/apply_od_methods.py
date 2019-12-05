@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import sys
+from datetime import datetime
 from hashlib import md5
 from multiprocessing import Process, Queue
 
@@ -9,7 +10,7 @@ from pv056_2019.data_loader import DataLoader
 from pv056_2019.schemas import ODStepConfigSchema
 
 
-def od_worker(queue: Queue, times_file: str):
+def od_worker(queue: Queue, times_file: str, backup_ts):
     while not queue.empty():
         od_settings, train_file_path, file_save_path = queue.get()
         print(
@@ -30,6 +31,8 @@ def od_worker(queue: Queue, times_file: str):
             file_split = file_save_path.split("/")[-1].split("_")
 
             with open(times_file, "a") as tf:
+                print(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + str(od_time), file=tf)
+            with open(times_file.replace(".csv", backup_ts), "a") as tf:
                 print(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + str(od_time), file=tf)
 
         except Exception as exc:
@@ -60,6 +63,9 @@ def main():
 
     with open(conf.times_output, "w") as tf:
         print("dataset,fold,od_hex,od_time", file=tf)
+    backup_ts = datetime.now().strftime("_backup_%d-%m-%Y_%H-%M.csv")
+    with open(conf.times_output.replace(".csv", backup_ts), "w") as tf:
+        print("dataset,fold,od_hex,od_time", file=tf)
 
     for od_settings in conf.od_methods:
         hex_name = md5(od_settings.json(sort_keys=True).encode("UTF-8")).hexdigest()
@@ -76,7 +82,7 @@ def main():
 
             queue.put([od_settings, train_file_path, file_save_path])
 
-    pool = [Process(target=od_worker, args=(queue, conf.times_output,)) for _ in range(conf.n_jobs)]
+    pool = [Process(target=od_worker, args=(queue, conf.times_output, backup_ts,)) for _ in range(conf.n_jobs)]
 
     try:
         [process.start() for process in pool]
