@@ -85,7 +85,8 @@ def main():
 
     times = od_times.merge(clf_times, on=["dataset", "fold", "od_hex"])
     times['fold'] = times['fold'].astype(str)
-    times['total_time'] = times['od_time'] + times['clf_time']  # TODO fix for 0% removed
+    times.loc[(times.removed == 0), 'od_time'] = 0.0
+    times['total_time'] = times['od_time'] + times['clf_time']
 
     dataframe = pd.DataFrame(data, columns=headers)
     dataframe['removed'] = dataframe['removed'].astype(float)
