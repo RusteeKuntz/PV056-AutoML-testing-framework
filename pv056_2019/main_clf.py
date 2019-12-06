@@ -11,6 +11,7 @@ from multiprocessing import Process, Queue, Manager
 from pv056_2019.classifiers import ClassifierManager
 from pv056_2019.schemas import RunClassifiersCongfigSchema
 
+BLACKLIST_FILE = "blacklist.csv"
 times_file: str
 timeout: int
 
@@ -83,10 +84,10 @@ def main():
     global timeout
     times_file = conf.times_output
     timeout = conf.timeout
-    with open(conf.times_output, "w") as tf:
+    with open(conf.times_output, "w+") as tf:
         print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
     backup_ts = datetime.now().strftime("_backup_%d-%m-%Y_%H-%M.csv")
-    with open(conf.times_output.replace(".csv", backup_ts), "w") as tf:
+    with open(conf.times_output.replace(".csv", backup_ts), "w+") as tf:
         print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
 
     with open(args.datasets_csv, "r") as datasets_csv_file:
@@ -97,6 +98,9 @@ def main():
 
     with Manager() as manager:
         blacklist = manager.list()
+        with open(BLACKLIST_FILE, "r") as bf:
+            for i in bf:
+                blacklist.append(i.replace("\n", "").split(','))
 
         queue = Queue()
         clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
