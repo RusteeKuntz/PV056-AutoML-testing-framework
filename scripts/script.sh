@@ -36,14 +36,14 @@ printf "%s - RM done.\n\n" "$NOW"
 nowf
 TIMESTAMP_CLF="$NOWF"
 printf "%s - Running classification...\n" "$NOW"
-pv056-run-clf -c configs/clf/default.json -d "$FILE_DATASET_RM" > "scripts/log-$TIMESTAMP_CLF-clf.log"
+pv056-run-clf -c configs/clf/default.json -d "$FILE_DATASET_RM" > "logs/log-$TIMESTAMP_CLF-clf.log"
 now
 printf "%s - CLF done.\n\n" "$NOW"
 
 nowf
 TIMESTAMP_ACC="$NOWF"
 printf "%s - Counting accuracy...\n" "$NOW"
-pv056-statistics -c configs/stats/default.json > "accurracy-$TIMESTAMP_ACC.csv"
+pv056-statistics -c configs/stats/default.json > "logs/accurracy-$TIMESTAMP_ACC.csv"
 now
 printf "%s - ACC done.\n\n" "$NOW"
 
