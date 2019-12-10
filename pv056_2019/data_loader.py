@@ -3,12 +3,13 @@ from __future__ import absolute_import
 import os
 import warnings
 import re
+import resource
 from typing import Any, Dict, List, Optional
 
 import arff
-import time
 import numpy as np
 import pandas as pd
+import time
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
 
@@ -115,9 +116,15 @@ class DataFrameArff(pd.DataFrame):
             "attributes": [x for x in self._arff_data["attributes"] if x[0] != ID_NAME],
         }
 
-        time_start = time.time()
+        time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
+        time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+
         detector.compute_scores(dataframe_without_id, self[self.columns[-1]])
-        time_end = time.time()
+
+        time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
+        time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+
+        od_time = (time_end - time_start) + (time_end_children - time_start_children)
 
         new_frame = DataFrameArff(self.values, columns=self.columns)
         new_frame._arff_data = self._arff_data
@@ -129,7 +136,7 @@ class DataFrameArff(pd.DataFrame):
             -1, (OD_VALUE_NAME, detector.data_type)
         )
 
-        return new_frame, time_end - time_start
+        return new_frame, od_time
 
     def select_by_index(self, index: np.array):
         dataframe = self.iloc[index]

@@ -2,7 +2,7 @@ import argparse
 import csv
 import json
 import os
-import time
+import resource
 import subprocess
 import sys
 from datetime import datetime
@@ -36,9 +36,11 @@ def weka_worker(queue, blacklist, backup_ts):
 
         if not (clf, dataset) in blacklist:
             try:
-                start_time = time.time()
+                time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                 subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout)
-                time_diff = time.time() - start_time
+                time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+
+                time_diff = time_end - time_start
             except subprocess.TimeoutExpired:
                 time_diff = timeout
                 blacklist.append((clf, dataset))
