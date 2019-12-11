@@ -51,7 +51,7 @@ class LOF(AbstractDetector):
 
         self.clf = LocalOutlierFactor(**self.settings)
         self.clf.fit(bin_dataframe.values)
-        self.values = -self.clf._decision_function(bin_dataframe.values)
+        self.values = -self.clf.negative_outlier_factor_
         return self
 
 
@@ -218,7 +218,7 @@ class IsoForest(AbstractDetector):
 
         self.clf = IsolationForest(**self.settings)
         self.clf.fit(bin_dataframe.values)
-        self.values = self.clf.decision_function(bin_dataframe.values)
+        self.values = -self.clf.decision_function(bin_dataframe.values)
         return self
 
 
