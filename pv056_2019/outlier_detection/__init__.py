@@ -51,7 +51,7 @@ class LOF(AbstractDetector):
 
         self.clf = LocalOutlierFactor(**self.settings)
         self.clf.fit(bin_dataframe.values)
-        self.values = self.clf._decision_function(bin_dataframe.values)
+        self.values = -self.clf._decision_function(bin_dataframe.values)
         return self
 
 
@@ -440,6 +440,7 @@ class CLOF(AbstractDetector):
     data_type = "REAL"
 
     def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
+        bin_dataframe = dataframe._binarize_categorical_values()
         self.clf = CLOFMetric(**self.settings)
-        self.values = self.clf.compute_values(dataframe=dataframe, classes=classes)
+        self.values = self.clf.compute_values(dataframe=bin_dataframe, classes=classes)
         return self

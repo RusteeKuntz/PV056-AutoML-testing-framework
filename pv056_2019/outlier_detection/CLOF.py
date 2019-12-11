@@ -9,16 +9,45 @@ class CLOFMetric:
         self.alfa = float(kwargs["alfa"]) if ("alfa" in kwargs) else 0.75
         self.beta = float(kwargs["beta"]) if ("beta" in kwargs) else 0.25
 
-    def compute_values(self, dataframe, classes):
-        bin_dataframe = dataframe._binarize_categorical_values()
+    def compute_values(self, df, classes):
         unique_classes = np.unique(classes)
-        class_separated_dataframes = [
-            bin_dataframe.loc[classes == cl] for cl in unique_classes
-        ]
+
+        _, cls_num = np.unique(classes, return_inverse=True)
+        clss = cls_num.astype(int)
+
+        cls_indices = {}
+        noncls_indices = {}
+        for cls in np.unique(clss):
+            cls_indices[cls] = [i for i in range(len(dataframe)) if clss[i] == cls]
+            noncls_indices[cls] = [i for i in range(len(dataframe)) if clss[i] != cls]
+
+
+        lof = LocalOutlierFactor()
+        lof.fit(df.values)
+
+
+        same_lof = np.empty(len(df))
+        other_lof = np.empty(len(df))
+        all_lof = lof._decision_function(df.values)
+        for cls in np.unique(clss):
+            ind = cls_indices[cls]
+            nind = noncls_indices[cls]
+            lof.fit(df.iloc[ind])
+            same_lof[ind] = lof._decision_function(df.iloc[ind].values)
+            for i in ind:
+                lof.fit(df.iloc[nind].append(df.iloc[i]).values)
+                other_lof[i] = lof._decision_function(df.iloc[ind].values)
+
+
+
+
+
+
+
 
         clf = LocalOutlierFactor()
-        clf.fit(bin_dataframe.values)
-        df_lof = clf._decision_function(bin_dataframe.values)
+        clf.fit(dataframe.values)
+        df_lof = clf._decision_function(dataframe.values)
 
         class_separated_lof = []
         for df in class_separated_dataframes:
@@ -36,7 +65,7 @@ class CLOFMetric:
             other_classes_dataframe = other_classes_dataframe.append(
                 [class_separated_dataframes[i] for i in other_classes_dataframes_indexes]
             )
-            other_classes_dataframe = other_classes_dataframe.append(bin_dataframe.loc[index])
+            other_classes_dataframe = other_classes_dataframe.append(dataframe.loc[index])
             other_classes_lof = clf._decision_function(other_classes_dataframe.values)
 
             row_location = class_separated_dataframes[row_class_index].index.get_loc(index)
