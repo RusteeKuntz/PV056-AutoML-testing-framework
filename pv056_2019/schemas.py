@@ -79,6 +79,7 @@ class RunClassifiersCongfigSchema(BaseModel):
     classifiers: List[ClassifierSchema]
     n_jobs: int = 1
     times_output: str
+    blacklist_file: str
     timeout: int
 
     @validator("n_jobs")
