@@ -32,7 +32,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
 
             with open(times_file, "a") as tf:
                 print(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + str(od_time), file=tf)
-            with open(times_file.replace(".csv", backup_ts), "a") as tf:
+            with open(backup_ts, "a") as tf:
                 print(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + str(od_time), file=tf)
 
         except Exception as exc:
@@ -63,8 +63,9 @@ def main():
 
     with open(conf.times_output, "w") as tf:
         print("dataset,fold,od_hex,od_time", file=tf)
-    backup_ts = datetime.now().strftime("_backup_%d-%m-%Y_%H-%M.csv")
-    with open(conf.times_output.replace(".csv", backup_ts), "w") as tf:
+    backup_ts = "backups/" + conf.times_output.split("/")[-1].replace(".csv", datetime.now()
+                                                                      .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
+    with open(backup_ts, "w") as tf:
         print("dataset,fold,od_hex,od_time", file=tf)
 
     for od_settings in conf.od_methods:

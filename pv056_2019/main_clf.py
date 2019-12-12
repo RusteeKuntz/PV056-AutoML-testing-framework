@@ -55,7 +55,7 @@ def weka_worker(queue, blacklist, backup_ts):
 
         with open(times_file, "a") as tf:
             print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
-        with open(times_file.replace(".csv", backup_ts), "a") as tf:
+        with open(backup_ts, "a") as tf:
             print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
 
         print(";".join([args[16], args[6], args[8]]), flush=True)
@@ -90,8 +90,9 @@ def main():
     timeout = conf.timeout
     with open(conf.times_output, "w+") as tf:
         print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
-    backup_ts = datetime.now().strftime("_backup_%d-%m-%Y_%H-%M.csv")
-    with open(conf.times_output.replace(".csv", backup_ts), "w+") as tf:
+    backup_ts = "backups/" + conf.times_output.split("/")[-1].replace(".csv", datetime.now()
+                                                                      .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
+    with open(backup_ts, "w+") as tf:
         print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
 
     with open(args.datasets_csv, "r") as datasets_csv_file:
