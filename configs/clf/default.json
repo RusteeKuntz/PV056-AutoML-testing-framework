@@ -3,6 +3,7 @@
   "weka_jar_path": "data/java/weka.jar",
   "n_jobs": 5,
   "times_output": "/var/tmp/xuser/automl/clf_times.csv",
+  "blacklist_file": "/var/tmp/xuser/automl/blacklist.csv",
   "timeout": 1800,
   "classifiers": [
     {
@@ -58,12 +59,6 @@
     },
     {
       "class_name": "weka.classifiers.functions.Logistic"
-    },
-    {
-      "class_name": "weka.classifiers.lazy.LWL"
-    },
-    {
-      "class_name": "weka.classifiers.functions.MultilayerPerceptron"
     }
   ]
 }
