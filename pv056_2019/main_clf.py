@@ -95,6 +95,8 @@ def main():
     with open(backup_ts, "w+") as tf:
         print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
 
+    open(blacklist_file, "a+").close()
+
     with open(args.datasets_csv, "r") as datasets_csv_file:
         reader = csv.reader(datasets_csv_file, delimiter=",")
         datasets = sorted([row for row in reader], key=lambda x: os.path.getsize(x[0]))
