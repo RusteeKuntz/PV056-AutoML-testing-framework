@@ -1,60 +1,15 @@
 {
-  "train_split_dir": "/var/tmp/xuser/automl/data/train_split/",
-  "train_od_dir": "/var/tmp/xuser/automl/data/train_od/",
+  "train_split_dir": "data/train_split/",
+  "train_od_dir": "data/train_od/",
   "n_jobs": 5,
-  "times_output": "/var/tmp/xuser/automl/od_times.csv",
+  "times_output": "od_times.csv",
   "od_methods": [
     {
-      "name": "IsolationForest",
+      "name": "RF-OEX",
       "parameters": {
-        "contamination": "auto",
-        "behaviour": "new",
+        "n_estimators": 100,
         "random_state": 123
       }
-    },
-    {
-      "name": "LOF",
-      "parameters": {
-        "contamination": "auto"
-      }
-    },
-    {
-      "name": "CODB",
-      "parameters": {
-        "jar_path": "data/java/WEKA-CODB.jar"
-      }
-    },
-    {
-      "name": "ClassLikelihood",
-      "parameters": {}
-    },
-    {
-      "name": "NearestNeighbors",
-      "parameters": {}
-    },
-    {
-      "name": "ClassLikelihoodDifference",
-      "parameters": {}
-    },
-    {
-      "name": "KDN",
-      "parameters": {}
-    },
-    {
-      "name": "DS",
-      "parameters": {}
-    },
-    {
-      "name": "DCP",
-      "parameters": {}
-    },
-    {
-      "name": "TD",
-      "parameters": {}
-    },
-    {
-      "name": "TDWithPrunning",
-      "parameters": {}
     }
   ]
 }

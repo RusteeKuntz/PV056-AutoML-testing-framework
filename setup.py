@@ -1,4 +1,5 @@
 from setuptools import find_packages, setup
+from Cython.Build import cythonize
 
 setup(
     name="pv056_2019",
@@ -21,4 +22,5 @@ setup(
         ]
     },
     zip_safe=False,
+    ext_modules=cythonize("pv056_2019/outlier_detection/*.pyx", language_level="3"),
 )
