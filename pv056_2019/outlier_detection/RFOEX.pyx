@@ -34,7 +34,7 @@ class RFOEXMetric:
                 matrix[j, i] = sim
 
         _, cls_num = np.unique(classes, return_inverse=True)
-        cdef int[:] clss = cls_num.astype(int)
+        cdef int[:] clss = cls_num.astype(np.int32)
 
         #cdef int cl
         cls_indices = {}
@@ -74,7 +74,7 @@ class RFOEXMetric:
         meandevs = {}
         for cls in np.unique(clss):
             means[cls] = np.mean(proxsuminv.base[cls_indices[cls]])
-            meandevs[cls] = np.mean(abs(proxsuminv[cls_indices[cls]] - means[cls]))
+            meandevs[cls] = np.mean(abs(proxsuminv.base[cls_indices[cls]] - means[cls]))
         const = np.max(proxsuminv) / 4
 
         fo1 = [(proxsuminv[i] - means[clss[i]]) / meandevs[clss[i]] if meandevs[clss[i]] != 0 else 0 for i in range(inst)]
