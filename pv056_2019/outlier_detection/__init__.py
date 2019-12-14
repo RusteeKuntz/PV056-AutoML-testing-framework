@@ -76,7 +76,12 @@ class NN(AbstractDetector):
     def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
         bin_dataframe = dataframe._binarize_categorical_values()
         if "n_neighbors" in self.settings:
-            self.settings["n_neighbors"] = int(self.settings["n_neighbors"])
+            # if the parameter contains the string sqrt, chenge it to the square root of the data size (rows/records)
+            if(self.settings["n_neighbors"][0:4] == "sqrt"):
+                self.settings["n_neighbors"] = int(pow(dataframe.shape[0], 0.5))
+            else:
+                # else just normally convert the vlaue to intteger
+                self.settings["n_neighbors"] = int(self.settings["n_neighbors"])
         self.clf = NearestNeighbors(**self.settings)
         self.clf.fit(bin_dataframe.values)
         distances, _ = self.clf.kneighbors()
