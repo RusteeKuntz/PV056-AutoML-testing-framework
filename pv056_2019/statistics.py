@@ -81,20 +81,17 @@ def main():
         data.append([datest, split, classifier, od_name, removed, conf_hash, accuracy])
 
 
+    try:
+        od_times = pd.read_csv(conf.od_times_path)
+        clf_times = pd.read_csv(conf.clf_times_path)
 
-    od_times = pd.read_csv(conf.od_times_path)
-    clf_times = pd.read_csv(conf.clf_times_path)
+        times = od_times.merge(clf_times, on=["dataset", "fold", "od_hex"], how="left")
+        times['fold'] = times['fold'].astype(str)
+        times.loc[(times.removed == 0), 'od_time'] = 0.0
+        times['total_time'] = times['od_time'] + times['clf_time']
 
-    times = od_times.merge(clf_times, on=["dataset", "fold", "od_hex"], how="left")
-    times['fold'] = times['fold'].astype(str)
-    times.loc[(times.removed == 0), 'od_time'] = 0.0
-    times['total_time'] = times['od_time'] + times['clf_time']
-
-    dataframe = pd.DataFrame(data, columns=headers)
-    dataframe['removed'] = dataframe['removed'].astype(float)
-
-    if 'clf_hex' in dataframe:
-
+        dataframe = pd.DataFrame(data, columns=headers)
+        dataframe['removed'] = dataframe['removed'].astype(float)
 
         dataframe = dataframe.merge(times, on=["dataset", "fold", "clf", "clf_hex", "removed"], how="right")
 
@@ -117,7 +114,8 @@ def main():
                                                                           .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
         with open(backup_ts, "w+") as ot:
             print(dataframe.to_csv(), file=ot)
-
+    except(FileNotFoundError):
+        print("File was not found: ", FileNotFoundError)
 
 if __name__ == "__main__":
     main()
