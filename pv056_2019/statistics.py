@@ -80,6 +80,8 @@ def main():
 
         data.append([datest, split, classifier, od_name, removed, conf_hash, accuracy])
 
+
+
     od_times = pd.read_csv(conf.od_times_path)
     clf_times = pd.read_csv(conf.clf_times_path)
 
@@ -91,27 +93,30 @@ def main():
     dataframe = pd.DataFrame(data, columns=headers)
     dataframe['removed'] = dataframe['removed'].astype(float)
 
-    dataframe = dataframe.merge(times, on=["dataset", "fold", "clf", "clf_hex", "removed"], how="right")
+    if 'clf_hex' in dataframe:
 
-    dataframe['clf_params'] = [re.sub("'|\"|,", "", str(config_dict[ax]["model_config"].get("args")))
-                               for ax in dataframe['clf_hex']]
-    dataframe['od_params'] = [str(config_dict[ax]["ad_config"].get("parameters")).replace(",", ";").replace("'", "")
-                              for ax in dataframe['clf_hex']]
 
-    if conf.aggregate:
-        dataframe = dataframe.groupby(
-            ["dataset", "clf", "clf_family", "clf_params", "od_name", "od_params", "removed"]
-        ).mean()
-        dataframe = dataframe.loc[:, dataframe.columns != "fold"]
+        dataframe = dataframe.merge(times, on=["dataset", "fold", "clf", "clf_hex", "removed"], how="right")
 
-    dataframe = dataframe.round(5)
-    print(dataframe.to_csv())
-    with open(conf.output_table, "w+") as ot:
-        print(dataframe.to_csv(), file=ot)
-    backup_ts = "backups/" + conf.output_table.split("/")[-1].replace(".csv", datetime.now()
-                                                                      .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
-    with open(backup_ts, "w+") as ot:
-        print(dataframe.to_csv(), file=ot)
+        dataframe['clf_params'] = [re.sub("'|\"|,", "", str(config_dict[ax]["model_config"].get("args")))
+                                   for ax in dataframe['clf_hex']]
+        dataframe['od_params'] = [str(config_dict[ax]["ad_config"].get("parameters")).replace(",", ";").replace("'", "")
+                                  for ax in dataframe['clf_hex']]
+
+        if conf.aggregate:
+            dataframe = dataframe.groupby(
+                ["dataset", "clf", "clf_family", "clf_params", "od_name", "od_params", "removed"]
+            ).mean()
+            dataframe = dataframe.loc[:, dataframe.columns != "fold"]
+
+        dataframe = dataframe.round(5)
+        print(dataframe.to_csv())
+        with open(conf.output_table, "w+") as ot:
+            print(dataframe.to_csv(), file=ot)
+        backup_ts = "backups/" + conf.output_table.split("/")[-1].replace(".csv", datetime.now()
+                                                                          .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
+        with open(backup_ts, "w+") as ot:
+            print(dataframe.to_csv(), file=ot)
 
 
 if __name__ == "__main__":

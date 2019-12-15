@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 source venv/bin/activate
 FILE_DATASET_SPLIT="datasets-split-exp.csv"
 FILE_DATASET_RM="datasets-rm-exp.csv"
