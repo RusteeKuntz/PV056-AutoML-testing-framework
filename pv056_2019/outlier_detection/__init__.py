@@ -77,7 +77,7 @@ class NN(AbstractDetector):
         bin_dataframe = dataframe._binarize_categorical_values()
         if "n_neighbors" in self.settings:
             # if the parameter contains the string sqrt, chenge it to the square root of the data size (rows/records)
-            if(self.settings["n_neighbors"][0:4] == "sqrt"):
+            if self.settings["n_neighbors"][0:4] == "sqrt":
                 self.settings["n_neighbors"] = int(pow(dataframe.shape[0], 0.5))
             else:
                 # else just normally convert the vlaue to intteger
