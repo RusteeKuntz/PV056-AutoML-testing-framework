@@ -39,10 +39,10 @@ class CLOFMetric:
             nind = noncls_indices[cls]
             lof.fit(df.iloc[ind])
             same_lof[ind] = lof.negative_outlier_factor_
+            lof.fit(df.iloc[nind])
             for i in ind:
-                lof.fit(df.iloc[[i] + nind].values)
-                nof = lof.negative_outlier_factor_[0]
-                other_lof[i] = 1 / nof if nof != 0 else 10
+                v = lof._decision_function(df.iloc[i])
+                other_lof[i] = 1 / v if v != 0 else 10
 
         values = -1 * (same_lof + alfa * other_lof + beta * all_lof)
 
