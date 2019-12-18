@@ -42,7 +42,7 @@ class CLOFMetric:
             same_lof[ind] = lof.negative_outlier_factor_
             lofn.fit(df.iloc[nind])
             for i in ind:
-                v = lofn.decision_function(df.iloc[i])
+                v = lofn.decision_function([df.iloc[i]])
                 other_lof[i] = 1 / v if v != 0 else 10
 
         values = -1 * (same_lof + alfa * other_lof + beta * all_lof)
