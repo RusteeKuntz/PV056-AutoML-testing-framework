@@ -30,6 +30,7 @@ class CLOFMetric:
 
         lof = LocalOutlierFactor(**kwargs)
         lof.fit(df.values)
+        lofn = LocalOutlierFactor(**kwargs, novelty=True)
 
         same_lof = np.empty(len(df))
         other_lof = np.empty(len(df))
@@ -39,9 +40,9 @@ class CLOFMetric:
             nind = noncls_indices[cls]
             lof.fit(df.iloc[ind])
             same_lof[ind] = lof.negative_outlier_factor_
-            lof.fit(df.iloc[nind])
+            lofn.fit(df.iloc[nind])
             for i in ind:
-                v = lof._decision_function(np.reshape(df.iloc[i], (1, -1)))
+                v = lofn.decision_function(df.iloc[i])
                 other_lof[i] = 1 / v if v != 0 else 10
 
         values = -1 * (same_lof + alfa * other_lof + beta * all_lof)
