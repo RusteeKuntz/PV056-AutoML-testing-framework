@@ -30,7 +30,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
             #if od_settings.name == "NearestNeighbors":
             #    if od_settings.parameters["n_neighbors"][0:4] == "sqrt" and pow(dataframe.shape[0], 0.5) < int(od_settings.parameters["n_neighbors"][4:]):
             #        continue
-
+            print("Applying Outlier Detection: ")
             od_frame, od_time = dataframe.apply_outlier_detector(od_settings)
             od_frame.arff_dump(file_save_path)
 
