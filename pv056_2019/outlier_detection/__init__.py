@@ -449,3 +449,17 @@ class CLOF(AbstractDetector):
         self.clf = CLOFMetric()
         self.values = self.clf.compute_values(bin_dataframe, classes, **self.settings)
         return self
+
+@detector
+class Random(AbstractDetector):
+    name = "Random"
+    data_type = "REAL"
+
+    def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
+        if "seed" in self.settings:
+            seed = self.settings["seed"]
+        else:
+            seed = 123
+        np.random.seed(seed)
+        self.values = np.random.uniform(0, 1, len(dataframe))
+        return self
