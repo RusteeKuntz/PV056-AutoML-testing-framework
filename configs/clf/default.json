@@ -1,9 +1,9 @@
 {
-  "output_folder": "/var/tmp/xuser/automl/clf_outputs/",
+  "output_folder": "clf_outputs/",
   "weka_jar_path": "data/java/weka.jar",
-  "n_jobs": 5,
-  "times_output": "/var/tmp/xuser/automl/clf_times.csv",
-  "blacklist_file": "/var/tmp/xuser/automl/blacklist.csv",
+  "n_jobs": 3,
+  "times_output": "outputs/clf_times.csv",
+  "blacklist_file": "blacklist.csv",
   "timeout": 1800,
   "classifiers": [
     {

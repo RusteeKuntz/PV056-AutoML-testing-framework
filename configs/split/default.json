@@ -1,5 +1,5 @@
 {
   "data_path": "data/datasets/",
-  "train_split_dir": "/var/tmp/xuser/automl/data/train_split/",
-  "test_split_dir": "/var/tmp/xuser/automl/data/test_split/"
+  "train_split_dir": "data/train_split/",
+  "test_split_dir": "data/test_split/"
 }

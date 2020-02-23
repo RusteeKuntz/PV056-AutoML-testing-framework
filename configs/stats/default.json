@@ -1,8 +1,8 @@
 {
   "results_dir": "clf_outputs/",
-  "od_times_path": "od_times.csv",
-  "clf_times_path": "clf_times.csv",
-  "output_table": "results.csv",
+  "od_times_path": "outputs/od_times.csv",
+  "clf_times_path": "outputs/clf_times.csv",
+  "output_table": "outputs/results.csv",
   "aggregate": true,
   "pattern": ".*"
 }

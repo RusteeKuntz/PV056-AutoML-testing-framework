@@ -1,8 +1,8 @@
 {
-  "train_split_dir": "/var/tmp/xuser/automl/data/train_split/",
-  "train_od_dir": "/var/tmp/xuser/automl/data/train_od/",
-  "n_jobs": 5,
-  "times_output": "/var/tmp/xuser/automl/od_times.csv",
+  "train_split_dir": "data/train_split/",
+  "train_od_dir": "data/train_od/",
+  "n_jobs": 3,
+  "times_output": "outputs/od_times.csv",
   "od_methods": [
     {
       "name": "IsolationForest",
@@ -55,6 +55,17 @@
     {
       "name": "TDWithPrunning",
       "parameters": {}
+    },
+    {
+      "name": "OneClassSVM",
+      "parameters": {
+        "gamma": "scale"
+      }
+    },
+    {
+      "name": "EllipticEnvelope",
+      "parameters": {
+      }
     }
   ]
 }
