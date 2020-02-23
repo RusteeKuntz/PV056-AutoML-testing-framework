@@ -7,6 +7,8 @@ from sklearn.ensemble import IsolationForest
 from pv056_2019.outlier_detection.CL import CLMetric
 from pv056_2019.outlier_detection.CLD import CLDMetric
 from sklearn.neighbors import LocalOutlierFactor, NearestNeighbors
+from sklearn.svm import OneClassSVM
+from sklearn.covariance import EllipticEnvelope
 
 # from sklearn.neighbors import KNeighborsClassifier
 from pv056_2019.outlier_detection.F2 import F2Metric
@@ -217,6 +219,34 @@ class IsoForest(AbstractDetector):
         bin_dataframe = dataframe._binarize_categorical_values()
 
         self.clf = IsolationForest(**self.settings)
+        self.clf.fit(bin_dataframe.values)
+        self.values = -self.clf.decision_function(bin_dataframe.values)
+        return self
+
+
+@detector
+class IsoForest(AbstractDetector):
+    name = "OneClassSVM"
+    data_type = "REAL"
+
+    def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
+        bin_dataframe = dataframe._binarize_categorical_values()
+
+        self.clf = OneClassSVM(**self.settings)
+        self.clf.fit(bin_dataframe.values)
+        self.values = -self.clf.decision_function(bin_dataframe.values)
+        return self
+
+
+@detector
+class IsoForest(AbstractDetector):
+    name = "EllipticEnvelope"
+    data_type = "REAL"
+
+    def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
+        bin_dataframe = dataframe._binarize_categorical_values()
+
+        self.clf = EllipticEnvelope(**self.settings)
         self.clf.fit(bin_dataframe.values)
         self.values = -self.clf.decision_function(bin_dataframe.values)
         return self
@@ -444,6 +474,7 @@ class CLOF(AbstractDetector):
         self.clf = CLOFMetric()
         self.values = self.clf.compute_values(bin_dataframe, classes, **self.settings)
         return self
+
 
 @detector
 class Random(AbstractDetector):
