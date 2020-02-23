@@ -28,7 +28,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
             od_frame.arff_dump(file_save_path)
 
             print(train_file_path)
-            file_split = file_save_path.split("/")[-1].split("_")
+            file_split = os.path.basename(file_save_path).split("_")
 
             with open(times_file, "a") as tf:
                 print(file_split[0] + "," + file_split[1] + "," + file_split[2] + "," + str(od_time), file=tf)
@@ -63,10 +63,13 @@ def main():
 
     with open(conf.times_output, "w") as tf:
         print("dataset,fold,od_hex,od_time", file=tf)
-    backup_ts = "backups/" + conf.times_output.split("/")[-1].replace(".csv", datetime.now()
+    backup_ts = "backups/" + os.path.basename(conf.times_output).replace(".csv", datetime.now()
                                                                       .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
     with open(backup_ts, "w") as tf:
         print("dataset,fold,od_hex,od_time", file=tf)
+
+    with open(os.path.join(conf.train_od_dir, "baseline.json"), "w") as out_config:
+        out_config.write('{"name": "None", "parameters": {}}')
 
     for od_settings in conf.od_methods:
         hex_name = md5(od_settings.json(sort_keys=True).encode("UTF-8")).hexdigest()

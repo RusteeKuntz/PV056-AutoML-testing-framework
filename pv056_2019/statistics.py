@@ -83,7 +83,7 @@ def main():
     od_times = pd.read_csv(conf.od_times_path)
     clf_times = pd.read_csv(conf.clf_times_path)
 
-    times = od_times.merge(clf_times, on=["dataset", "fold", "od_hex"], how="left")
+    times = od_times.merge(clf_times, on=["dataset", "fold", "od_hex"], how="outer")
     times['fold'] = times['fold'].astype(str)
     times.loc[(times.removed == 0), 'od_time'] = 0.0
     times['total_time'] = times['od_time'] + times['clf_time']

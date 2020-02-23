@@ -33,6 +33,7 @@ def main():
     try:
         print("Removing {}%".format(conf.percentage), flush=True)
 
+        processed_base = []
         for dataframe, train_file_path in zip(
             train_data_loader.load_files(), train_data_loader.file_paths
         ):
@@ -51,8 +52,18 @@ def main():
                 if isinstance(conf.percentage, list)
                 else [conf.percentage]
             )
+            if conf.keep_original and not 0 in percentages:
+                    percentages.append(0)
+
 
             for percentage in percentages:
+                # check if base output
+                ds_fold_pair = os.path.basename(train_file_path).split("_")[:2]
+                if percentage == 0:
+                    if not ds_fold_pair in processed_base:
+                        processed_base.append(ds_fold_pair)
+                    else:
+                        continue
                 try:
                     new_frame = dataframe.select_by_od_quantile(1 - (percentage / 100))
                     new_frame.pop(OD_VALUE_NAME)
@@ -63,6 +74,8 @@ def main():
                     ]
                     print("   ", train_file_path, "{}%".format(percentage))
                     name_split = os.path.basename(train_file_path).split("_")
+                    if percentage == 0:
+                        name_split[-2] = "baseline"
                     name_split.insert(-1, "removed-{0:.2f}".format(round(percentage, 2)))
 
                     file_name = "_".join(name_split)
