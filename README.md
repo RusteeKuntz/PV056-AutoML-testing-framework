@@ -154,19 +154,12 @@ optional arguments:
 | **EllipticEnvelope** | Elliptic Envelope | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.covariance.EllipticEnvelope.html) |
 | **ClassLikelihood** | Class Likelihood | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html)
 | **ClassLikelihoodDifference** | Class Likelihood Difference | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html)
-| **F2** | Max individual feature efficiency | -- |
-| **F3** | Maximum Individual Feature Efficiency | -- |
-| **F4** | Collective Feature Efficiency | -- |
-| **T1** | Fraction of maximum covering spheres | -- |
-| **T2** | Ave number of points per dimension | -- |
-| **MV** | Minority value | -- |
-| **CB** | Class balance | -- |
-| **IsolationForest** | Isolation Forest | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html) |
 | **KDN** | K-Disagreeing Neighbors | n_neighbors |
 | **DS** | Disjunct size | -- |
 | **DCP** | Disjunct class percentage | min_impurity_split [docs](https://blog.nelsonliu.me/2016/08/05/gsoc-week-10-scikit-learn-pr-6954-adding-pre-pruning-to-decisiontrees/) |
 | **TD** | Tree Depth with and without prunning | -- |
 | **TDWithPrunning** | Tree Depth with prunning | min_impurity_split |
+| **Random** | Random OD score | seed |
 | **CODB** | CODB | See below |
 
 
