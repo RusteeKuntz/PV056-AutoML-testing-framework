@@ -225,7 +225,7 @@ class IsoForest(AbstractDetector):
 
 
 @detector
-class IsoForest(AbstractDetector):
+class OneClassSVM(AbstractDetector):
     name = "OneClassSVM"
     data_type = "REAL"
 
@@ -239,7 +239,7 @@ class IsoForest(AbstractDetector):
 
 
 @detector
-class IsoForest(AbstractDetector):
+class ElliCurve(AbstractDetector):
     name = "EllipticEnvelope"
     data_type = "REAL"
 
