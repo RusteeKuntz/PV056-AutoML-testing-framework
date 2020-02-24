@@ -8,7 +8,14 @@
 ## Installation guide 
 ### Prerequisites
 - Python version >=3.6 (including python3-dev, python3-wheel)
-- [Weka](https://www.cs.waikato.ac.nz/ml/weka/)
+- [Weka](https://www.cs.waikato.ac.nz/ml/weka/) (comes with the framework)
+- Java 8 or later (for Weka execution)
+- UNIX-like environment
+
+If you are a Windows user, you can either set up a 
+virtual machine or run the script on the Aisa server (the whole script can be run through the terminal, 
+even [remotely](https://www.fi.muni.cz/tech/lets-get-started-at-fi.html.cs)).
+However, keep in mind that these options will impact the running time of the script.
 
 ### Installation to python virtual env (recommended)
 It's highly recommended to install this testing framework to python virtual environment.
@@ -29,21 +36,9 @@ $ pip install .
 
 
 ### Downloading datasets
-All data files are from [OpenML](https://www.openml.org).
+The framework supports datasets in `.arff` format. The individual datasets can be downloaded from [OpenML](https://www.openml.org).
 
-
-Data link: [link](https://mega.nz/#!9xtl2Y7b!N9dMwi0T-4ZVEv39Bfle2qQwfKQYz04s3Xv2sB-vbCY)
-
-Download the compressed datasets to `data/datasets/openML-datasets.zip` (you have to unzip it).
-
-#### TL;DR
-Run commands below in the root folder of this repo.
-```
-$ sudo apt install git-lfs
-$ git lfs install
-$ git lfs pull
-$ cd data && unzip openML-datasets.zip
-```
+By default, you should place the downloaded datasets to the `data/datasets/` folder.
 
 
 ## Usage
@@ -130,7 +125,7 @@ optional arguments:
     "train_split_dir": "data/train_split/",
     "train_od_dir": "data/train_od/",
     "n_jobs": 2,
-    "times_output": "od_times.csv",
+    "times_output": "outputs/od_times.csv",
     "od_methods": [
         {
             "name": "IsolationForest",
@@ -155,6 +150,8 @@ optional arguments:
 | **LOF** | Local Outlier Factor | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.LocalOutlierFactor.html) |
 | **NearestNeighbors** | Nearest Neighbors | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.NearestNeighbors.html) |
 | **IsolationForest** | Isolation Forest | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html)
+| **OneClassSVM** | One-class SVM | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html) |
+| **EllipticEnvelope** | Elliptic Envelope | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.covariance.EllipticEnvelope.html) |
 | **ClassLikelihood** | Class Likelihood | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html)
 | **ClassLikelihoodDifference** | Class Likelihood Difference | [docs](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html)
 | **F2** | Max individual feature efficiency | -- |
@@ -170,7 +167,7 @@ optional arguments:
 | **DCP** | Disjunct class percentage | min_impurity_split [docs](https://blog.nelsonliu.me/2016/08/05/gsoc-week-10-scikit-learn-pr-6954-adding-pre-pruning-to-decisiontrees/) |
 | **TD** | Tree Depth with and without prunning | -- |
 | **TDWithPrunning** | Tree Depth with prunning | min_impurity_split |
-| **CODB** | CODB | Below |
+| **CODB** | CODB | See below |
 
 
 #### CODB
@@ -188,7 +185,7 @@ Example:
     "train_split_dir": "data/train_split/",
     "train_od_dir": "data/train_od/",
     "n_jobs": 2,
-    "times_output": "od_times.csv",
+    "times_output": "outputs/od_times.csv",
     "od_methods": [
         {
             "name": "CODB",
@@ -234,6 +231,9 @@ optional arguments:
     * generated **train** datasets with outlier detection values
 * *train_removed_dir*
     * Directory where train data with **removed** outliers should be saved
+* *keep_original*
+    * Setting this to true will produce baseline datasets as well,
+    ie. datasets without any instances removed (default: `true`)
 * *percentage*
     * How many percents of the largest outliers should be removed (0.0-100.0)
     * int or List[int]
@@ -242,6 +242,7 @@ optional arguments:
     "test_split_dir": "data/test_split/",
     "train_od_dir": "data/train_od/",
     "train_removed_dir": "data/train_removed/",
+    "keep_original": true,
     "percentage": [
         0.5,
         5,
@@ -308,9 +309,9 @@ optional arguments:
 ```json
 {
     "output_folder": "clf_outputs/",
-    "weka_jar_path": "weka-3-8-3/weka.jar",
+    "weka_jar_path": "data/java/weka.jar",
     "n_jobs": 2,
-    "times_output": "clf_times.csv",
+    "times_output": "outputs/clf_times.csv",
     "timeout": 1800,
     "classifiers": [
         {
@@ -401,7 +402,7 @@ OD pipeline without the need to execute each step separately.
 
 The script runs each step with its respective default configuration file found in the ```configs/```
 folder and its subdirectories. Assuming the virtual environment is set up (see [Installation guide](#installation-guide)), all you need to do is set the config files according to your
-preference and then run the script from the root directory.
+preference and then run the script from the root directory of the project.
 
 The outputs for each step can be found in the ```logs/``` directory.
 
@@ -430,6 +431,15 @@ Script finished.
 
 ```
 
+### Checking progress
+Depending on your setup, the script may take a long time to finish. In order to check how far the script got,
+you should peek into the `od_times.csv` and `clf_times.csv` files generated during execution for the progress
+on outlier detection and classification, respectively.
+These files list the datasets already processed with the time it took for each of them.
+
+## Reporting problems
+All encountered problems regarding running the script should be posted to the subject [forum](https://is.muni.cz/auth/discussion/predmetove/fi/jaro2020/PV056/). This is mainly
+because if someone struggles with something, chances are other students have encountered the same problem.
 
 ## How to work with Weka 3
 * Download Weka from https://www.cs.waikato.ac.nz/ml/weka/downloading.html
