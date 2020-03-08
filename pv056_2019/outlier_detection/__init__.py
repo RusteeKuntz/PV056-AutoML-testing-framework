@@ -225,7 +225,7 @@ class IsoForest(AbstractDetector):
 
 
 @detector
-class OneClassSVM(AbstractDetector):
+class OneClsSVM(AbstractDetector):
     name = "OneClassSVM"
     data_type = "REAL"
 
