@@ -14,6 +14,7 @@ setup(
     entry_points={
         "console_scripts": [
             "pv056-split-data=pv056_2019.data_splitter:main",
+            "pv056-evaluate-features=pv056_2019.main_feature_evaluation:main",
             "pv056-apply-od-methods=pv056_2019.apply_od_methods:main",
             "pv056-remove-outliers=pv056_2019.remove_outliers:main",
             "pv056-run-clf=pv056_2019.main_clf:main",
