@@ -100,27 +100,19 @@ class StatisticsSchema(BaseModel):
     pattern: str = ".*"
 
 
-class FESearchMethodSchema(BaseModel):
-    """ This represents the schema of configuration for the search method used in Feature Selection. """
-    name: str
+class WekaClassCommandSchema(BaseModel):
+    """ This represents the schema of configuration for an arbitrary WEKA class invokation from command line """
+    class_name: str
     parameters: dict
 
 
-class FEEvalMethodSchema(BaseModel):
-    """ This represents the schema of configuration for the evaluation method used in Feature Selection. """
-    name: str
-    parameters: dict
-
-
-class FeatureSelectionSchema(BaseModel):
-    """This schema represents configuration for the whole feature selection step, consisting of two parts
-     (2 weka classes are used), feature evaluation and search """
-    eval_method: FEEvalMethodSchema
-    search_method: FESearchMethodSchema
+class FeatureSelectionConfigurationSchema(BaseModel):
+    eval_class: WekaClassCommandSchema
+    search_class: WekaClassCommandSchema
 
 
 class FeatureSelectionStepSchema(BaseModel):
     weka_jar_path: str
     output_folder: str
-    selection_methods: [FeatureSelectionSchema]
+    selection_methods: [FeatureSelectionConfigurationSchema]
 
