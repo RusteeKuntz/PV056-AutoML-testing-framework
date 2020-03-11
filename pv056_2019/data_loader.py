@@ -145,10 +145,12 @@ class DataFrameArff(pd.DataFrame):
 
         return arff_dataframe
 
-    def select_by_od_quantile(self, quantile):
+    def select_by_od_quantile(self, quantile, reverse=False):
         value = self[OD_VALUE_NAME]
 
-        dataframe = self.iloc[np.sort(np.argsort(value, kind='quicksort')[:round(quantile * len(value))]), :]
+        dataframe = self.iloc[np.sort(np.argsort(value, kind='quicksort')[:round(quantile * len(value))]), :] \
+            if not reverse \
+            else self.iloc[np.sort(np.argsort(-value, kind='quicksort')[:round(quantile * len(value))]), :]
 
         arff_dataframe = DataFrameArff(dataframe.values, columns=self.columns)
         arff_dataframe._arff_data = self._arff_data

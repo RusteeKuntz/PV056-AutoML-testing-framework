@@ -65,7 +65,7 @@ def main():
                     else:
                         continue
                 try:
-                    new_frame = dataframe.select_by_od_quantile(1 - (percentage / 100))
+                    new_frame = dataframe.select_by_od_quantile(1 - (percentage / 100), conf.reverse)
                     new_frame.pop(OD_VALUE_NAME)
                     new_frame._arff_data["attributes"] = [
                         x
