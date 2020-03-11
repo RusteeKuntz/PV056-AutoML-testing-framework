@@ -110,10 +110,19 @@ class WekaClassCommandSchema(BaseModel):
 class FeatureSelectionConfigurationSchema(BaseModel):
     eval_class: WekaClassCommandSchema
     search_class: WekaClassCommandSchema
+    n_folds: int = 5
+    cv_seed: int = 123
+
+    @validator("n_folds")
+    def folds_validator(self, value):
+        if value <= 1:
+            raise ValueError("number of folds must be greater than 1")
+        return value
 
 
 class FeatureSelectionStepSchema(BaseModel):
     weka_jar_path: str
-    output_folder: str
+    output_folder_path: str
+    fs_mapping_csv_path: str
     selection_methods: [FeatureSelectionConfigurationSchema]
 
