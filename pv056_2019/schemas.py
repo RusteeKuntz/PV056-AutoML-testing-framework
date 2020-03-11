@@ -113,7 +113,7 @@ class FeatureSelectionConfigurationSchema(BaseModel):
     cv_seed: int = 123
 
     @validator("n_folds")
-    def folds_validator(self, value):
+    def folds_validator(cls, value):
         if value <= 1:
             raise ValueError("number of folds must be greater than 1")
         return value
