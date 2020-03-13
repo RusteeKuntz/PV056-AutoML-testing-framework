@@ -34,6 +34,7 @@ def main():
     # load config file
     with open(args.config_fs, "r") as config_file:
         conf = FeatureSelectionStepSchema(**json.load(config_file))
+    print(conf)
 
     # TODO: Here implement getting filepaths from datasets.csv instead of temporary hardcoded list of files
     dataset_paths = ["A:\Adam\Škola\BAKPR\data\datasets\eye-movements.arff",
