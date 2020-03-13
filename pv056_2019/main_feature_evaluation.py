@@ -37,10 +37,10 @@ def main():
     print(conf)
 
     # TODO: Here implement getting filepaths from datasets.csv instead of temporary hardcoded list of files
-    dataset_paths = ["data\datasets\eye-movements.arff",
-             "data\datasets\glass.arff",
-             "data\datasets\heart-c.arff",
-             "data\datasets\hepatitis.arff"
+    dataset_paths = ["data/datasets/eye-movements.arff",
+             "data/datasets/glass.arff",
+             "data/datasets/heart-c.arff",
+             "data/datasets/hepatitis.arff"
              ]
 
     fs_manager = FeatureSelectionManager(conf)
