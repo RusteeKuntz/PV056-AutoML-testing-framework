@@ -108,8 +108,8 @@ class WekaClassCommandSchema(BaseModel):
 
 
 class FeatureSelectionConfigurationSchema(BaseModel):
-    eval_class: dict
-    search_class: dict
+    eval_class: WekaClassCommandSchema
+    search_class: WekaClassCommandSchema
     n_folds: int = 5
     cv_seed: int = 123
 
@@ -124,5 +124,5 @@ class FeatureSelectionStepSchema(BaseModel):
     weka_jar_path: str
     output_folder_path: str
     fs_mapping_csv_path: str
-    selection_methods: [dict]
+    selection_methods: List[FeatureSelectionConfigurationSchema]
 
