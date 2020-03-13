@@ -123,6 +123,5 @@ class FeatureSelectionConfigurationSchema(BaseModel):
 class FeatureSelectionStepSchema(BaseModel):
     weka_jar_path: str
     output_folder_path: str
-    fs_mapping_csv_path: str
     selection_methods: List[FeatureSelectionConfigurationSchema]
 
