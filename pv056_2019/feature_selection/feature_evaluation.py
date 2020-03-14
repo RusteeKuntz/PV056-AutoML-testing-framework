@@ -31,6 +31,7 @@ def get_weka_command_from_config(config: WekaClassCommandSchema) -> str:
     ready to be placed as a parameter to another executable WEKA class.
     """
     _command = "\"" + config.class_name
+    print("DEBUG: values of config.parameters")
     print(config.parameters)
     for param_name, param_val in config.parameters:
         _command += " -" + param_name + " " + _nest_double_quotes(param_val)
