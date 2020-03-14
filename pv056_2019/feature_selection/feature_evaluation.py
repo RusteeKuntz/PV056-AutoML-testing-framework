@@ -11,7 +11,8 @@ from pv056_2019.utils import OD_VALUE_NAME
 def _nest_quotes(string, which_quotes="\""):
     # TODO: escaping escape slashes themselves might not be necessary, check it later
     # string = re.sub(r"\\", r"\\\\", string)
-
+    print(which_quotes)
+    print(string)
     return re.sub(which_quotes, r"\\" + which_quotes, string)
 
 
