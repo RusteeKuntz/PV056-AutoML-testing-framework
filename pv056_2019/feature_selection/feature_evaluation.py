@@ -96,7 +96,7 @@ class FeatureSelectionManager:
 
             # add redirection to a file
             _output_file_path = _assert_trailing_slash(self.config.output_folder_path) + \
-                os.path.basename(input_file_path).split(".")[:-1] + "_FS" + str(counter) + ".txt"
+                ".".join(os.path.basename(input_file_path).split(".")[:-1]) + "_FS" + str(counter) + ".txt"
 
             _command += " > \"" + _output_file_path + "\""
 
