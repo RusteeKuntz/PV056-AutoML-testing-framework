@@ -80,6 +80,7 @@ class FeatureSelectionManager:
 
         index_of_class_attribute = len(dataframe_arff.arff_data()["attributes"]) - 1
         if dataframe_arff.arff_data()["attributes"][index_of_class_attribute] == OD_VALUE_NAME:
+            print("OD_VALUE_COLUMN recognized")
             index_of_class_attribute -= 1
 
         counter = 0
