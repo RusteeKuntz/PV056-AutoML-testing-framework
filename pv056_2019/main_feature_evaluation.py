@@ -34,7 +34,6 @@ def main():
     # load config file
     with open(args.config_fs, "r") as config_file:
         conf = FeatureSelectionStepSchema(**json.load(config_file))
-    print(conf)
 
     # TODO: Here implement getting filepaths from datasets.csv instead of temporary hardcoded list of files
     dataset_paths = ["data/datasets/eye-movements.arff",
@@ -55,9 +54,8 @@ def main():
         # Format is: input-file, output-file, config-json
         fs_mapping_csv.write("input_file, output_file, config\n")
         for dataset_path in dataset_paths:
-            for command in fs_manager.get_commands(dataset_path, fs_mapping_csv):
+            for command in fs_manager.get_commands_filter(dataset_path, fs_mapping_csv):
                 WEKA_commands.append(command)
-                print(command)
 
 
 
