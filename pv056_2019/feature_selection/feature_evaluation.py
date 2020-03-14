@@ -40,7 +40,7 @@ def get_weka_command_from_config(config: WekaClassCommandSchema) -> str:
     print("DEBUG: values of config.parameters")
     print(config.parameters)
     for param_name, param_val in config.parameters.items():
-        _command += " -" + param_name + " " + _nest_double_quotes(param_val)
+        _command += " -" + param_name + " " + _nest_double_quotes(str(param_val))
 
     return _command + "\""
 
