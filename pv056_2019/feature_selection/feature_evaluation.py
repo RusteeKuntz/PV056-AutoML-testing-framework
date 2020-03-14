@@ -85,7 +85,7 @@ class FeatureSelectionManager:
         counter = 0
         for feature_selection_config in self.config.selection_methods:
             # the command begins with "java" and "-cp" classpath specification
-            _command = "java -cp " + self.config.weka_jar_path + " weka.attributeSelection.AttributeSelection"
+            _command = "java -cp " + self.config.weka_jar_path + " weka.attributeSelection.AttributeSelection "
             # the name of an evaluation class is taken here as a first argument for the AttributeSelection class
             _command += feature_selection_config.eval_class.class_name
             # what follows are arguments of the evaluation class
