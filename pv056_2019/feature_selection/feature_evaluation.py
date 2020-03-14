@@ -101,6 +101,6 @@ class FeatureSelectionManager:
             _command += " > \"" + _output_file_path + "\""
 
             # this is the easiest way how to store FS configuration and file locations
-            mapping_csv_file.write(input_file_path + "," + _output_file_path + "," + json.dumps(feature_selection_config).replace(",", ";"))
+            mapping_csv_file.write(input_file_path + "," + _output_file_path + "," + feature_selection_config.json().replace(",", ";"))
 
             yield _command
