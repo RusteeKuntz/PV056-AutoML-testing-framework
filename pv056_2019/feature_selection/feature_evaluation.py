@@ -87,7 +87,7 @@ class FeatureSelectionManager:
             # the command begins with "java" and "-cp" classpath specification
             _command = "java -cp " + self.config.weka_jar_path + " weka.attributeSelection.AttributeSelection"
             # the name of an evaluation class is taken here as a first argument for the AttributeSelection class
-            _command += feature_selection_config.eval_class
+            _command += feature_selection_config.eval_class.class_name
             # what follows are arguments of the evaluation class
             for param_name, param_val in feature_selection_config.eval_class.parameters.items():
                 _command += " -" + param_name + " " + _nest_double_quotes(str(param_val))
