@@ -57,7 +57,7 @@ def main():
             for command in fs_manager.get_commands_filter(dataset_path, fs_mapping_csv):
                 WEKA_commands.append(command)
 
-
+    print(WEKA_commands)
 
 
 if __name__ == '__main__':
