@@ -107,7 +107,7 @@ class WekaClassCommandSchema(BaseModel):
     parameters: dict
 
 
-class FeatureSelectionConfigurationSchema(BaseModel):
+class FeatureSelectionFilterConfigurationSchema(BaseModel):
     eval_class: WekaClassCommandSchema
     search_class: WekaClassCommandSchema
     n_folds: int = 5
@@ -123,5 +123,5 @@ class FeatureSelectionConfigurationSchema(BaseModel):
 class FeatureSelectionStepSchema(BaseModel):
     weka_jar_path: str
     output_folder_path: str
-    selection_methods: List[FeatureSelectionConfigurationSchema]
+    selection_methods: List[FeatureSelectionFilterConfigurationSchema]
 
