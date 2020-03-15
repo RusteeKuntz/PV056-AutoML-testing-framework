@@ -78,7 +78,8 @@ class FeatureSelectionManager:
 
         # TODO: label might not be the last one. Last column might contain OD score, check if following solution works
 
-        index_of_class_attribute = len(dataframe_arff.arff_data()["attributes"]) - 1
+        # it seems that arff columns are indexed from a F***ING zero... keep that in mind
+        index_of_class_attribute = len(dataframe_arff.arff_data()["attributes"])
         if dataframe_arff.arff_data()["attributes"][index_of_class_attribute] == OD_VALUE_NAME:
             print("OD_VALUE_COLUMN recognized")
             index_of_class_attribute -= 1
