@@ -78,7 +78,7 @@ class FeatureSelectionManager:
 
         # TODO: label might not be the last one. Last column might contain OD score, check if following solution works
 
-        # it seems that arff columns are indexed from a F***ING zero... keep that in mind
+        # it seems that arff columns are indexed from a F***ING one... keep that in mind
         index_of_class_attribute = len(dataframe_arff.arff_data()["attributes"])
         if dataframe_arff.arff_data()["attributes"][index_of_class_attribute] == OD_VALUE_NAME:
             print("OD_VALUE_COLUMN recognized")
@@ -86,33 +86,33 @@ class FeatureSelectionManager:
 
         counter = 0
         for feature_selection_config in self.config.selection_methods:
-            # the command begins with "java" and "-cp" classpath specification
-            _command = "java -cp " + self.config.weka_jar_path + " weka.attributeSelection.AttributeSelection "
+            # the command begins with "java", "-Xmx1024m" max heap size and "-cp" classpath specification
+            _run_args = "java -Xmx1024m -cp " + self.config.weka_jar_path + " weka.attributeSelection.AttributeSelection "
             # the name of an evaluation class is taken here as a first argument for the AttributeSelection class
-            _command += feature_selection_config.eval_class.class_name
+            _run_args += feature_selection_config.eval_class.class_name
             # what follows are arguments of the evaluation class
             for param_name, param_val in feature_selection_config.eval_class.parameters.items():
-                _command += " -" + param_name + " " + _nest_double_quotes(str(param_val))
+                _run_args += " -" + param_name + " " + _nest_double_quotes(str(param_val))
             # add input file path
-            _command += " -i \"" + input_file_path + "\""
+            _run_args += " -i \"" + input_file_path + "\""
             # specify index of the label class (the last one)
-            _command += " -c " + str(index_of_class_attribute)
+            _run_args += " -c " + str(index_of_class_attribute)
             # specify number of folds used in cross-validation
-            _command += " -x " + str(feature_selection_config.n_folds)
+            _run_args += " -x " + str(feature_selection_config.n_folds)
             # set seed for picking folds in cross-validation
-            _command += " -n " + str(feature_selection_config.cv_seed)
+            _run_args += " -n " + str(feature_selection_config.cv_seed)
             # specify search method and their arguments
-            _command += " -s " + get_weka_command_from_config(feature_selection_config.search_class)
+            _run_args += " -s " + get_weka_command_from_config(feature_selection_config.search_class)
 
             # add redirection to a file
             _output_file_path = _assert_trailing_slash(self.config.output_folder_path) + \
                                 ".".join(os.path.basename(input_file_path).split(".")[:-1]) + "_FS" + str(
                 counter) + ".txt"
 
-            _command += " > \"" + _output_file_path + "\""
+            _run_args += " > \"" + _output_file_path + "\""
 
             # this is the easiest way how to store FS configuration and file locations
             mapping_csv_file.write(
                 input_file_path + "," + _output_file_path + "," + feature_selection_config.json().replace(",", ";"))
 
-            yield _command
+            yield _run_args
