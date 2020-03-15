@@ -78,8 +78,7 @@ class FeatureSelectionManager:
 
         # TODO: label might not be the last one. Last column might contain OD score, check if following solution works
 
-        # it seems that arff columns are indexed from a F***ING one... keep that in mind
-        index_of_class_attribute = len(dataframe_arff.arff_data()["attributes"])
+        index_of_class_attribute = len(dataframe_arff.arff_data()["attributes"]) - 1
         if dataframe_arff.arff_data()["attributes"][index_of_class_attribute] == OD_VALUE_NAME:
             print("OD_VALUE_COLUMN recognized")
             index_of_class_attribute -= 1
@@ -96,7 +95,7 @@ class FeatureSelectionManager:
             # add input file path
             _run_args += " -i \"" + input_file_path + "\""
             # specify index of the label class (the last one)
-            _run_args += " -c " + str(index_of_class_attribute)
+            _run_args += " -c " + str(index_of_class_attribute+1)  # in weka, arff columns are indexed from one
             # specify number of folds used in cross-validation
             _run_args += " -x " + str(feature_selection_config.n_folds)
             # set seed for picking folds in cross-validation
