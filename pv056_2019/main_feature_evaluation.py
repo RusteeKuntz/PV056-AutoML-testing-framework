@@ -32,10 +32,10 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
         if not (eval_method, dataset) in blacklist:
             try:
                 #time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-                results = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout)
+                results = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
                 #time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
-                extract_and_save_ranking_from_fs_output(results.stdout, command.output_file_path)
+                extract_and_save_ranking_from_fs_output(results.stdout.decode(), command.output_file_path)
 
 
                 #time_diff = time_end - time_start
