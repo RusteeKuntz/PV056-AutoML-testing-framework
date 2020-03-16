@@ -122,5 +122,8 @@ class FeatureSelectionFilterConfigurationSchema(BaseModel):
 class FeatureSelectionStepSchema(BaseModel):
     weka_jar_path: str
     output_folder_path: str
+    blacklist_file_path: str
+    n_jobs: int = 5
+    timeout: int = 1800
     selection_methods: List[FeatureSelectionFilterConfigurationSchema]
 

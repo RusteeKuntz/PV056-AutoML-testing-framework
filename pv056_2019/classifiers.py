@@ -33,6 +33,7 @@ class ClassifierManager:
 
         self._regex_removed = re.compile(r"_removed-\d+\.\d+")
 
+
     @staticmethod
     def _create_final_config_file(dataset_conf_path, classifier):
         if not dataset_conf_path:
