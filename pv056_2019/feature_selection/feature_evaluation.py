@@ -118,7 +118,7 @@ class FeatureSelectionManager:
             # set seed for picking folds in cross-validation
             _run_args += ["-n", str(feature_selection_config.cv_seed)]
             # specify search method and their arguments
-            _run_args += ["-s", '"{0}"'.format(get_weka_command_from_config(feature_selection_config.search_class))]
+            _run_args += ["-s", get_weka_command_from_config(feature_selection_config.search_class)]
 
             # this hash is here to uniquely identify output files. It prevents new files with different settings
             # from overwriting older files with different settings
