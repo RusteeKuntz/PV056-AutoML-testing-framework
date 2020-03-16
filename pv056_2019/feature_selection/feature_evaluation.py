@@ -122,7 +122,7 @@ class FeatureSelectionManager:
 
             # this hash is here to uniquely identify output files. It prevents new files with different settings
             # from overwriting older files with different settings
-            hash_md5 = hashlib.md5(json.dumps(feature_selection_config).encode()).hexdigest()
+            hash_md5 = hashlib.md5(feature_selection_config.json().encode()).hexdigest()
             _output_file_path = _assert_trailing_slash(self.config.output_folder_path) + \
                                 ".".join(os.path.basename(input_file_path).split(".")[:-1]) + "_FS-" + hash_md5 + ".txt"
             # TODO: add redirection of output where we call the subprocess
