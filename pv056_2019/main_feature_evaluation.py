@@ -105,6 +105,7 @@ def main():
 
     #print(WEKA_commands)
 
+    # this manager allows us to make synchronized data structures
     with Manager() as manager:
         # here we create a list, that will be synchronize across threads, so we can modify it in between processes
         blacklist = manager.list()
@@ -115,19 +116,21 @@ def main():
         queue = Queue()
         with open(fs_mapping_csv_path, "w") as fs_mapping_csv:
             # Here we open a file to record which file was used for feature selection, where the result was stored and which
-            # parameters were used in the process (config). The file is then passed to the method below to write the actual
-            # dataset_path records, because it is easier.
+            # parameters were used in the process (config).
+            # The file is then passed to the method below to write the actual mappings, because it is easier.
             # Format is: input-file, output-file, config-json
             fs_mapping_csv.write("input_file, output_file, config\n")
             for dataset_path in dataset_paths:
+                # the generator below yields commands but also records them to a csv file for reference
                 for command in fs_manager.generate_fs_weka_commands(dataset_path, fs_mapping_csv):
                     queue.put(command)
-        #clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
 
+        # create a pool of processes that will work in parallel
         pool = [Process(target=fs_weka_worker, args=(queue, blacklist, conf.timeout,)) for _ in range(conf.n_jobs)]
 
         try:
             [process.start() for process in pool]
+            # join below will result in waiting for all above processes to finish before continuing
             [process.join() for process in pool]
         except KeyboardInterrupt:
             [process.terminate() for process in pool]
