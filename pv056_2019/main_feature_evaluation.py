@@ -123,6 +123,7 @@ def main():
             for dataset_path in dataset_paths:
                 # the generator below yields commands but also records them to a csv file for reference
                 for command in fs_manager.generate_fs_weka_commands(dataset_path, fs_mapping_csv):
+                    print(" ".join(command.args))
                     queue.put(command)
 
         # create a pool of processes that will work in parallel
