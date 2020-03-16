@@ -110,7 +110,7 @@ class FeatureSelectionManager:
             for param_name, param_val in feature_selection_config.eval_class.parameters.items():
                 _run_args += ["-" + param_name, _nest_double_quotes(str(param_val))]
             # add input file path
-            _run_args += ["-i", "\"" + input_file_path + "\""]
+            _run_args += ["-i", input_file_path]
             # specify index of the label class (the last one)
             _run_args += ["-c", str(index_of_class_attribute+1)]  # in weka, arff columns are indexed from one
             # specify number of folds used in cross-validation
