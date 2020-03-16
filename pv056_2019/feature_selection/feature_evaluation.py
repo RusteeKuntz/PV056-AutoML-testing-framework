@@ -133,6 +133,9 @@ class FeatureSelectionManager:
                 input_file_path + "," + _output_file_path + "," + feature_selection_config.json().replace(",", ";"))
 
             file_split = input_file_path.split("_")
+            # TODO: remove after testing is dono. Training data always have to be in folds, but here we fix if they are not
+            if len(file_split) < 2:
+                file_split.append("0")
             yield FSCommandWithInfo(args=_run_args,
                                     ds=file_split[0],
                                     fold=file_split[1],
