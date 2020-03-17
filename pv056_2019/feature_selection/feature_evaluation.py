@@ -85,7 +85,7 @@ class FeatureSelectionManager:
 
     def generate_fs_weka_commands(self, input_file_path: str, mapping_csv_file) -> [FSCommandWithInfo]:
         """ this takes options for weka evaluation class and weka search method class and calculates all the neccessary
-        stuff for building the java command for executing attribute selection weka.attributeSelection.AttributeSelection
+        stuff for building the java command for executing attribute selection weka.filters.supervised.attribute.AttributeSelection
         We use double quotes in the commands for WEKA
           """
 

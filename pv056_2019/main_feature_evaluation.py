@@ -15,8 +15,8 @@ from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionMana
 
 def extract_and_save_ranking_from_fs_output(fs_output: str, fs_output_filepath: str):
 
-    with open(fs_output_filepath, mode="w") as output_file:
-        output_file.write(fs_output)
+    #with open(fs_output_filepath, mode="w") as output_file:
+    print(fs_output)
 
 
 def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
