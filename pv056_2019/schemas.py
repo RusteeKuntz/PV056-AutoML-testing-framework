@@ -112,11 +112,11 @@ class FeatureSelectionFilterConfigurationSchema(BaseModel):
     #n_folds: int = 0
     #cv_seed: int = 123
 
-    @validator("n_folds")
-    def folds_validator(cls, value):
-        if value <= 1:
-            raise ValueError("number of folds must be greater than 1")
-        return value
+    #@validator("n_folds")
+    #def folds_validator(cls, value):
+    #    if value <= 1:
+    #        raise ValueError("number of folds must be greater than 1")
+    #    return value
 
 
 class FeatureSelectionStepSchema(BaseModel):
