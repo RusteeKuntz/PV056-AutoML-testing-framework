@@ -103,30 +103,22 @@ class FeatureSelectionManager:
         counter = 0
         for feature_selection_config in self.config.selection_methods:
             # the command begins with "java", "-Xmx1024m" max heap size and "-cp" classpath specification
-            _run_args += ["java", "-Xmx1024m", "-cp", self.config.weka_jar_path, "weka.attributeSelection.AttributeSelection"]
-            # the name of an evaluation class is taken here as a first argument for the AttributeSelection class
-            _run_args.append(feature_selection_config.eval_class.class_name)
-            # what follows are arguments of the evaluation class, added as regular arguments for the AttributeSelection class
-            for param_name, param_val in feature_selection_config.eval_class.parameters.items():
-                _run_args += ["-" + param_name, _nest_double_quotes(str(param_val))]
+            _run_args += ["java", "-Xmx1024m", "-cp", self.config.weka_jar_path, "weka.filters.supervised.attribute.AttributeSelection"]
             # add input file path
             _run_args += ["-i", input_file_path]
             # specify index of the label class (the last one)
             _run_args += ["-c", str(index_of_class_attribute+1)]  # in weka, arff columns are indexed from one
-            # specify number of folds used in cross-validation
-            _run_args += ["-x", str(feature_selection_config.n_folds)]
-            # set seed for picking folds in cross-validation
-            _run_args += ["-n", str(feature_selection_config.cv_seed)]
             # specify search method and their arguments
-            _run_args += ["-s", get_weka_command_from_config(feature_selection_config.search_class)]
-
+            _run_args += ["-S", get_weka_command_from_config(feature_selection_config.search_class)]
+            # specify evaluation mthod
+            _run_args += ["-E", get_weka_command_from_config(feature_selection_config.eval_class)]
             # this hash is here to uniquely identify output files. It prevents new files with different settings
             # from overwriting older files with different settings
             hash_md5 = hashlib.md5(feature_selection_config.json().encode()).hexdigest()
             _output_file_path = _assert_trailing_slash(self.config.output_folder_path) + \
                                 ".".join(os.path.basename(input_file_path).split(".")[:-1]) + "_FS-" + hash_md5 + ".txt"
             # TODO: add redirection of output where we call the subprocess
-            #_run_args += " > \"" + _output_file_path + "\""
+            _run_args += ["-o", _output_file_path]
 
             # this is the easiest way how to store FS configuration and file locations
             mapping_csv_file.write(

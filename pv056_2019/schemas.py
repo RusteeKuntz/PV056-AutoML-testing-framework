@@ -109,8 +109,8 @@ class WekaClassCommandSchema(BaseModel):
 class FeatureSelectionFilterConfigurationSchema(BaseModel):
     eval_class: WekaClassCommandSchema
     search_class: WekaClassCommandSchema
-    n_folds: int = 5
-    cv_seed: int = 123
+    #n_folds: int = 0
+    #cv_seed: int = 123
 
     @validator("n_folds")
     def folds_validator(cls, value):
