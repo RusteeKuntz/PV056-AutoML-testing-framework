@@ -37,7 +37,7 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
                 results = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
                 #time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
-                extract_and_save_ranking_from_fs_output(results.stdout.decode(), command.output_file_path)
+                #extract_and_save_ranking_from_fs_output(results.stdout.decode(), command.output_file_path)
 
 
                 #time_diff = time_end - time_start
@@ -71,14 +71,12 @@ def main():
         help="path to feature selection config file",
         required=True,
     )
-
     parser.add_argument(
         "-fs",
         "--fs-mapping-csv-out",
         help="path to a csv file which contains datasets used for FS and their respective result files",
         required=False,
     )
-
     parser.add_argument(
         "-d",
         "--datasets-csv-in",
@@ -134,7 +132,7 @@ def main():
             # The file is then passed to the method below to write the actual mappings, because it is easier.
             # the generator below yields commands but also records their arguments to a csv file for reference
             for command in fs_manager.generate_fs_weka_commands(datasets_mapping_csv, fs_mapping_csv):
-                print(" ".join(command.args))
+                #print(" ".join(command.args))
                 queue.put(command)
 
 
