@@ -17,11 +17,16 @@ class FSCommandWithInfo:
     eval_method_name: str
     output_file_path: str
 
-    def __init__(self, args: [str], ds: str, fold: str, eval: str, out: str) -> None:
+    def __init__(self,
+                 args: [str],
+                 ds: str,
+                 #fold: str,
+                 ev: str,
+                 out: str) -> None:
         self.args = args
         self.dataset = ds
-        self.fold = fold
-        self.eval_method_name = eval
+        #self.fold = fold
+        self.eval_method_name = ev
         self.output_file_path = out
 
     def __str__(self) -> str:
@@ -169,10 +174,10 @@ class FeatureSelectionManager:
 
                 file_split = train_path.split("_")
                 # TODO: remove after testing is done. Training data always have to be in folds, but here we fix if they are not
-                if len(file_split) < 2:
-                    file_split.append("0")
+                #if len(file_split) < 2:
+                #    file_split.append("0")
                 yield FSCommandWithInfo(args=_run_args,
                                         ds=file_split[0],
-                                        fold=file_split[1],
-                                        eval=feature_selection_config.eval_class.class_name,
+                                        #fold=file_split[1],
+                                        ev=feature_selection_config.eval_class.class_name,
                                         out=_output_file_path)

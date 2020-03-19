@@ -30,6 +30,7 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
         dataset = command.dataset
         eval_method = command.eval_method_name
 
+        # I believe it does not make sense to blacklist search methods.
         if not (eval_method, dataset) in blacklist:
             try:
                 #time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
