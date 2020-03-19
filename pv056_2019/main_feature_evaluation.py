@@ -5,6 +5,7 @@ import subprocess
 import sys
 from multiprocessing import Queue, Manager, Process
 
+from pv056_2019.data_loader import DataLoader
 from pv056_2019.main_clf import _valid_config_path
 from pv056_2019.schemas import FeatureSelectionStepSchema
 from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionManager, _assert_trailing_slash, \
@@ -69,20 +70,21 @@ def main():
         help="path to feature selection config file",
         required=True,
     )
+
     parser.add_argument(
         "-fs",
-        "--fs-mapping-csv",
+        "--fs-mapping-csv-out",
         help="path to a csv file which contains datasets used for FS and their respective result files",
         required=False,
     )
-    # TODO: uncomment later when implementing real data manipulation
-    # parser.add_argument(
-    #     "-d",
-    #     "--datasets-csv",
-    #     type=_valid_config_path,
-    #     help="Path to csv file that contains data files mappings and locations",
-    #     required=True,
-    # )
+
+    parser.add_argument(
+        "-d",
+        "--datasets-csv-in",
+        type=_valid_config_path,
+        help="Path to csv file that contains previous data files mappings, locations and for example OD configurations",
+        required=True,
+    )
     args = parser.parse_args()
 
     # load config file
@@ -90,15 +92,26 @@ def main():
         conf = FeatureSelectionStepSchema(**json.load(config_file))
 
     # TODO: Here implement getting filepaths from datasets.csv instead of temporary hardcoded list of files
-    dataset_paths = ["data/datasets/eye-movements.arff",
-             "data/datasets/glass.arff",
-             "data/datasets/heart-c.arff",
-             "data/datasets/hepatitis.arff"
-             ]
+    #dataset_paths = ["data/datasets/eye-movements.arff",
+    #         "data/datasets/glass.arff",
+    #         "data/datasets/heart-c.arff",
+    #         "data/datasets/hepatitis.arff"
+    #         ]
+    #fs_data_loader = DataLoader(conf.input_folder_path, regex=r".*_train\.arff")
+
+    #datasets_output = []
+
+    # try:
+    #     print("Removing {}%".format(conf.percentage), flush=True)
+    #
+    #     processed_base = []
+    #     for dataframe, train_file_path in zip(
+    #             fs_data_loader.load_files(), fs_data_loader.file_paths
+    #     ):
 
     fs_manager = FeatureSelectionManager(conf)
     # default path to a CSV with datasets and their FS results is with the results
-    fs_mapping_csv_path = _assert_trailing_slash(fs_manager.config.output_folder_path) + "fs_mapping.csv" if args.fs_mapping_csv is None else args.fs_mapping_csv
+    fs_mapping_csv_path = "fs_mapping.csv" if args.fs_mapping_csv_out is None else args.fs_mapping_csv_out
 
     #WEKA_commands = []
 
@@ -114,17 +127,16 @@ def main():
                 blacklist.append(i.replace("\n", "").split(','))
 
         queue = Queue()
-        with open(fs_mapping_csv_path, "w") as fs_mapping_csv:
+        with open(fs_mapping_csv_path, "w") as fs_mapping_csv, open(args.datasets_csv_in, "r") as datasets_mapping_csv:
             # Here we open a file to record which file was used for feature selection, where the result was stored and which
             # parameters were used in the process (config).
             # The file is then passed to the method below to write the actual mappings, because it is easier.
-            # Format is: input-file, output-file, config-json
-            fs_mapping_csv.write("input_file, output_file, config\n")
-            for dataset_path in dataset_paths:
-                # the generator below yields commands but also records them to a csv file for reference
-                for command in fs_manager.generate_fs_weka_commands(dataset_path, fs_mapping_csv):
-                    print(" ".join(command.args))
-                    queue.put(command)
+            # the generator below yields commands but also records their arguments to a csv file for reference
+            for command in fs_manager.generate_fs_weka_commands(datasets_mapping_csv, fs_mapping_csv):
+                print(" ".join(command.args))
+                queue.put(command)
+
+
 
         # create a pool of processes that will work in parallel
         pool = [Process(target=fs_weka_worker, args=(queue, blacklist, conf.timeout,)) for _ in range(conf.n_jobs)]
@@ -138,9 +150,6 @@ def main():
             print("\nInterupted!", flush=True, file=sys.stderr)
 
     print("Done")
-
-
-
 
 if __name__ == '__main__':
     main()
