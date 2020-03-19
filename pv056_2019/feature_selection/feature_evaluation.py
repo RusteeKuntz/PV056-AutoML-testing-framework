@@ -83,53 +83,96 @@ class FeatureSelectionManager:
     def __init__(self, config: FeatureSelectionStepSchema):
         self.config = config
 
-    def generate_fs_weka_commands(self, input_file_path: str, mapping_csv_file) -> [FSCommandWithInfo]:
-        """ this takes options for weka evaluation class and weka search method class and calculates all the neccessary
+    def generate_fs_weka_commands(self, datasets_mapping_csv, mapping_csv_file) -> [FSCommandWithInfo]:
+        """ this takes a csv file with datasets and their configurations use by other workflow steps (if any)
+        Such csv file contains 3 columns: train_dataset,test_dataset,configuration_json_path
+        This method uses options for weka evaluation class and weka search method class and calculates all the neccessary
         stuff for building the java command for executing attribute selection weka.filters.supervised.attribute.AttributeSelection
-        We use double quotes in the commands for WEKA
+        on datasets from datasets_mapping_csv
+
           """
+        # Format is: input-file, output-file, config-json
+        mapping_csv_file.write("input_file, output_file, config\n")
 
-        with open(input_file_path) as arff_file:
-            dataframe_arff = DataFrameArff(arff_data=arff.load(arff_file))
-
-        # TODO: label might not be the last one. Last column might contain OD score, check if following solution works
-
-        index_of_class_attribute = len(dataframe_arff.arff_data()["attributes"]) - 1
-        if dataframe_arff.arff_data()["attributes"][index_of_class_attribute] == OD_VALUE_NAME:
-            print("OD_VALUE_COLUMN recognized")
-            index_of_class_attribute -= 1
-
-        _run_args = []
-        counter = 0
+        # precompute hashes for configurations and json files to speed up execution and avoid redundancy
+        fs_settings = []
         for feature_selection_config in self.config.selection_methods:
-            # the command begins with "java", "-Xmx1024m" max heap size and "-cp" classpath specification
-            _run_args += ["java", "-Xmx1024m", "-cp", self.config.weka_jar_path, "weka.filters.supervised.attribute.AttributeSelection"]
-            # add input file path
-            _run_args += ["-i", input_file_path]
-            # specify index of the label class (the last one)
-            _run_args += ["-c", str(index_of_class_attribute+1)]  # in weka, arff columns are indexed from one
-            # specify search method and their arguments
-            _run_args += ["-S", get_weka_command_from_config(feature_selection_config.search_class)]
-            # specify evaluation mthod
-            _run_args += ["-E", get_weka_command_from_config(feature_selection_config.eval_class)]
             # this hash is here to uniquely identify output files. It prevents new files with different settings
             # from overwriting older files with different settings
             hash_md5 = hashlib.md5(feature_selection_config.json().encode()).hexdigest()
-            _output_file_path = _assert_trailing_slash(self.config.output_folder_path) + \
-                                ".".join(os.path.basename(input_file_path).split(".")[:-1]) + "_FS-" + hash_md5 + ".txt"
-            # TODO: add redirection of output where we call the subprocess
-            _run_args += ["-o", _output_file_path]
+            fs_config_json_path = hash_md5 + ".json"
+            with open(fs_config_json_path, "w") as config_json:
+                config_json.write(feature_selection_config.json())
 
-            # this is the easiest way how to store FS configuration and file locations
-            mapping_csv_file.write(
-                input_file_path + "," + _output_file_path + "," + feature_selection_config.json().replace(",", ";"))
+            fs_settings.append((feature_selection_config, hash_md5, fs_config_json_path))
 
-            file_split = input_file_path.split("_")
-            # TODO: remove after testing is dono. Training data always have to be in folds, but here we fix if they are not
-            if len(file_split) < 2:
-                file_split.append("0")
-            yield FSCommandWithInfo(args=_run_args,
-                                    ds=file_split[0],
-                                    fold=file_split[1],
-                                    eval=feature_selection_config.eval_class.class_name,
-                                    out=_output_file_path)
+        for line in datasets_mapping_csv:
+            # split datasets csv line by commas
+            line_split = line.split(",")
+            # first two elements on any line contain train and test split paths.
+            train_path = line_split[0]
+            #test_path = line_split[1]
+            # next elements are paths to configuration jsons for steps executed before in order they were executed
+            if len(line_split) > 2:
+                conf_paths = line_split[2:]  # paths to a configuration jsons of previous steps
+            else:
+                conf_paths = []
+
+            with open(train_path) as arff_file:
+                dataframe_arff = DataFrameArff(arff_data=arff.load(arff_file))
+
+            # TODO: label might not be the last one. Last column might contain OD score, check if following solution works
+            # TODO: add another filter in from of this to filter out OD_VALUE_COLUMN
+            index_of_class_attribute = len(dataframe_arff.arff_data()["attributes"]) - 1
+            if dataframe_arff.arff_data()["attributes"][index_of_class_attribute] == OD_VALUE_NAME:
+                print("OD_VALUE_COLUMN recognized")
+                index_of_class_attribute -= 1
+
+            # precompute output directory name (assert trailing slash) and extract base name of the dataset
+            _output_directory = _assert_trailing_slash(self.config.output_folder_path)
+            _base_name = os.path.basename(train_path)
+
+            _run_args = []
+            counter = 0
+            for feature_selection_config, hash_md5, fs_config_json_path in fs_settings:
+                # the command begins with "java", "-Xmx1024m" max heap size and "-cp" classpath specification
+                _run_args += ["java", "-Xmx1024m", "-cp", self.config.weka_jar_path, "weka.filters.supervised.attribute.AttributeSelection"]
+                # add input file path
+                _run_args += ["-i", train_path]
+                # specify index of the label class (the last one)
+                _run_args += ["-c", str(index_of_class_attribute+1)]  # in weka, arff columns are indexed from one
+                # specify search method and their arguments
+                _run_args += ["-S", get_weka_command_from_config(feature_selection_config.search_class)]
+                # specify evaluation method
+                _run_args += ["-E", get_weka_command_from_config(feature_selection_config.eval_class)]
+
+                _fs_identifier = "_FS-" + hash_md5
+
+
+                # this part checks if train file contains _train substring and places FS identifier string before of it
+                if "_train" in _base_name:
+                    _output_file_path = _output_directory + _base_name.replace("_train", _fs_identifier + "_train")
+                else:
+                    dot_split = _base_name.split(".")
+                    _output_file_path = _output_directory + ".".join(dot_split[:-1]) + _fs_identifier + "." + dot_split[-1]
+
+                _run_args += ["-o", _output_file_path]
+
+                # here we write mapping of train files and test files along with a history of preprocessing configurations
+                mapping_csv_file.write(
+                    ",".join(
+                        [train_path, _output_file_path] +
+                        conf_paths +
+                        [fs_config_json_path]
+                    ) + "\n"
+                )
+
+                file_split = train_path.split("_")
+                # TODO: remove after testing is done. Training data always have to be in folds, but here we fix if they are not
+                if len(file_split) < 2:
+                    file_split.append("0")
+                yield FSCommandWithInfo(args=_run_args,
+                                        ds=file_split[0],
+                                        fold=file_split[1],
+                                        eval=feature_selection_config.eval_class.class_name,
+                                        out=_output_file_path)
