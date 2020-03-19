@@ -12,6 +12,8 @@ from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionMana
     FSCommandWithInfo
 
 
+debugging = True
+
 
 
 def extract_and_save_ranking_from_fs_output(fs_output: str, fs_output_filepath: str):
@@ -33,9 +35,22 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
         # I believe it does not make sense to blacklist search methods.
         if not (eval_method, dataset) in blacklist:
             try:
+                if debugging:
+                    print("Starting process with args:")
+                    print(args[10, 12], flush=True)
                 #time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                 results = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
                 #time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+                if debugging:
+                    print("Ended process with args:")
+                    print(args[10, 12], flush=True)
+                    with open("fs_bak_debug.log", "a") as debug_file:
+                        debug_file.write("STDOUT:\n")
+                        debug_file.write(results.stdout.decode())
+                        debug_file.write("\n")
+                        debug_file.write("STDERR:\n")
+                        debug_file.write(results.stderr.decode())
+                        debug_file.write("\n")
 
                 #extract_and_save_ranking_from_fs_output(results.stdout.decode(), command.output_file_path)
 
@@ -135,7 +150,7 @@ def main():
                 #print(" ".join(command.args))
                 queue.put(command)
 
-
+        print("queue filled")
 
         # create a pool of processes that will work in parallel
         pool = [Process(target=fs_weka_worker, args=(queue, blacklist, conf.timeout,)) for _ in range(conf.n_jobs)]
