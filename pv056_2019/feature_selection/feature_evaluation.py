@@ -168,9 +168,9 @@ class FeatureSelectionManager:
                         [_output_file_path, test_path] +
                         conf_paths +
                         [_output_directory + fs_config_json_basename]
-                    ) + "\n",
-                    flush=True
+                    ) + "\n"
                 )
+                mapping_csv_file.flush()
 
                 file_split = train_path.split("_")
                 # TODO: remove after testing is done. Training data always have to be in folds, but here we fix if they are not
