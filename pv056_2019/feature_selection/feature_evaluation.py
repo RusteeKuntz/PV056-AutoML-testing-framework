@@ -96,8 +96,8 @@ class FeatureSelectionManager:
         on datasets from datasets_mapping_csv
 
           """
-        # Format is: input-file, output-file, config-json
-        mapping_csv_file.write("input_file, output_file, config\n")
+        # Format is: train-file, test-file, 1st config-json, 2nd config-json, ...
+        # mapping_csv_file.write("train, test, config\n") #DO NOT WRITE HEADINGS into this csv
 
         # precompute hashes for configurations and json files to speed up execution and avoid redundancy
         fs_settings = []
@@ -105,18 +105,18 @@ class FeatureSelectionManager:
             # this hash is here to uniquely identify output files. It prevents new files with different settings
             # from overwriting older files with different settings
             hash_md5 = hashlib.md5(feature_selection_config.json().encode()).hexdigest()
-            fs_config_json_path = hash_md5 + ".json"
-            with open(fs_config_json_path, "w") as config_json:
+            fs_config_json_basename = hash_md5 + ".json"
+            with open(fs_config_json_basename, "w") as config_json:
                 config_json.write(feature_selection_config.json())
 
-            fs_settings.append((feature_selection_config, hash_md5, fs_config_json_path))
+            fs_settings.append((feature_selection_config, hash_md5, fs_config_json_basename))
 
         for line in datasets_mapping_csv:
             # split datasets csv line by commas
             line_split = line.split(",")
             # first two elements on any line contain train and test split paths.
             train_path = line_split[0]
-            #test_path = line_split[1]
+            test_path = line_split[1]
             # next elements are paths to configuration jsons for steps executed before in order they were executed
             if len(line_split) > 2:
                 conf_paths = line_split[2:]  # paths to a configuration jsons of previous steps
@@ -138,8 +138,7 @@ class FeatureSelectionManager:
             _base_name = os.path.basename(train_path)
 
             _run_args = []
-            counter = 0
-            for feature_selection_config, hash_md5, fs_config_json_path in fs_settings:
+            for feature_selection_config, hash_md5, fs_config_json_basename in fs_settings:
                 # the command begins with "java", "-Xmx1024m" max heap size and "-cp" classpath specification
                 _run_args += ["java", "-Xmx1024m", "-cp", self.config.weka_jar_path, "weka.filters.supervised.attribute.AttributeSelection"]
                 # add input file path
@@ -166,10 +165,11 @@ class FeatureSelectionManager:
                 # here we write mapping of train files and test files along with a history of preprocessing configurations
                 mapping_csv_file.write(
                     ",".join(
-                        [train_path, _output_file_path] +
+                        [_output_file_path, test_path] +
                         conf_paths +
-                        [fs_config_json_path]
-                    ) + "\n"
+                        [_output_directory + fs_config_json_basename]
+                    ) + "\n",
+                    flush=True
                 )
 
                 file_split = train_path.split("_")
