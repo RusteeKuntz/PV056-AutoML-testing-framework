@@ -11,6 +11,21 @@ class SplitterSchema(BaseModel):
     train_split_dir: str
     test_split_dir: str
     data_path: str
+    k_of_folds: int = 5
+    m_of_repeats: int = 1
+    random_state: int = 42
+
+    @validator("m_of_repeats")
+    def n_jobs_validator(cls, value):
+        if value < 1:
+            raise ValueError("m_of_repeats must be greater than 0")
+        return value
+
+    @validator("k_of_folds")
+    def k_of_folds_validator(cls, value):
+        if value < 1:
+            raise ValueError("k_of_folds must be greater than 0")
+        return value
 
 
 class OutlierDetectorSchema(BaseModel):
