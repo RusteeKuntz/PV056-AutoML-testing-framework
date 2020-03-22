@@ -112,14 +112,14 @@ class FeatureSelectionManager:
             fs_settings.append((feature_selection_config, hash_md5, fs_config_json_basename))
 
         for line in datasets_mapping_csv:
-            # split datasets csv line by commas
-            line_split = line.split(",")
+            # split datasets csv line by commas, strip trailing EOL
+            line_split = line.strip().split(",")
             # first two elements on any line contain train and test split paths.
             train_path = line_split[0]
             test_path = line_split[1]
             # next elements are paths to configuration jsons for steps executed before in order they were executed
             if len(line_split) > 2:
-                conf_paths = line_split[2:]  # paths to a configuration jsons of previous steps
+                conf_paths = line_split[2:] # paths to a configuration jsons of previous steps
             else:
                 conf_paths = []
 
@@ -165,8 +165,8 @@ class FeatureSelectionManager:
                 # here we write mapping of train files and test files along with a history of preprocessing configurations
                 mapping_csv_file.write(
                     ",".join(
-                        [_output_file_path, test_path] +
-                        conf_paths +
+                        [_output_file_path, test_path] + \
+                        conf_paths + \
                         [_output_directory + fs_config_json_basename]
                     ) + "\n"
                 )
