@@ -65,6 +65,7 @@ def main():
                     else:
                         continue
                 try:
+                    # here the outliers are removed
                     new_frame = dataframe.select_by_od_quantile(1 - (percentage / 100), conf.reverse)
                     new_frame.pop(OD_VALUE_NAME)
                     new_frame._arff_data["attributes"] = [
@@ -83,6 +84,9 @@ def main():
 
                     new_frame.arff_dump(file_save_path)
 
+                    # here we keep datasets mapping. We write it at the end to a CSV
+                    # the location of a test split is predicted based on a file name. How disgusting.
+                    # TODO xbajger: This really has to be reworked so that it uses a datasets.csv as all other steps.
                     datasets_output.append(
                         [
                             file_save_path,
@@ -107,6 +111,7 @@ def main():
     except KeyboardInterrupt:
         print("\nInterupted!", flush=True, file=sys.stderr)
 
+    # Here we write the datasets mapping
     with open(args["datasets_file"], "w") as datasets_file:
         writer = csv.writer(datasets_file, delimiter=",")
         writer.writerows(datasets_output)
