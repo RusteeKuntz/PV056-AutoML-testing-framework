@@ -105,32 +105,10 @@ def main():
     with open(args.config_fs, "r") as config_file:
         conf = FeatureSelectionStepSchema(**json.load(config_file))
 
-    # TODO: Here implement getting filepaths from datasets.csv instead of temporary hardcoded list of files
-    #dataset_paths = ["data/datasets/eye-movements.arff",
-    #         "data/datasets/glass.arff",
-    #         "data/datasets/heart-c.arff",
-    #         "data/datasets/hepatitis.arff"
-    #         ]
-    #fs_data_loader = DataLoader(conf.input_folder_path, regex=r".*_train\.arff")
-
-    #datasets_output = []
-
-    # try:
-    #     print("Removing {}%".format(conf.percentage), flush=True)
-    #
-    #     processed_base = []
-    #     for dataframe, train_file_path in zip(
-    #             fs_data_loader.load_files(), fs_data_loader.file_paths
-    #     ):
 
     fs_manager = FeatureSelectionManager(conf)
     # default path to a CSV with datasets and their FS results is with the results
     fs_mapping_csv_path = "fs_mapping.csv" if args.fs_mapping_csv_out is None else args.fs_mapping_csv_out
-
-    #WEKA_commands = []
-
-
-    #print(WEKA_commands)
 
     # this manager allows us to make synchronized data structures
     with Manager() as manager:

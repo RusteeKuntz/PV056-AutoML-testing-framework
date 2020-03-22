@@ -75,6 +75,8 @@ def main():
                     ]
                     print("   ", train_file_path, "{}%".format(percentage))
                     name_split = os.path.basename(train_file_path).split("_")
+                    # here we for some UNKNOWN reason replace hash with the word "baseline". WHY? Is unclear to me
+                    # TODO xbajger: Find out why and eventually remove
                     if percentage == 0:
                         name_split[-2] = "baseline"
                     name_split.insert(-1, "removed-{0:.2f}".format(round(percentage, 2)))
