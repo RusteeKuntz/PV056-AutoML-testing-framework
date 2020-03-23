@@ -132,9 +132,10 @@ def main():
         pool = [Process(target=fs_weka_worker, args=(queue, blacklist, conf.timeout,)) for _ in range(conf.n_jobs)]
 
         try:
-            [process.start() for process in pool]
+            pass
+            #[process.start() for process in pool]
             # join below will result in waiting for all above processes to finish before continuing
-            [process.join() for process in pool]
+            #[process.join() for process in pool]
         except KeyboardInterrupt:
             [process.terminate() for process in pool]
             print("\nInterupted!", flush=True, file=sys.stderr)
