@@ -37,13 +37,13 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
             try:
                 if debugging:
                     print("Starting process with args:")
-                    print(args[10] + args[12], flush=True)
+                    #print(args[10] + args[12], flush=True)
                 #time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                 results = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
                 #time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                 if debugging:
                     print("Ended process with args:")
-                    print(args[10] + args[12], flush=True)
+                    #print(args[10] + args[12], flush=True)
                     with open("fs_bak_debug.log", "a") as debug_file:
                         debug_file.write("STDOUT:\n")
                         debug_file.write(results.stdout.decode())
@@ -98,6 +98,8 @@ def main():
         required=True,
     )
     args = parser.parse_args()
+
+    print("Staring feature selection step")
 
     # load config file
     with open(args.config_fs, "r") as config_file:
