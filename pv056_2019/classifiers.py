@@ -105,6 +105,7 @@ class ClassifierManager:
             ]
 
             # Add Weka filters
+            # here we filter out OD column and INDEX column
             str_filters = '-F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(  # noqa
                 ID_NAME
             ) + ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(

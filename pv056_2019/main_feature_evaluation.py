@@ -52,8 +52,6 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
                         debug_file.write(results.stderr.decode())
                         debug_file.write("\n")
 
-                #extract_and_save_ranking_from_fs_output(results.stdout.decode(), command.output_file_path)
-
 
                 #time_diff = time_end - time_start
             except subprocess.TimeoutExpired:
