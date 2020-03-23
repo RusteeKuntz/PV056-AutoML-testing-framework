@@ -133,9 +133,9 @@ def main():
 
         try:
             pass
-            #[process.start() for process in pool]
+            [process.start() for process in pool]
             # join below will result in waiting for all above processes to finish before continuing
-            #[process.join() for process in pool]
+            [process.join() for process in pool]
         except KeyboardInterrupt:
             [process.terminate() for process in pool]
             print("\nInterupted!", flush=True, file=sys.stderr)
