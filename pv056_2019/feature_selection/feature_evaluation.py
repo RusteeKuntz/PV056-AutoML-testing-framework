@@ -161,7 +161,9 @@ class FeatureSelectionManager:
                     _output_file_path = _output_directory + '.'.join(dot_split[:-1]) + _fs_identifier + '.' + dot_split[-1]
 
 
-                filters += ['-F', '"weka.filters.supervised.attribute.AttributeSelection {}"'.format(_nest_double_quotes(fs_filter_args))]
+                filters += ['-F', '"weka.filters.supervised.attribute.AttributeSelection {}"'.format(
+                    _nest_double_quotes(fs_filter_args)
+                )]
 
                 # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
                 _run_args += ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
