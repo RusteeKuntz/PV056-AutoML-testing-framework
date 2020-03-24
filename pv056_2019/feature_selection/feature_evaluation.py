@@ -162,7 +162,7 @@ class FeatureSelectionManager:
 
 
                 filters += ['-F', 'weka.filters.supervised.attribute.AttributeSelection {}'.format(
-                    _nest_double_quotes(fs_filter_args)
+                    fs_filter_args
                 )]
 
                 # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
