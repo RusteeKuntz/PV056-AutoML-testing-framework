@@ -142,7 +142,7 @@ class FeatureSelectionManager:
                     OD_VALUE_NAME
                 )]
 
-
+                fs_filter_args = []
                 # currently: don't specify index of the label class (default is the last one).
                 # After removing ID and OD_VALUE, default behaviour will suffice
                 #fs_filter_args = ' -c last'  # in weka, arff columns are indexed from one
