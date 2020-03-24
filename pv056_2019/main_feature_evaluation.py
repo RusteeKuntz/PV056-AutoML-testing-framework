@@ -37,20 +37,22 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
             try:
                 if debugging:
                     print("Starting process with args:")
+                    print(args)
                     #print(args[10] + args[12], flush=True)
                 #time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-                results = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                #results = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
                 #time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                 if debugging:
-                    print("Ended process with args:")
+                    pass
+                    #print("Ended process with args:")
                     #print(args[10] + args[12], flush=True)
-                    with open("fs_bak_debug.log", "a") as debug_file:
-                        debug_file.write("STDOUT:\n")
-                        debug_file.write(results.stdout.decode())
-                        debug_file.write("\n")
-                        debug_file.write("STDERR:\n")
-                        debug_file.write(results.stderr.decode())
-                        debug_file.write("\n")
+                    # with open("fs_bak_debug.log", "a") as debug_file:
+                    #     debug_file.write("STDOUT:\n")
+                    #     debug_file.write(results.stdout.decode())
+                    #     debug_file.write("\n")
+                    #     debug_file.write("STDERR:\n")
+                    #     debug_file.write(results.stderr.decode())
+                    #     debug_file.write("\n")
 
 
                 #time_diff = time_end - time_start
