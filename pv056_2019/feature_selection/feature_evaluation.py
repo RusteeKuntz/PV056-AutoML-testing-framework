@@ -133,7 +133,7 @@ class FeatureSelectionManager:
             _output_directory = _assert_trailing_slash(self.config.output_folder_path)
             _base_name = os.path.basename(train_path)
 
-            _run_args = []
+
             for feature_selection_config, hash_md5, fs_config_json_basename in fs_settings:
                 # here we prepare filters for currently useless columns that should not be considered for FS
                 filters = ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(  # noqa
@@ -166,7 +166,7 @@ class FeatureSelectionManager:
                 )]
 
                 # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
-                _run_args += ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
+                _run_args = ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
                               # add input/output file path and filters
                               'weka.filters.MultiFilter'] + filters + ['-i', train_path, '-o', _output_file_path]
 
