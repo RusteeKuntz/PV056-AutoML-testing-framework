@@ -142,10 +142,9 @@ class FeatureSelectionManager:
                     OD_VALUE_NAME
                 )]
 
-                # add input file path
-                fs_filter_args = '-i ' + train_path
+
                 # specify index of the label class (the last one)
-                fs_filter_args += ' -c last'  # in weka, arff columns are indexed from one
+                fs_filter_args = ' -c last'  # in weka, arff columns are indexed from one
                 # specify search method and its arguments
                 fs_filter_args += ' -S ' + '"'+_nest_double_quotes(get_weka_command_from_config(feature_selection_config.search_class))+'"'
                 # specify evaluation method and its arguments
@@ -160,13 +159,13 @@ class FeatureSelectionManager:
                     dot_split = _base_name.split('.')
                     _output_file_path = _output_directory + '.'.join(dot_split[:-1]) + _fs_identifier + '.' + dot_split[-1]
 
-                fs_filter_args += ' -o ' + _output_file_path
 
                 filters += ['-F', '"weka.filters.supervised.attribute.AttributeSelection {}"'.format(_nest_double_quotes(fs_filter_args))]
 
                 # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
                 _run_args += ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
-                              'weka.filters.MultiFilter'] + filters
+                              # add input/output file path and filters
+                              'weka.filters.MultiFilter', '-i ', train_path, '-o', _output_file_path] + filters
 
                 # here we write mapping of train files and test files along with a history of preprocessing configurations
                 mapping_csv_file.write(
