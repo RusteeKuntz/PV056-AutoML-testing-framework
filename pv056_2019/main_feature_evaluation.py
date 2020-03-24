@@ -44,7 +44,7 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
                 #time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                 if debugging:
 
-                    #print("Ended process with args:")
+                    print("Ended process with args:")
                     #print(args[10] + args[12], flush=True)
                     with open("fs_bak_debug.log", "a") as debug_file:
                         debug_file.write(" ".join(results.args))
