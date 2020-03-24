@@ -80,7 +80,8 @@ def main():
         with open(config_save_path, "w") as out_config:
             out_config.write(od_settings.json(sort_keys=True))
 
-        for train_file_path in train_data_loader.file_paths:
+        # TODO: for now, limit the number of done files to 4, just for debugging
+        for train_file_path in train_data_loader.file_paths[:4]:
             file_basename = os.path.basename(train_file_path)
             file_name = file_basename.replace(
                 "_train.arff", "_" + hex_name + "_train.arff"
