@@ -138,7 +138,7 @@ class FeatureSelectionManager:
                 # here we prepare filters for currently useless columns that should not be considered for FS
                 filters = ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(  # noqa
                     ID_NAME
-                )] + [' -F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(
+                )] + ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(
                     OD_VALUE_NAME
                 )]
 
@@ -168,7 +168,7 @@ class FeatureSelectionManager:
                 # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
                 _run_args += ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
                               # add input/output file path and filters
-                              'weka.filters.MultiFilter', '-i ', train_path, '-o', _output_file_path] + filters
+                              'weka.filters.MultiFilter'] + filters + ['-i', train_path, '-o', _output_file_path]
 
                 # here we write mapping of train files and test files along with a history of preprocessing configurations
                 mapping_csv_file.write(
