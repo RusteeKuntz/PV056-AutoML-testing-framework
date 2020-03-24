@@ -166,7 +166,7 @@ class FeatureSelectionManager:
 
                 # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
                 _run_args += ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
-                              'weka.filters.MultiFilter {0}'.format(filters)]
+                              'weka.filters.MultiFilter', filters]
 
                 # here we write mapping of train files and test files along with a history of preprocessing configurations
                 mapping_csv_file.write(
