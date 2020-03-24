@@ -111,7 +111,13 @@ class FeatureSelectionManager:
 
             fs_settings.append((feature_selection_config, hash_md5, fs_config_json_basename))
 
+        # TODO: remove limitation to 4 datasets later
+        limit_counter = 0
         for line in datasets_mapping_csv:
+            if limit_counter > 4:
+                break
+            else:
+                limit_counter += 1
             # split datasets csv line by commas, strip trailing EOL
             line_split = line.strip().split(",")
             # first two elements on any line contain train and test split paths.
@@ -151,9 +157,9 @@ class FeatureSelectionManager:
                 # specify index of the label class (the last one)
                 fs_filter_args += ' -c ' + str(index_of_class_attribute+1)  # in weka, arff columns are indexed from one
                 # specify search method and its arguments
-                fs_filter_args += ' -S ' + _nest_double_quotes('"'+get_weka_command_from_config(feature_selection_config.search_class)+'"')
+                fs_filter_args += ' -S ' + '"'+get_weka_command_from_config(feature_selection_config.search_class)+'"'
                 # specify evaluation method and its arguments
-                fs_filter_args += ' -E ' + _nest_double_quotes('"'+get_weka_command_from_config(feature_selection_config.eval_class)+'"')
+                fs_filter_args += ' -E ' + '"'+get_weka_command_from_config(feature_selection_config.eval_class)+'"'
 
                 _fs_identifier = '_FS-' + hash_md5
 
