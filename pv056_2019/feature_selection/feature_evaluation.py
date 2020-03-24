@@ -143,8 +143,9 @@ class FeatureSelectionManager:
                 )]
 
 
-                # specify index of the label class (the last one)
-                fs_filter_args = ' -c last'  # in weka, arff columns are indexed from one
+                # currently: don't specify index of the label class (default is the last one).
+                # After removing ID and OD_VALUE, default behaviour will suffice
+                #fs_filter_args = ' -c last'  # in weka, arff columns are indexed from one
                 # specify search method and its arguments
                 fs_filter_args += ' -S ' + '"'+_nest_double_quotes(get_weka_command_from_config(feature_selection_config.search_class))+'"'
                 # specify evaluation method and its arguments
