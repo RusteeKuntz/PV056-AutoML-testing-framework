@@ -47,6 +47,7 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
                     #print("Ended process with args:")
                     #print(args[10] + args[12], flush=True)
                     with open("fs_bak_debug.log", "a") as debug_file:
+                        debug_file.write(results.args)
                         debug_file.write("STDOUT:\n")
                         debug_file.write(results.stdout.decode())
                         debug_file.write("\n")
