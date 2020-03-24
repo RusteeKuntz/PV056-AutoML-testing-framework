@@ -36,7 +36,7 @@ class FSCommandWithInfo:
 def _nest_quotes(string, which_quotes="\""):
     # TODO: escaping escape slashes themselves might not be necessary, check it later
     # string = re.sub(r"\\", r"\\\\", string)
-    return re.sub(which_quotes, r"\\" + which_quotes, string)
+    return re.sub(which_quotes, "\\" + which_quotes, string)
 
 
 def _nest_double_quotes(string):
