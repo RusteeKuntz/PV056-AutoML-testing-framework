@@ -136,9 +136,9 @@ class FeatureSelectionManager:
             _run_args = []
             for feature_selection_config, hash_md5, fs_config_json_basename in fs_settings:
                 # here we prepare filters for currently useless columns that should not be considered for FS
-                filters = '-F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(  # noqa
+                filters = '-F', '"weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(  # noqa
                     ID_NAME
-                ) + ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
+                ) + ' -F', '"weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
                     OD_VALUE_NAME
                 )
 
@@ -162,11 +162,11 @@ class FeatureSelectionManager:
 
                 fs_filter_args += ' -o ' + _output_file_path
 
-                filters += '-F "weka.filters.supervised.attribute.AttributeSelection {}"'.format(_nest_double_quotes(fs_filter_args))
+                filters += '-F', '"weka.filters.supervised.attribute.AttributeSelection {}"'.format(_nest_double_quotes(fs_filter_args))
 
                 # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
                 _run_args += ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
-                              'weka.filters.MultiFilter', filters]
+                              'weka.filters.MultiFilter'] + filters
 
                 # here we write mapping of train files and test files along with a history of preprocessing configurations
                 mapping_csv_file.write(
