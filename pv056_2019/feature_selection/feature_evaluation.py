@@ -129,16 +129,6 @@ class FeatureSelectionManager:
             else:
                 conf_paths = []
 
-            with open(train_path) as arff_file:
-                dataframe_arff = DataFrameArff(arff_data=arff.load(arff_file))
-
-            # TODO: label might not be the last one. Last column might contain OD score, check if following solution works
-            # TODO: add another filter in from of this to filter out OD_VALUE_COLUMN
-            index_of_class_attribute = len(dataframe_arff.arff_data()["attributes"]) - 1
-            if dataframe_arff.arff_data()["attributes"][index_of_class_attribute] == OD_VALUE_NAME:
-                print("OD_VALUE_COLUMN recognized")
-                index_of_class_attribute -= 1
-
             # precompute output directory name (assert trailing slash) and extract base name of the dataset
             _output_directory = _assert_trailing_slash(self.config.output_folder_path)
             _base_name = os.path.basename(train_path)
@@ -153,13 +143,13 @@ class FeatureSelectionManager:
                 )]
 
                 # add input file path
-                fs_filter_args = ' -i ' + train_path
+                fs_filter_args = '-i ' + train_path
                 # specify index of the label class (the last one)
-                fs_filter_args += ' -c ' + str(index_of_class_attribute+1)  # in weka, arff columns are indexed from one
+                fs_filter_args += ' -c last'  # in weka, arff columns are indexed from one
                 # specify search method and its arguments
-                fs_filter_args += ' -S ' + '"'+get_weka_command_from_config(feature_selection_config.search_class)+'"'
+                fs_filter_args += ' -S ' + '"'+_nest_double_quotes(get_weka_command_from_config(feature_selection_config.search_class))+'"'
                 # specify evaluation method and its arguments
-                fs_filter_args += ' -E ' + '"'+get_weka_command_from_config(feature_selection_config.eval_class)+'"'
+                fs_filter_args += ' -E ' + '"'+_nest_double_quotes(get_weka_command_from_config(feature_selection_config.eval_class))+'"'
 
                 _fs_identifier = '_FS-' + hash_md5
 
