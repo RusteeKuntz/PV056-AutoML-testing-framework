@@ -36,7 +36,7 @@ class FSCommandWithInfo:
 def _nest_quotes(string, which_quotes="\""):
     # TODO: escaping escape slashes themselves might not be necessary, check it later
     # string = re.sub(r"\\", r"\\\\", string)
-    return re.sub(which_quotes, r"\\" + which_quotes, string)
+    return re.sub(which_quotes, "\\" + which_quotes, string)
 
 
 def _nest_double_quotes(string):
@@ -142,7 +142,7 @@ class FeatureSelectionManager:
                     OD_VALUE_NAME
                 )]
 
-                fs_filter_args = []
+                fs_filter_args = ""
                 # currently: don't specify index of the label class (default is the last one).
                 # After removing ID and OD_VALUE, default behaviour will suffice
                 #fs_filter_args = ' -c last'  # in weka, arff columns are indexed from one
