@@ -149,7 +149,7 @@ class ClassifierManager:
 
 class CLFCommandWithInfo:
     """
-    This class encapsulates CLF comman args for WEKA to be run from commandline
+    This class encapsulates CLF command args for WEKA to be run from commandline via python subporccess
     and also any further information needed so that we dont have to extract it back from
     the args manually. It helps with code readability and allows easier project management.
     """
