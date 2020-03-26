@@ -4,7 +4,6 @@ import hashlib
 import re
 from multiprocessing import Queue
 
-from pv056_2019.main_clf import CLFCommandWithInfo
 from pv056_2019.utils import ID_NAME, OD_VALUE_NAME
 
 from pv056_2019.schemas import ClassifierSchema
@@ -146,3 +145,32 @@ class ClassifierManager:
 
             queue.put(command)
             self._save_model_config(config_file_path, final_config_str)
+
+
+class CLFCommandWithInfo:
+    """
+    This class encapsulates CLF comman args for WEKA to be run from commandline
+    and also any further information needed so that we dont have to extract it back from
+    the args manually. It helps with code readability and allows easier project management.
+    """
+    args: [str]
+    dataset: str
+    train_path: str
+    clf_classname: str
+    fold: str
+    settings: [str]
+
+    def __init__(self,
+                 args: [str],
+                 dataset_name: str,
+                 train_path: str,
+                 clf: str,
+                 fold: str,
+                 settings: [str]
+                 ):
+        self.args = args
+        self.dataset = dataset_name
+        self.train_path = train_path
+        self.clf_classname = clf
+        self.fold = fold
+        self.settings = settings
