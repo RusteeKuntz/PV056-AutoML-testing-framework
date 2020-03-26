@@ -16,6 +16,35 @@ times_file: str
 timeout: int
 
 
+class CLFCommandWithInfo:
+    """
+    This class encapsulates CLF comman args for WEKA to be run from commandline
+    and also any further information needed so that we dont have to extract it back from
+    the args manually. It helps with code readability and allows easier project management.
+    """
+    args: [str]
+    dataset: str
+    train_path: str
+    clf_classname: str
+    fold: str
+    settings: [str]
+
+    def __init__(self,
+                 args: [str],
+                 dataset_name: str,
+                 train_path: str,
+                 clf: str,
+                 fold: str,
+                 settings: [str]
+                 ):
+        self.args = args
+        self.dataset = dataset_name
+        self.train_path = train_path
+        self.clf_classname = clf
+        self.fold = fold
+        self.settings = settings
+
+
 def _valid_config_path(path):
     import argparse
 
@@ -25,14 +54,18 @@ def _valid_config_path(path):
         return path
 
 
-def weka_worker(queue, blacklist, backup_ts):
+def weka_worker(queue,
+                blacklist,
+                #backup_ts
+):
     while not queue.empty():
-        args = queue.get()
+        command_with_info: CLFCommandWithInfo = queue.get()
+        args = command_with_info.args
         time_diff: float
 
-        file_split = args[6].split("/")[-1].split("_")
-        dataset = file_split[0]
-        clf = args[16].split(".")[-1]
+        #file_split = args[6].split("/")[-1].split("_")
+        dataset = command_with_info.dataset  # file_split[0]
+        clf = command_with_info.clf_classname  # args[16].split(".")[-1]
 
         if not (clf, dataset) in blacklist:
             try:
@@ -47,18 +80,23 @@ def weka_worker(queue, blacklist, backup_ts):
         else:
             time_diff = timeout
 
-        clf_fam = ".".join(args[16].split(".")[2:-1])
-        clf_hex = args[10].split("/")[-1].split("_")[-2]
-        fold = file_split[1]
-        od_hex = file_split[2]
-        rm = file_split[3].split("-")[1]
+        clf_fam = ".".join(command_with_info.clf_classname.split(".")[2:-1])
+        fold = command_with_info.fold  # file_split[1]
+
+        # TODO: this has to be replaced by list of settings successively applied during workflow
+        clf_hex = ""  # args[10].split("/")[-1].split("_")[-2]
+        od_hex = ""  # file_split[2]
+        rm = ""  # file_split[3].split("-")[1]
+
 
         with open(times_file, "a") as tf:
-            print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
-        with open(backup_ts, "a") as tf:
-            print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
+            print(",".join([dataset, fold, clf, clf_fam, clf_hex, command_with_info.settings.replace(",", ";"), str(time_diff)]), file=tf, flush=True)
+        # with open(backup_ts, "a") as tf:
+        #     print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
 
-        print(";".join([args[16], args[6], args[8]]), flush=True)
+        # args[16] is actually equal to full clf classname
+        # args[6] is actually a path to a train file
+        print(";".join([command_with_info.clf_classname, command_with_info.train_path, args[8]]), flush=True)
 
 
 def main():
@@ -89,16 +127,18 @@ def main():
     blacklist_file = conf.blacklist_file
     timeout = conf.timeout
     with open(conf.times_output, "w+") as tf:
-        print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
-    backup_ts = "backups/" + conf.times_output.split("/")[-1].replace(".csv", datetime.now()
-                                                                      .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
-    with open(backup_ts, "w+") as tf:
-        print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
+        print("dataset,fold,clf,clf_family,settings,clf_time", file=tf, flush=True)
+    # backup_ts = "backups/" + conf.times_output.split("/")[-1].replace(".csv", datetime.now()
+    #                                                                  .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
+    # with open(backup_ts, "w+") as tf:
+    #     print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
 
     open(blacklist_file, "a+").close()
 
+    # here we read the dataset.csv with tuples of train/test files
     with open(args.datasets_csv, "r") as datasets_csv_file:
         reader = csv.reader(datasets_csv_file, delimiter=",")
+        # here we get an array of datasets.csv lines arranged by the size of the file in first column of each row
         datasets = sorted([row for row in reader], key=lambda x: os.path.getsize(x[0]))
 
     clf_man = ClassifierManager(conf.output_folder, conf.weka_jar_path)
@@ -112,7 +152,8 @@ def main():
         queue = Queue()
         clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
 
-        pool = [Process(target=weka_worker, args=(queue, blacklist, backup_ts,)) for _ in range(conf.n_jobs)]
+        # TODO xbajger: previously, here as an arg to weka_worker a "backup_ts" file was supplied. It shan't be needed
+        pool = [Process(target=weka_worker, args=(queue, blacklist)) for _ in range(conf.n_jobs)]
 
         try:
             [process.start() for process in pool]

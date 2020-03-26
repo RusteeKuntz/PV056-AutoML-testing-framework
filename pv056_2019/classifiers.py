@@ -3,6 +3,8 @@ import os
 import hashlib
 import re
 from multiprocessing import Queue
+
+from pv056_2019.main_clf import CLFCommandWithInfo
 from pv056_2019.utils import ID_NAME, OD_VALUE_NAME
 
 from pv056_2019.schemas import ClassifierSchema
@@ -35,15 +37,15 @@ class ClassifierManager:
 
 
     @staticmethod
-    def _create_final_config_file(dataset_conf_path, classifier):
-        if not dataset_conf_path:
-            json_config = {}
-        else:
+    def _create_final_config_file(dataset_conf_paths, classifier):
+        """This method returns the final full configuration of an experiment in the form of JSON string"""
+        json_configs = []
+        for dataset_conf_path in dataset_conf_paths:
             with open(dataset_conf_path, "r") as f:
-                json_config = json.load(f)
+                json_configs.append(json.load(f))
 
         final_config = json.dumps(
-            {"model_config": classifier.dict(), "ad_config": json_config},
+            {"model_config": classifier.dict(), "ad_config": json_configs},
             indent=4,
             separators=(",", ":"),
         )
@@ -61,17 +63,22 @@ class ClassifierManager:
         dataset_tuples: List[List[str]],
     ):
         for dataset_tuple, classifier in product(dataset_tuples, classifiers):
-            train_path, test_path, conf_path = dataset_tuple
+            # first two elements the datase_tuple are train file and test file
+            train_path, test_path = dataset_tuple[:2]
+            conf_paths = dataset_tuple[2:]
 
             if not os.path.exists(train_path):
                 raise IOError("Input dataset '{0}' does not exist.".format(train_path))
 
-            # Create log_file names
-            final_config_str = self._create_final_config_file(conf_path, classifier)
+            # Get the string with final configuration of the whole workflow
+            final_config_str = self._create_final_config_file(conf_paths, classifier)
+            # get identifying hash
             hash_md5 = hashlib.md5(final_config_str.encode()).hexdigest()
 
-            basename = os.path.basename(train_path)
-            dataset_name = basename.split("_")[:2]
+            basename: str = os.path.basename(train_path)
+            basename_split: [str] = basename.split("_")
+            dataset_name = basename_split[0]
+            dataset_fold = basename_split[1]
 
             removed_arr = self._regex_removed.findall(basename)
             if removed_arr:
@@ -79,9 +86,12 @@ class ClassifierManager:
             else:
                 removed_str = ""
 
+            #this is the filepath for the prediction output from trained WEKA classifier
             predict_file_path = os.path.join(
                 self.log_folder,
-                "_".join(dataset_name)
+                dataset_name
+                + "_"
+                + dataset_fold
                 + "_"
                 + classifier.name
                 + "_"
@@ -89,6 +99,7 @@ class ClassifierManager:
                 + removed_str
                 + ".csv",
             )
+            # this is the filepath for a JSON with full configuration of an experiment
             config_file_path = os.path.join(
                 self.log_folder, classifier.name + "_" + hash_md5 + ".json"
             )
@@ -131,5 +142,7 @@ class ClassifierManager:
                 "weka.classifiers.meta.FilteredClassifier",
             ] + run_args
 
-            queue.put(run_args)
+            command = CLFCommandWithInfo(args=run_args, dataset_name=dataset_name, train_path=train_path, clf=classifier.class_name, fold=dataset_fold, settings=final_config_str)
+
+            queue.put(command)
             self._save_model_config(config_file_path, final_config_str)
