@@ -112,10 +112,10 @@ class FeatureSelectionManager:
 
             fs_settings.append((feature_selection_config, hash_md5, fs_config_json_basename))
 
-        # TODO: remove limitation to 100 datasets later
+        # TODO: remove limitation to 20 datasets later
         limit_counter = 0
         for line in datasets_mapping_csv:
-            if limit_counter > 100:
+            if limit_counter > 20:
                 break
             else:
                 limit_counter += 1
