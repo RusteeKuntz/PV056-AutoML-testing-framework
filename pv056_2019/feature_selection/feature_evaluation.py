@@ -106,7 +106,8 @@ class FeatureSelectionManager:
             # from overwriting older files with different settings
             hash_md5 = hashlib.md5(feature_selection_config.json().encode()).hexdigest()
             fs_config_json_basename = hash_md5 + ".json"
-            with open(fs_config_json_basename, "w") as config_json:
+
+            with open(os.path.join(self.config.output_folder_path, fs_config_json_basename), "w") as config_json:
                 config_json.write(feature_selection_config.json())
 
             fs_settings.append((feature_selection_config, hash_md5, fs_config_json_basename))

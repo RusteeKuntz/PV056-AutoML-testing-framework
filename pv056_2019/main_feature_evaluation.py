@@ -12,7 +12,7 @@ from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionMana
     FSCommandWithInfo
 
 
-debugging = True
+debugging = False
 
 
 
