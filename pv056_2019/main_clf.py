@@ -5,44 +5,14 @@ import os
 import resource
 import subprocess
 import sys
-from datetime import datetime
 from multiprocessing import Process, Queue, Manager
 
-from pv056_2019.classifiers import ClassifierManager
+from pv056_2019.classifiers import ClassifierManager, CLFCommandWithInfo
 from pv056_2019.schemas import RunClassifiersCongfigSchema
 
 blacklist_file: str
 times_file: str
 timeout: int
-
-
-class CLFCommandWithInfo:
-    """
-    This class encapsulates CLF comman args for WEKA to be run from commandline
-    and also any further information needed so that we dont have to extract it back from
-    the args manually. It helps with code readability and allows easier project management.
-    """
-    args: [str]
-    dataset: str
-    train_path: str
-    clf_classname: str
-    fold: str
-    settings: [str]
-
-    def __init__(self,
-                 args: [str],
-                 dataset_name: str,
-                 train_path: str,
-                 clf: str,
-                 fold: str,
-                 settings: [str]
-                 ):
-        self.args = args
-        self.dataset = dataset_name
-        self.train_path = train_path
-        self.clf_classname = clf
-        self.fold = fold
-        self.settings = settings
 
 
 def _valid_config_path(path):
