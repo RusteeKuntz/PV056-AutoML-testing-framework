@@ -89,13 +89,13 @@ def main():
         required=True,
     )
     parser.add_argument(
-        "-fs",
-        "--fs-mapping-csv-out",
+        "-do",
+        "--datasets-csv-out",
         help="path to a csv file which contains datasets used for FS and their respective result files",
         required=False,
     )
     parser.add_argument(
-        "-d",
+        "-di",
         "--datasets-csv-in",
         type=_valid_config_path,
         help="Path to csv file that contains previous data files mappings, locations and for example OD configurations",
@@ -112,7 +112,7 @@ def main():
 
     fs_manager = FeatureSelectionManager(conf)
     # default path to a CSV with datasets and their FS results is with the results
-    fs_mapping_csv_path = "fs_mapping.csv" if args.fs_mapping_csv_out is None else args.fs_mapping_csv_out
+    fs_mapping_csv_path = "fs_mapping.csv" if args.datasets_csv_out is None else args.datasets_csv_out
 
     # this manager allows us to make synchronized data structures
     with Manager() as manager:
