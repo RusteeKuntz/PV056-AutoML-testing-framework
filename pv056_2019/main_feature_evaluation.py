@@ -1,4 +1,4 @@
-import argparse
+import argparse, os
 import json
 # TODO: Move the original definition into Utils (if possible)
 import subprocess
@@ -10,9 +10,11 @@ from pv056_2019.main_clf import _valid_config_path
 from pv056_2019.schemas import FeatureSelectionStepSchema
 from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionManager, _assert_trailing_slash, \
     FSCommandWithInfo
+from pv056_2019.utils import valid_path
 
 
 debugging = False
+
 
 
 
@@ -84,7 +86,7 @@ def main():
     parser.add_argument(
         "-c",
         "--config-fs",
-        type=_valid_config_path,
+        type=lambda x: valid_path(x, "Invalid path to configuration json file!"),
         help="path to feature selection config file",
         required=True,
     )
@@ -97,7 +99,7 @@ def main():
     parser.add_argument(
         "-di",
         "--datasets-csv-in",
-        type=_valid_config_path,
+        type=lambda x: valid_path(x, "Invalid path to input csv file!"),
         help="Path to csv file that contains previous data files mappings, locations and for example OD configurations",
         required=True,
     )
