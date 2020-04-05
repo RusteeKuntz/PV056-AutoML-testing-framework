@@ -45,7 +45,7 @@ class OutlierDetectorSchema(BaseModel):
 
 
 class ODStepConfigSchema(BaseModel):
-    train_split_dir: str
+    #train_split_dir: str
     od_methods: List[OutlierDetectorSchema]
     train_od_dir: str
     n_jobs: int = 1
