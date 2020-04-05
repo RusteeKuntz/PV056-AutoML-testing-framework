@@ -18,9 +18,9 @@ def main():
     parser.add_argument("--config-file", "-c", required=True, help="JSON configuration")
     parser.add_argument(
         "--datasets-file",
-        "-d",
+        "-do",
         required=True,
-        help="Filename of output datasets config",
+        help="Filename of output datasets csv tracking files relationships",
     )
 
     args = vars(parser.parse_args())
