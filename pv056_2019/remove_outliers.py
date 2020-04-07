@@ -43,9 +43,6 @@ def main():
         with open(args["datasets_csv_in"], "r") as csv_in:
             reader = csv.reader(csv_in)
 
-        # for dataframe, train_file_path in zip(
-        #     train_data_loader.load_files(), train_data_loader.file_paths
-        # ):
 
         for row in reader:
             train_file_path = row[0]
@@ -91,7 +88,8 @@ def main():
                         new_frame = dataframe
                     else:
                         # here the outliers are removed
-                        new_frame = dataframe.select_by_od_quantile(1 - (percentage / 100), conf.reverse)
+                        rev = True if percentage < 0 else False
+                        new_frame = dataframe.select_by_od_quantile(1 - (percentage / 100), rev)
                         new_frame.pop(OD_VALUE_NAME)
                         new_frame._arff_data["attributes"] = [
                             x
@@ -124,7 +122,7 @@ def main():
                         [
                             file_save_path,
                             test_file_path,
-                            configs_history+[conf_save_path],
+                            ",".join(configs_history + [conf_save_path]),
                         ]
                     )
                 except KeyboardInterrupt as keyb:
