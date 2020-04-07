@@ -65,7 +65,7 @@ class RemoveOutliersConfigSchema(BaseModel):
     percentage: Union[float, List[float]]
     train_removed_dir: str
     #reverse: bool = False
-    keep_original: bool = True
+    #keep_original: bool = True
 
     @validator("percentage")
     def percentage_validator(cls, value):

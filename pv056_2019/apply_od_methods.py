@@ -125,7 +125,7 @@ def main():
     with open(args["datasets_csv_in"], "r") as datasets_csv_in:
         reader = csv.reader(datasets_csv_in, delimiter=",")
         # here we get an array of datasets.csv lines arranged by the size of the file in first column of each row
-        datasets_rows = sorted([row for row in reader], key=lambda x: os.path.getsize(x[0]))
+        datasets_rows = sorted([row for row in reader], key=lambda x: os.path.getsize(x[0]) if os.path.exists(x[0]) else 0)
 
     queue = Queue()
     # last considered setting is a baseline setting, which is basically empty

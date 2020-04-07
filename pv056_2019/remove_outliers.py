@@ -3,7 +3,6 @@ import csv
 import json
 import os
 import sys
-from _md5 import md5
 
 from pv056_2019.data_loader import DataLoader
 from pv056_2019.schemas import RemoveOutliersConfigSchema
@@ -32,7 +31,7 @@ def main():
     args = vars(parser.parse_args())
 
     with open(args["config_file"]) as json_file:
-        conf = RemoveOutliersConfigSchema(**json.load(json_file))
+        conf: RemoveOutliersConfigSchema = RemoveOutliersConfigSchema(**json.load(json_file))
     #train_data_loader = DataLoader(conf.train_od_dir, regex=r".*_train\.arff")
 
     datasets_output = []
