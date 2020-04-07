@@ -129,7 +129,7 @@ def main():
 
     queue = Queue()
     # last considered setting is a baseline setting, which is basically empty
-    for od_settings in conf.od_methods + [{"name": None, "parameters": {}}]:
+    for od_settings in conf.od_methods + [OutlierDetectorSchema(**{"name": None, "parameters": {}})]:
         # if the setting is empty (None) take it as baseline setting and mark it by appropriate hex string
         if od_settings.name is None:
             hex_name = BASELINE_NAME
