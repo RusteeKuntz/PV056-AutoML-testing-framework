@@ -11,6 +11,7 @@ from pv056_2019.data_loader import DataLoader
 from pv056_2019.schemas import ODStepConfigSchema, OutlierDetectorSchema
 from pv056_2019.utils import valid_path, BASELINE_NAME
 
+NONE_STR = "none"
 
 class ODJobInfo:
     dataset: str
@@ -47,7 +48,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
             dataframe = DataLoader._load_arff_file(od_job.input_filepath)
 
             # here we check if the OD setting is empty (that means we have hit a baseline file setting)
-            if od_job.setting.name is None:
+            if od_job.setting.name == NONE_STR:
                 # skip outlier detection for baseline file and just dump it straight to the destination path
                 od_frame = dataframe
                 od_time = 0
@@ -129,7 +130,6 @@ def main():
 
     queue = Queue()
     # last considered setting is a baseline setting, which is basically empty
-    NONE_STR = "none"
     for od_settings in conf.od_methods + [OutlierDetectorSchema(**{"name": NONE_STR, "parameters": {}})]:
         # if the setting is empty (None) take it as baseline setting and mark it by appropriate hex string
         if od_settings.name == NONE_STR:
