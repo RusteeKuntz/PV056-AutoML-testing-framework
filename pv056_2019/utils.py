@@ -10,6 +10,7 @@ OD_VALUE_NAME = "OD_VALUE"
 # *********************************************************
 
 BASELINE_NAME = "baseline"
+NONE_STR = "none"
 
 
 def valid_path(path, message):

@@ -5,6 +5,7 @@ from typing import List, Union
 from pydantic import BaseModel, validator
 
 from pv056_2019.outlier_detection import DETECTORS
+from pv056_2019.utils import NONE_STR
 
 
 class SplitterSchema(BaseModel):
@@ -34,7 +35,7 @@ class OutlierDetectorSchema(BaseModel):
 
     @validator("name")
     def detector_name(cls, value):
-        if value not in DETECTORS.keys():
+        if value not in DETECTORS.keys() and value != NONE_STR:
             raise ValueError(
                 "Detector {} is not supported. Supported detectors are: {}".format(
                     value, ", ".join(DETECTORS.keys())

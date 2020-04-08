@@ -9,9 +9,8 @@ from multiprocessing import Process, Queue
 
 from pv056_2019.data_loader import DataLoader
 from pv056_2019.schemas import ODStepConfigSchema, OutlierDetectorSchema
-from pv056_2019.utils import valid_path, BASELINE_NAME
+from pv056_2019.utils import valid_path, BASELINE_NAME, NONE_STR
 
-NONE_STR = "none"
 
 class ODJobInfo:
     dataset: str
