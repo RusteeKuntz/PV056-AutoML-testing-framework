@@ -47,7 +47,7 @@ def main():
                 configs_history = row[2:]
                 preceeding_config_json = configs_history[-1]
                 preceeding_hex = os.path.basename(preceeding_config_json).split(".")[0]
-                dataframe = DataLoader._load_data_file(train_file_path)
+                dataframe = DataLoader._load_arff_file(train_file_path)
 
                 if preceeding_hex == BASELINE_NAME:
                     percentages = [0]
