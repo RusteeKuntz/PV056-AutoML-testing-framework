@@ -72,7 +72,7 @@ def main():
 
         classifier = config_dict[conf_hash]["model_config"].get("class_name").split(".")[-1]
 
-        od_name = config_dict[conf_hash]["ad_config"].get("name", "")
+        od_name = config_dict[conf_hash]["od_configs"].get("name", "")
 
         dataframe = pd.read_csv(os.path.join(conf.results_dir, fl))
         all_results = dataframe.shape[0]

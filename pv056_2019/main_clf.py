@@ -1,5 +1,6 @@
 import argparse
 import csv
+from datetime import datetime
 import json
 import os
 import resource
@@ -10,9 +11,9 @@ from multiprocessing import Process, Queue, Manager
 from pv056_2019.classifiers import ClassifierManager, CLFCommandWithInfo
 from pv056_2019.schemas import RunClassifiersCongfigSchema
 
-blacklist_file: str
-times_file: str
-timeout: int
+#blacklist_file: str
+#times_file: str
+#timeout: int
 
 
 def _valid_config_path(path):
@@ -26,7 +27,9 @@ def _valid_config_path(path):
 
 def weka_worker(queue,
                 blacklist,
-                #backup_ts
+                timeout,
+                times_file,
+                backup_ts
 ):
     while not queue.empty():
         command_with_info: CLFCommandWithInfo = queue.get()
@@ -58,11 +61,11 @@ def weka_worker(queue,
         od_hex = ""  # file_split[2]
         rm = ""  # file_split[3].split("-")[1]
 
-
+        row_string = ",".join([dataset, fold, clf, clf_fam, clf_hex, command_with_info.settings.replace(",", ";"), str(time_diff)])
         with open(times_file, "a") as tf:
-            print(",".join([dataset, fold, clf, clf_fam, clf_hex, command_with_info.settings.replace(",", ";"), str(time_diff)]), file=tf, flush=True)
-        # with open(backup_ts, "a") as tf:
-        #     print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
+            print(row_string, file=tf, flush=True)
+        with open(backup_ts, "a") as tf:
+            print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
 
         # args[16] is actually equal to full clf classname
         # args[6] is actually a path to a train file
@@ -79,10 +82,10 @@ def main():
         required=True,
     )
     parser.add_argument(
-        "-d",
-        "--datasets-csv",
+        "-di",
+        "--datasets-csv-in",
         type=_valid_config_path,
-        help="Path to csv with data files",
+        help="Path to csv with train/test/configs filepaths.",
         required=True,
     )
     args = parser.parse_args()
@@ -90,32 +93,42 @@ def main():
     with open(args.config_clf, "r") as config_file:
         conf = RunClassifiersCongfigSchema(**json.load(config_file))
 
-    global times_file
-    global blacklist_file
-    global timeout
-    times_file = conf.times_output
-    blacklist_file = conf.blacklist_file
-    timeout = conf.timeout
-    with open(conf.times_output, "w+") as tf:
-        print("dataset,fold,clf,clf_family,settings,clf_time", file=tf, flush=True)
-    # backup_ts = "backups/" + conf.times_output.split("/")[-1].replace(".csv", datetime.now()
-    #                                                                  .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
-    # with open(backup_ts, "w+") as tf:
-    #     print("dataset,fold,clf,clf_family,clf_hex,od_hex,removed,clf_time", file=tf)
-
-    open(blacklist_file, "a+").close()
-
     # here we read the dataset.csv with tuples of train/test files
-    with open(args.datasets_csv, "r") as datasets_csv_file:
+    with open(args.datasets_csv_in, "r") as datasets_csv_file:
         reader = csv.reader(datasets_csv_file, delimiter=",")
         # here we get an array of datasets.csv lines arranged by the size of the file in first column of each row
-        datasets = sorted([row for row in reader], key=lambda x: os.path.getsize(x[0]))
+        # paths are checked before usage. If they do not exist, 0 is used as size for comparison
+        datasets = sorted([row for row in reader],
+                          key=lambda x: os.path.getsize(x[0]) if os.path.exists(x[0]) else 0)
+
+    # They taught us not to use GLOBAL variables, so I replaced them with normal variables and pass them as params
+    #global times_file
+    #global blacklist_file
+    #global timeout
+    #times_file = conf.times_output
+    #blacklist_file = conf.blacklist_file
+    #timeout = conf.timeout
+
+    # count the number of path to config jsons (the number of steps applied)
+    number_of_steps = len(datasets[0][2:])
+    headdings = "dataset,fold,clf,clf_family,clf_time," + ",".join(["step_{}".format(x) for x in range(number_of_steps)])
+    with open(conf.times_output, "w+") as tf:
+        print(headdings, file=tf, flush=True)
+    backup_ts = "backups/" + conf.times_output.split("/")[-1].replace(".csv", datetime.now()
+                                                                     .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
+    with open(backup_ts, "w+") as tf:
+        print(headdings, file=tf)
+
+    #open(blacklist_file, "a+").close()
+
 
     clf_man = ClassifierManager(conf.output_folder, conf.weka_jar_path)
 
     with Manager() as manager:
+        # create concurrency safe list for sharing between threads/processes
         blacklist = manager.list()
-        with open(blacklist_file, "r") as bf:
+        with open(conf.blacklist_file, "r") as bf:
+            # read files from blacklist file and put them into the actual list
             for i in bf:
                 blacklist.append(i.replace("\n", "").split(','))
 
@@ -123,7 +136,7 @@ def main():
         clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
 
         # TODO xbajger: previously, here as an arg to weka_worker a "backup_ts" file was supplied. It shan't be needed
-        pool = [Process(target=weka_worker, args=(queue, blacklist)) for _ in range(conf.n_jobs)]
+        pool = [Process(target=weka_worker, args=(queue, blacklist, conf.timeout, conf.times_output, backup_ts)) for _ in range(conf.n_jobs)]
 
         try:
             [process.start() for process in pool]

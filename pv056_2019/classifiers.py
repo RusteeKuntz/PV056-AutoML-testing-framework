@@ -44,7 +44,7 @@ class ClassifierManager:
                 json_configs.append(json.load(f))
 
         final_config = json.dumps(
-            {"model_config": classifier.dict(), "ad_config": json_configs},
+            {"model_config": classifier.dict(), "od_configs": json_configs},
             indent=4,
             separators=(",", ":"),
         )
