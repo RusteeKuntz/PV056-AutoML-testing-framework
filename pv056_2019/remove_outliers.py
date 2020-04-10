@@ -47,7 +47,11 @@ def main():
                 configs_history = row[2:]
                 preceeding_config_json = configs_history[-1]
                 preceeding_hex = os.path.basename(preceeding_config_json).split(".")[0]
-                dataframe = DataLoader._load_arff_file(train_file_path)
+                if os.path.exists(train_file_path):
+                    dataframe = DataLoader._load_arff_file(train_file_path)
+                else:
+                    print("File {} does not exist and was skipped.".format(train_file_path))
+                    continue
 
                 if preceeding_hex == BASELINE_NAME:
                     percentages = [0]
