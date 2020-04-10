@@ -141,7 +141,7 @@ def main():
         print("\nInterupted!", flush=True, file=sys.stderr)
 
     # Here we write the datasets mapping
-    with open(args["datasets_file"], "w") as datasets_file:
+    with open(args["datasets_csv_out"], "w") as datasets_file:
         writer = csv.writer(datasets_file, delimiter=",")
         writer.writerows(datasets_output)
 
