@@ -112,7 +112,7 @@ def main():
     with open(conf.times_output, "w") as tf:
         print("dataset,fold,od_hex,od_time", file=tf)
     backup_ts = "backups/" + os.path.basename(conf.times_output).replace(".csv", datetime.now()
-                                                                         .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
+                                                                         .strftime("_backup_%Y-%m-%d_%H-%M.csv"))
     # backup file form accidental overwrite
     with open(backup_ts, "w") as tf:
         print("dataset,fold,od_hex,od_time", file=tf)
