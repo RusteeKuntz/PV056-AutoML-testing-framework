@@ -129,45 +129,46 @@ def main():
 
     queue = Queue()
     # last considered setting is a baseline setting, which is basically empty
-    for od_settings in conf.od_methods + [OutlierDetectorSchema(**{"name": NONE_STR, "parameters": {}})]:
-        # if the setting is empty (None) take it as baseline setting and mark it by appropriate hex string
-        if od_settings.name == NONE_STR:
-            hex_name = BASELINE_NAME
-        else:
-            hex_name = md5(od_settings.json(sort_keys=True).encode("UTF-8")).hexdigest()
-        config_save_path = os.path.join(conf.train_od_dir, hex_name + ".json")
-        with open(config_save_path, "w") as out_config:
-            out_config.write(od_settings.json(sort_keys=True))
+    with open(args["datasets_csv_out"], "w", encoding="UTF-8") as output_csv:
+        for od_settings in conf.od_methods + [OutlierDetectorSchema(**{"name": NONE_STR, "parameters": {}})]:
+            # if the setting is empty (None) take it as baseline setting and mark it by appropriate hex string
+            if od_settings.name == NONE_STR:
+                hex_name = BASELINE_NAME
+            else:
+                hex_name = md5(od_settings.json(sort_keys=True).encode("UTF-8")).hexdigest()
+            config_save_path = os.path.join(conf.train_od_dir, hex_name + ".json")
+            with open(config_save_path, "w") as out_config:
+                out_config.write(od_settings.json(sort_keys=True))
 
-        for row in datasets_rows:
-            train_file_path = row[0]
-            test_file_path = row[1]
-            previous_configs = row[2:]
+            for row in datasets_rows:
+                train_file_path = row[0]
+                test_file_path = row[1]
+                previous_configs = row[2:]
 
-            file_basename: str = os.path.basename(train_file_path)
-            new_file_name = file_basename.replace(
-                "_train.arff", "_OD-" + hex_name + "_train.arff"
-            )
-            file_save_path = os.path.join(conf.train_od_dir, new_file_name)
+                file_basename: str = os.path.basename(train_file_path)
+                new_file_name = file_basename.replace(
+                    "_train.arff", "_OD-" + hex_name + "_train.arff"
+                )
+                file_save_path = os.path.join(conf.train_od_dir, new_file_name)
 
-            # TODO: extract dataset name and fold from SPLIT config (first json in csv)
-            name_split = file_basename.split("_")
-            dataset_name: str = name_split[0]
-            fold = name_split[1]
+                # TODO: extract dataset name and fold from SPLIT config (first json in csv)
+                name_split = file_basename.split("_")
+                dataset_name: str = name_split[0]
+                fold = name_split[1]
 
-            # write result paths into an output dataset ahead of actualy creating those files to avoid concurrent writing
-            # between processes
-            with open(args["datasets_csv_out"], "w", encoding="UTF-8") as output_csv:
+                # write result paths into an output dataset ahead of actualy creating those files to avoid concurrent writing
+                # between processes
+
                 output_csv.write(",".join([file_save_path, test_file_path] + previous_configs + [config_save_path]) + "\n")
 
-            queue.put(ODJobInfo(
-                dataset=dataset_name,
-                fold=fold,
-                setting=od_settings,
-                hex=hex_name,
-                input_filepath=train_file_path,
-                output_filepath=file_save_path
-            ))
+                queue.put(ODJobInfo(
+                    dataset=dataset_name,
+                    fold=fold,
+                    setting=od_settings,
+                    hex=hex_name,
+                    input_filepath=train_file_path,
+                    output_filepath=file_save_path
+                ))
 
     pool = [Process(target=od_worker, args=(queue, conf.times_output, backup_ts,)) for _ in range(conf.n_jobs)]
 
