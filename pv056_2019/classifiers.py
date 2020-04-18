@@ -59,92 +59,99 @@ class ClassifierManager:
         self,
         queue: Queue,
         classifiers: List[ClassifierSchema],
-        dataset_tuples: List[List[str]],
+        csv_rows: List[List[str]],
+        out_csv_path: str
     ):
-        for dataset_tuple, classifier in product(dataset_tuples, classifiers):
-            # first two elements the datase_tuple are train file and test file
-            train_path, test_path = dataset_tuple[:2]
-            conf_paths = dataset_tuple[2:]
+        # we write to the output CSV here so we do not have to handle concurrent file writing
+        with open(out_csv_path, "w", encoding="UTF-8") as out_csv:
+            for csv_row, classifier in product(csv_rows, classifiers):
+                # first two elements the datase_tuple are train file and test file
+                train_path, test_path = csv_row[:2]
+                conf_paths = csv_row[2:]
 
-            if not os.path.exists(train_path):
-                raise IOError("Input dataset '{0}' does not exist.".format(train_path))
+                if not os.path.exists(train_path):
+                    raise IOError("Input dataset '{0}' does not exist.".format(train_path))
 
-            # Get the string with final configuration of the whole workflow
-            final_config_str = self._create_final_config_file(conf_paths, classifier)
-            # get identifying hash
-            hash_md5 = hashlib.md5(final_config_str.encode()).hexdigest()
+                # Get the string with final configuration of the whole workflow
+                final_config_str = self._create_final_config_file(conf_paths, classifier)
+                # get identifying hash
+                hash_md5 = hashlib.md5(final_config_str.encode()).hexdigest()
 
-            basename: str = os.path.basename(train_path)
-            basename_split: [str] = basename.split("_")
-            dataset_name = basename_split[0]
-            dataset_fold = basename_split[1]
+                basename: str = os.path.basename(train_path)
+                basename_split: [str] = basename.split("_")
+                dataset_name = basename_split[0]
+                dataset_fold = basename_split[1]
 
-            removed_arr = self._regex_removed.findall(basename)
-            if removed_arr:
-                removed_str = removed_arr[0]
-            else:
-                removed_str = ""
+                # TODO: "removed" string in the filename shall not be considered as part of procedures
+                # removed_arr = self._regex_removed.findall(basename)
+                # if removed_arr:
+                #     removed_str = removed_arr[0]
+                # else:
+                #     removed_str = ""
 
-            #this is the filepath for the prediction output from trained WEKA classifier
-            predict_file_path = os.path.join(
-                self.output_folder,
-                dataset_name
-                + "_"
-                + dataset_fold
-                + "_"
-                + classifier.name
-                + "_"
-                + hash_md5
-                + removed_str
-                + ".csv",
-            )
-            # this is the filepath for a JSON with full configuration of an experiment
-            config_file_path = os.path.join(
-                self.output_folder, classifier.name + "_" + hash_md5 + ".json"
-            )
-
-            # Prepare arguments for classifier
-            run_args: List[str] = []
-            run_args += ["-t", train_path]  # input dataset
-            run_args += ["-T", test_path]  # input dataset
-            run_args += [
-                "-classifications",
-                "weka.classifiers.evaluation.output.prediction.CSV -p first -file {0} -suppress".format(  # noqa
-                    predict_file_path
-                ),
-            ]
-
-            # Add Weka filters
-            # here we filter out OD column and INDEX column
-            str_filters = '-F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(  # noqa
-                ID_NAME
-            ) + ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
-                OD_VALUE_NAME
-            )
-            for one_filter in classifier.filters:
-                str_filters += '-F "{0} {1}"'.format(
-                    one_filter.name, " ".join(one_filter.args)
+                #this is the filepath for the prediction output from trained WEKA classifier
+                predict_file_path = os.path.join(
+                    self.output_folder,
+                    dataset_name
+                    + "_"
+                    + dataset_fold
+                    + "_"
+                    + classifier.name
+                    + "_"
+                    + hash_md5
+                    #+ removed_str
+                    + ".csv",
                 )
-            run_args += ["-F", "weka.filters.MultiFilter {0}".format(str_filters)]
+                # this is the filepath for a JSON with full configuration of an experiment
+                config_file_path = os.path.join(
+                    self.output_folder, classifier.name + "_" + hash_md5 + ".json"
+                )
 
-            run_args += ["-S", "1"]  # Seed
-            run_args += ["-W", classifier.class_name]
-            if classifier.args:
-                run_args += ["--"]
-                run_args += classifier.args
+                # Prepare arguments for classifier
+                run_args: List[str] = []
+                run_args += ["-t", train_path]  # input dataset
+                run_args += ["-T", test_path]  # input dataset
+                run_args += [
+                    "-classifications",
+                    "weka.classifiers.evaluation.output.prediction.CSV -p first -file {0} -suppress".format(  # noqa
+                        predict_file_path
+                    ),
+                ]
 
-            run_args = [
-                "java",
-                "-Xmx1024m",
-                "-cp",
-                self.weka_jar_path,
-                "weka.classifiers.meta.FilteredClassifier",
-            ] + run_args
+                # Add Weka filters
+                # here we filter out OD column and INDEX column
+                str_filters = '-F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(  # noqa
+                    ID_NAME
+                ) + ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
+                    OD_VALUE_NAME
+                )
+                for one_filter in classifier.filters:
+                    str_filters += '-F "{0} {1}"'.format(
+                        one_filter.name, " ".join(one_filter.args)
+                    )
+                run_args += ["-F", "weka.filters.MultiFilter {0}".format(str_filters)]
 
-            command = CLFCommandWithInfo(args=run_args, dataset_name=dataset_name, train_path=train_path, clf=classifier.class_name, fold=dataset_fold, settings=final_config_str)
+                run_args += ["-S", "1"]  # Seed
+                run_args += ["-W", classifier.class_name]
+                if classifier.args:
+                    run_args += ["--"]
+                    run_args += classifier.args
 
-            queue.put(command)
-            self._save_model_config(config_file_path, final_config_str)
+                run_args = [
+                    "java",
+                    "-Xmx1024m",
+                    "-cp",
+                    self.weka_jar_path,
+                    "weka.classifiers.meta.FilteredClassifier",
+                ] + run_args
+
+                command = CLFCommandWithInfo(args=run_args, dataset_name=dataset_name, train_path=train_path, clf=classifier.class_name, fold=dataset_fold, settings=final_config_str)
+
+                queue.put(command)
+
+                # we write to the output CSV here so we do not have to handle concurrent file writing
+                out_csv.write(",".join([predict_file_path, test_path] + conf_paths + [classifier.dict()]))
+                self._save_model_config(config_file_path, final_config_str)
 
 
 class CLFCommandWithInfo:
@@ -166,7 +173,7 @@ class CLFCommandWithInfo:
                  train_path: str,
                  clf: str,
                  fold: str,
-                 settings: [str]
+                 settings: [str],
                  ):
         self.args = args
         self.dataset = dataset_name

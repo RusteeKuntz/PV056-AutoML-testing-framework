@@ -88,6 +88,13 @@ def main():
         help="Path to csv with train/test/configs filepaths.",
         required=True,
     )
+    parser.add_argument(
+        "-do",
+        "--datasets-csv-out",
+        type=_valid_config_path,
+        help="Path to csv with predictions, test files, configs filepaths.",
+        required=True,
+    )
     args = parser.parse_args()
 
     with open(args.config_clf, "r") as config_file:
@@ -133,7 +140,7 @@ def main():
                 blacklist.append(i.replace("\n", "").split(','))
 
         queue = Queue()
-        clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets)
+        clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets, args.datasets_csv_out)
 
         # TODO xbajger: previously, here as an arg to weka_worker a "backup_ts" file was supplied. It shan't be needed
         pool = [Process(target=weka_worker, args=(queue, blacklist, conf.timeout, conf.times_output, backup_ts)) for _ in range(conf.n_jobs)]
