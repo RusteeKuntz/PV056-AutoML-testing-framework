@@ -40,6 +40,7 @@ class ClassifierManager:
         """This method returns the final full configuration of an experiment in the form of JSON string"""
         json_configs = []
         for dataset_conf_path in dataset_conf_paths:
+            print("DATASETS CONF PATH: " + dataset_conf_path)
             with open(dataset_conf_path, "r") as f:
                 json_configs.append(json.load(f))
 
