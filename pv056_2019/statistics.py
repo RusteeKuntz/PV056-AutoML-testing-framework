@@ -28,7 +28,7 @@ def main():
     args = vars(parser.parse_args())
 
     with open(args["config_file"]) as json_file:
-        conf = StatisticsSchema(**json.load(json_file))
+        conf: StatisticsSchema = StatisticsSchema(**json.load(json_file))
 
     reg = re.compile(r"removed-0*")
     files = sorted([x for x in os.listdir(conf.results_dir) if x.endswith(".csv")])
@@ -40,11 +40,13 @@ def main():
     ]
 
     config_dict = {}
-    for config_file_path in config_file_paths:
-        with open(os.path.join(conf.results_dir, config_file_path)) as config_file:
-            basename = os.path.basename(config_file_path)
-            conf_hash = basename.split("_")[1].replace(".json", "")
-            config_dict[conf_hash] = json.load(config_file)
+    # for config_file_path in config_file_paths:
+    #     with open(os.path.join(conf.results_dir, config_file_path)) as config_file:
+    #         basename = os.path.basename(config_file_path)
+    #         conf_hash = basename.split("_")[1].replace(".json", "")
+    #         config_dict[conf_hash] = json.load(config_file)
+
+
 
     headers = [
         "dataset",
@@ -68,7 +70,7 @@ def main():
         else:
             file_split.append(0)
 
-        datest, split, classifier, conf_hash, removed = file_split
+        #datest, split, classifier, conf_hash, removed = file_split
 
         classifier = config_dict[conf_hash]["model_config"].get("class_name").split(".")[-1]
 
@@ -78,15 +80,16 @@ def main():
         all_results = dataframe.shape[0]
         accuracy = np.sum(dataframe["error"] != "+") / all_results
 
-        data.append([datest, split, classifier, od_name, removed, conf_hash, accuracy])
+        #data.append([datest, split, classifier, od_name, removed, conf_hash, accuracy])
+        data.append([])
 
-    od_times = pd.read_csv(conf.od_times_path)
-    clf_times = pd.read_csv(conf.clf_times_path)
+    #od_times = pd.read_csv(conf.od_times_path)
+    #clf_times = pd.read_csv(conf.clf_times_path)
 
-    times = od_times.merge(clf_times, on=["dataset", "fold", "od_hex"], how="outer")
-    times['fold'] = times['fold'].astype(str)
-    times.loc[(times.removed == 0), 'od_time'] = 0.0
-    times['total_time'] = times['od_time'] + times['clf_time']
+    #times = od_times.merge(clf_times, on=["dataset", "fold", "od_hex"], how="outer")
+    #times['fold'] = times['fold'].astype(str)
+    #times.loc[(times.removed == 0), 'od_time'] = 0.0
+    #times['total_time'] = times['od_time'] + times['clf_time']
 
     dataframe = pd.DataFrame(data, columns=headers)
     dataframe['removed'] = dataframe['removed'].astype(float)

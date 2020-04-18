@@ -96,7 +96,7 @@ class RunClassifiersCongfigSchema(BaseModel):
     weka_jar_path: str
     classifiers: List[ClassifierSchema]
     n_jobs: int = 1
-    times_output: str
+    times_output: str = "clf_times"
     blacklist_file: str
     timeout: int
 
@@ -110,8 +110,8 @@ class RunClassifiersCongfigSchema(BaseModel):
 
 class StatisticsSchema(BaseModel):
     results_dir: str
-    od_times_path: str
-    clf_times_path: str
+    #od_times_path: str
+    #clf_times_path: str
     output_table: str
     aggregate: bool = True
     pattern: str = ".*"

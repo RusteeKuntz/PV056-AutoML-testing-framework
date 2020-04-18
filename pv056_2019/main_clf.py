@@ -63,9 +63,9 @@ def weka_worker(queue,
 
         row_string = ",".join([dataset, fold, clf, clf_fam, clf_hex, command_with_info.settings.replace(",", ";"), str(time_diff)])
         with open(times_file, "a") as tf:
-            print(row_string, file=tf, flush=True)
+            print(row_string, file=tf)
         with open(backup_ts, "a") as tf:
-            print(",".join([dataset, fold, clf, clf_fam, clf_hex, od_hex, rm, str(time_diff)]), file=tf)
+            print(row_string, file=tf)
 
         # args[16] is actually equal to full clf classname
         # args[6] is actually a path to a train file

@@ -22,10 +22,10 @@ class ClassifierManager:
     # -x 5 -S 1
     # -W weka.classifiers.trees.J48 -- -C 0.25 -M 2
 
-    def __init__(self, log_folder, weka_jar_path):
-        self.log_folder = log_folder
-        if not os.path.isdir(self.log_folder):
-            os.makedirs(self.log_folder, exist_ok=True)
+    def __init__(self, output_folder, weka_jar_path):
+        self.output_folder = output_folder
+        if not os.path.isdir(self.output_folder):
+            os.makedirs(self.output_folder, exist_ok=True)
         self.weka_jar_path = weka_jar_path
         if not os.path.exists(self.weka_jar_path):
             raise IOError(
@@ -87,7 +87,7 @@ class ClassifierManager:
 
             #this is the filepath for the prediction output from trained WEKA classifier
             predict_file_path = os.path.join(
-                self.log_folder,
+                self.output_folder,
                 dataset_name
                 + "_"
                 + dataset_fold
@@ -100,7 +100,7 @@ class ClassifierManager:
             )
             # this is the filepath for a JSON with full configuration of an experiment
             config_file_path = os.path.join(
-                self.log_folder, classifier.name + "_" + hash_md5 + ".json"
+                self.output_folder, classifier.name + "_" + hash_md5 + ".json"
             )
 
             # Prepare arguments for classifier
