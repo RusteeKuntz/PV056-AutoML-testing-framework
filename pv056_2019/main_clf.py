@@ -91,7 +91,6 @@ def main():
     parser.add_argument(
         "-do",
         "--datasets-csv-out",
-        type=_valid_config_path,
         help="Path to csv with predictions, test files, configs filepaths.",
         required=True,
     )
