@@ -69,7 +69,7 @@ def main():
                     test_split_output = os.path.join(conf.test_split_dir, test_name)
                     test_frame.arff_dump(test_split_output)
 
-                    datasets_output.append([train_split_output, test_split_output, ""])
+                    datasets_output.append([train_split_output, test_split_output, "SPLIT-INFO"])
 
     except KeyboardInterrupt:
         print("\nInterupted!", flush=True, file=sys.stderr)

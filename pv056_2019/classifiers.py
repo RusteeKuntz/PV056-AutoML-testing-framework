@@ -69,7 +69,7 @@ class ClassifierManager:
                 # first two elements the datase_tuple are train file and test file
                 train_path, test_path = csv_row[:2]
                 conf_paths = csv_row[2:]
-                print(conf_paths)
+                #print(conf_paths)
 
                 if not os.path.exists(train_path):
                     raise IOError("Input dataset '{0}' does not exist.".format(train_path))

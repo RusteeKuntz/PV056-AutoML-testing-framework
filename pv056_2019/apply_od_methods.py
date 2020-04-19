@@ -159,7 +159,7 @@ def main():
                 # write result paths into an output dataset ahead of actualy creating those files to avoid concurrent writing
                 # between processes
 
-                output_csv.write(",".join([file_save_path, test_file_path] + previous_configs + [config_save_path]) + "\n")
+                output_csv.write(",".join([file_save_path, test_file_path, *previous_configs, config_save_path]) + "\n")
 
                 queue.put(ODJobInfo(
                     dataset=dataset_name,
