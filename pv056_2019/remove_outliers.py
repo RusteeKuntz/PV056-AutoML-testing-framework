@@ -123,7 +123,8 @@ def main():
                             [
                                 file_save_path,
                                 test_file_path,
-                                ",".join(configs_history + [conf_save_path]),
+                                *configs_history, # python unpacking of list elements
+                                conf_save_path
                             ]
                         )
                     except KeyboardInterrupt as keyb:
