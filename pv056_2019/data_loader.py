@@ -13,9 +13,10 @@ import time
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
 
+from pv056_2019.feature_selection import F_SELECTORS, AbstractFeatureSelector
 from pv056_2019.outlier_detection import DETECTORS
 from pv056_2019.utils import ID_NAME, OD_VALUE_NAME
-from pv056_2019.schemas import OutlierDetectorSchema
+from pv056_2019.schemas import OutlierDetectorSchema, CustomFSSchema
 
 warnings.simplefilter(action="ignore", category=UserWarning)
 
@@ -104,9 +105,7 @@ class DataFrameArff(pd.DataFrame):
             self._arff_data["attributes"].insert(0, (ID_NAME, "NUMERIC"))
         return self
 
-    def apply_outlier_detector(self, detector_schema: OutlierDetectorSchema):
-        detector = DETECTORS[detector_schema.name](**detector_schema.parameters)
-
+    def get_dataframe_without_id(self):
         dataframe_without_id = DataFrameArff(
             self.loc[:, self.columns != ID_NAME].values,
             columns=self.columns[self.columns != ID_NAME],
@@ -115,11 +114,17 @@ class DataFrameArff(pd.DataFrame):
             **self._arff_data,
             "attributes": [x for x in self._arff_data["attributes"] if x[0] != ID_NAME],
         }
+        return dataframe_without_id
+
+    def apply_outlier_detector(self, detector_schema: OutlierDetectorSchema):
+        detector = DETECTORS[detector_schema.name](**detector_schema.parameters)
+
+
 
         time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
         time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
-        detector.compute_scores(dataframe_without_id, self[self.columns[-1]])
+        detector.compute_scores(self.get_dataframe_without_id(), self[self.columns[-1]])
 
         time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
         time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
@@ -137,6 +142,33 @@ class DataFrameArff(pd.DataFrame):
         )
 
         return new_frame, od_time
+
+    def apply_custom_feature_selector(self, f_selector_chema: CustomFSSchema):
+        f_selector: AbstractFeatureSelector = F_SELECTORS[f_selector_chema.name](**f_selector_chema.parameters)
+
+        time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
+        time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+
+        new_frame = f_selector.select_features(self.get_dataframe_without_id(), self[self.columns[-1]])
+
+
+        time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
+        time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+
+        fs_time = (time_end - time_start) + (time_end_children - time_start_children)
+
+        new_frame_arff = DataFrameArff(new_frame.values, columns=new_frame.columns)
+        new_frame_arff._arff_data = self._arff_data
+        attribute_set = set([x[0] for x in new_frame.columns])
+        # copy only those arff attributes that were selected, presuming that column names are same as arff attribute names
+        new_frame._arff_data["attributes"] = [
+            x
+            for x in new_frame._arff_data["attributes"]
+            if x[0] in attribute_set
+        ]
+
+        return new_frame_arff, fs_time
+
 
     def select_by_index(self, index: np.array):
         dataframe = self.iloc[index]

@@ -2,7 +2,7 @@ import argparse, os
 import json
 # TODO: Move the original definition into Utils (if possible)
 import subprocess
-import sys
+import sys, resource
 from multiprocessing import Queue, Manager, Process
 
 from pv056_2019.data_loader import DataLoader
@@ -27,47 +27,35 @@ def extract_and_save_ranking_from_fs_output(fs_output: str, fs_output_filepath: 
 def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
     while not queue.empty():
         command: FSCommandWithInfo = queue.get()
-        args = command.args
         time_diff: float
 
-        #file_split = args[6].split("/")[-1].split("_")
-        dataset = command.dataset
+        dataset = command.input_path.split("_")[0]
         eval_method = command.eval_method_name
 
         # I believe it does not make sense to blacklist search methods.
         if not (eval_method, dataset) in blacklist:
-            try:
-                if debugging:
-                    print("Starting process with args:")
-                    print(args)
-                    #print(args[10] + args[12], flush=True)
-                #time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-                results = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
-                #time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-                if debugging:
-
-                    print("Ended process with args:")
-                    #print(args[10] + args[12], flush=True)
-                    with open("fs_bak_debug.log", "a") as debug_file:
-                        debug_file.write(" ".join(results.args))
-                        debug_file.write("\n")
-                        debug_file.write("STDOUT:\n")
-                        debug_file.write(results.stdout.decode())
-                        debug_file.write("\n")
-                        debug_file.write("STDERR:\n")
-                        debug_file.write(results.stderr.decode())
-                        debug_file.write("\n")
+            if command.is_custom:
+                df = DataLoader._load_arff_file(command.input_path)
+                fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
+                fs_frame.arff_dump(command.output_file_path)
+            else:
+                try:
 
 
-                #time_diff = time_end - time_start
-            except subprocess.TimeoutExpired:
-                time_diff = timeout
-                blacklist.append((eval_method, dataset))
+
+
+                    time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+                    results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                    time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+                    time_diff = time_end - time_start
+                except subprocess.TimeoutExpired:
+                    time_diff = timeout
+                    blacklist.append((eval_method, dataset))
         else:
             time_diff = timeout
 
 
-
+        # TODO: Add times output for feature selection
         #clf_fam = ".".join(args[16].split(".")[2:-1])
         #fs_hex = args[10].split("/")[-1].split("_")[-2]
         #fold = command.fold

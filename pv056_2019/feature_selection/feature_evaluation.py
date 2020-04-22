@@ -4,28 +4,31 @@ import re, os, json
 
 import arff
 
-from pv056_2019.schemas import WekaClassCommandSchema, FeatureSelectionStepSchema, \
-    FeatureSelectionFilterConfigurationSchema
+from pv056_2019.schemas import ClassCommandSchema, FeatureSelectionStepSchema, \
+    WekaFSFilterConfigurationSchema, CustomFSSchema
 from pv056_2019.data_loader import DataLoader, DataFrameArff
-from pv056_2019.utils import OD_VALUE_NAME, ID_NAME
+from pv056_2019.utils import OD_VALUE_NAME, ID_NAME, CUSTOM, WEKA
 
 
 class FSCommandWithInfo:
+    is_custom: bool
     args: []
-    dataset: str
+    input_path: str
     fold: str
     eval_method_name: str
     output_file_path: str
 
     def __init__(self,
+                 is_custom,
                  args: [str],
                  ds: str,
-                 #fold: str,
+                 # fold: str,
                  ev: str,
                  out: str) -> None:
+        self.is_custom = is_custom
         self.args = args
-        self.dataset = ds
-        #self.fold = fold
+        self.input_path = ds
+        # self.fold = fold
         self.eval_method_name = ev
         self.output_file_path = out
 
@@ -54,13 +57,13 @@ def _assert_trailing_slash(string):
         return string
 
 
-def get_weka_command_from_config(config: WekaClassCommandSchema) -> str:
+def get_weka_command_from_config(config: ClassCommandSchema) -> str:
     """
     This will return a command containing an executable WEKA class with arguments, enclosed in double quotes
     ready to be placed as a parameter to another executable WEKA class.
     """
     _command = config.class_name
-    _command +=  get_weka_command_arguments_for_class(config.parameters)
+    _command += get_weka_command_arguments_for_class(config.parameters)
 
     return _command
 
@@ -79,11 +82,7 @@ def get_weka_command_arguments_for_class(parameters: dict):
 class FeatureSelectionManager:
     """ This class serves as a tool for building full java command for command line to execute in an external process
     example commandline input:
-
-     java -cp data/java/weka.jar weka.attributeSelection.AttributeSelection weka.attributeSelection.InfoGainAttributeEval -s "weka.attributeSelection.Ranker -T -1.7976931348623157e+308 -N -1" -i "data/datasets/eye-movements.arff" -x 5 -n 123
-         > "fs_outputs/heart-c_FS0.txt"
-
-     """
+    """
 
     def __init__(self, config: FeatureSelectionStepSchema):
         self.config = config
@@ -91,11 +90,10 @@ class FeatureSelectionManager:
     def generate_fs_weka_commands(self, datasets_mapping_csv, mapping_csv_file) -> [FSCommandWithInfo]:
         """ this takes a csv file with datasets and their configurations use by other workflow steps (if any)
         Such csv file contains 3 columns: train_dataset,test_dataset,configuration_json_path
-        This method uses options for weka evaluation class and weka search method class and calculates all the neccessary
-        stuff for building the java command for executing attribute selection weka.filters.supervised.attribute.AttributeSelection
-        on datasets from datasets_mapping_csv
-
-          """
+        This method uses options for weka evaluation class and weka search method class and calculates all the necessary
+        stuff for building the java command for executing attribute selection
+        weka.filters.supervised.attribute.AttributeSelection on datasets from datasets_mapping_csv
+        """
         # Format is: train-file, test-file, 1st config-json, 2nd config-json, ...
         # mapping_csv_file.write("train, test, config\n") #DO NOT WRITE HEADINGS into this csv
 
@@ -126,70 +124,81 @@ class FeatureSelectionManager:
             test_path = line_split[1]
             # next elements are paths to configuration jsons for steps executed before in order they were executed
             if len(line_split) > 2:
-                conf_paths = line_split[2:] # paths to a configuration jsons of previous steps
+                conf_paths = line_split[2:]  # paths to a configuration jsons of previous steps
             else:
                 conf_paths = []
 
-            # precompute output directory name (assert trailing slash) and extract base name of the dataset
+            # pre-compute output directory name (assert trailing slash) and extract base name of the dataset
             _output_directory = _assert_trailing_slash(self.config.output_folder_path)
             _base_name = os.path.basename(train_path)
 
-
             for feature_selection_config, hash_md5, fs_config_json_basename in fs_settings:
-                # here we prepare filters for currently useless columns that should not be considered for FS
-                filters = ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(  # noqa
-                    ID_NAME
-                )] + ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(
-                    OD_VALUE_NAME
-                )]
-
-                fs_filter_args = ""
-                # currently: don't specify index of the label class (default is the last one).
-                # After removing ID and OD_VALUE, default behaviour will suffice
-                #fs_filter_args = ' -c last'  # in weka, arff columns are indexed from one
-                # specify search method and its arguments
-                fs_filter_args += ' -S ' + '"'+_nest_double_quotes(get_weka_command_from_config(feature_selection_config.search_class))+'"'
-                # specify evaluation method and its arguments
-                fs_filter_args += ' -E ' + '"'+_nest_double_quotes(get_weka_command_from_config(feature_selection_config.eval_class))+'"'
-
                 _fs_identifier = '_FS-' + hash_md5
-
                 # this part checks if train file contains _train substring and places FS identifier string before of it
                 if '_train' in _base_name:
                     _output_file_path = _output_directory + _base_name.replace('_train', _fs_identifier + '_train')
                 else:
                     dot_split = _base_name.split('.')
-                    _output_file_path = _output_directory + '.'.join(dot_split[:-1]) + _fs_identifier + '.' + dot_split[-1]
+                    _output_file_path = _output_directory + '.'.join(dot_split[:-1]) + _fs_identifier + '.' + dot_split[
+                        -1]
 
-
-                filters += ['-F', 'weka.filters.supervised.attribute.AttributeSelection {}'.format(
-                    fs_filter_args
-                )]
-
-                # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
-                _run_args = ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
-                              # add input/output file path and filters
-                              'weka.filters.MultiFilter'] + filters + ['-i', train_path, '-o', _output_file_path]
-
-                # here we write mapping of train files and test files along with a history of preprocessing configurations
+                # here we write mapping of train and test files along with a history of pre-processing configurations
                 mapping_csv_file.write(
                     ",".join(
-                        [_output_file_path, test_path] + \
-                        conf_paths + \
+                        [_output_file_path, test_path] +
+                        conf_paths +
                         [_output_directory + fs_config_json_basename]
                     ) + "\n"
                 )
                 mapping_csv_file.flush()
 
-                file_split = train_path.split("_")
-                # TODO: remove after testing is done. Training data always have to be in folds, but here we fix if they are not
-                #if len(file_split) < 2:
-                #    file_split.append("0")
+                # generate command with info appropriately for used library
+                if feature_selection_config.source_library == WEKA:
+                    # here we prepare filters for currently useless columns that should not be considered for FS
+                    filters = ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(  # noqa
+                        ID_NAME
+                    )] + ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(
+                        OD_VALUE_NAME
+                    )]
 
-                #print(_run_args)
+                    fs_filter_args = ""
+                    # currently: don't specify index of the label class (default is the last one).
 
-                yield FSCommandWithInfo(args=_run_args,
-                                        ds=file_split[0],
-                                        #fold=file_split[1],
-                                        ev=feature_selection_config.eval_class.class_name,
-                                        out=_output_file_path)
+                    # specify search method and its arguments
+                    fs_filter_args += ' -S ' + '"' + _nest_double_quotes(
+                        get_weka_command_from_config(feature_selection_config.search_class)) + '"'
+                    # specify evaluation method and its arguments
+                    fs_filter_args += ' -E ' + '"' + _nest_double_quotes(get_weka_command_from_config(
+                        feature_selection_config.eval_class)) + '"'
+
+                    filters += ['-F', 'weka.filters.supervised.attribute.AttributeSelection {}'.format(
+                        fs_filter_args
+                    )]
+
+                    # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
+                    _run_args = ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
+                                 # add input/output file path and
+                                 # filters
+                                 'weka.filters.MultiFilter'] + filters + ['-i', train_path, '-o', _output_file_path]
+
+                    # TODO: remove after testing is done.
+                    #  Training data always have to be in folds, but here we fix if they are not
+                    # if len(file_split) < 2:
+                    #    file_split.append("0")
+
+                    # print(_run_args)
+
+                    yield FSCommandWithInfo(is_custom=True,
+                                            args=_run_args,
+                                            ds=train_path,
+                                            # fold=file_split[1],
+                                            ev=feature_selection_config.eval_class.class_name,
+                                            out=_output_file_path)
+                elif feature_selection_config.source_library == CUSTOM:
+                    # here we load config into pydantic Schema to apply validation before running teh experiment
+                    conf: CustomFSSchema = CustomFSSchema(**feature_selection_config.dict())
+                    yield FSCommandWithInfo(is_custom=False,
+                                            args=conf.parameters,
+                                            ds=train_path,
+                                            ev=conf.name,
+                                            out=_output_file_path)
