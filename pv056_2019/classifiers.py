@@ -152,7 +152,7 @@ class ClassifierManager:
                 queue.put(command)
 
                 # we write to the output CSV here so we do not have to handle concurrent file writing
-                out_csv.write(",".join([predict_file_path, test_path] + conf_paths + [classifier.dict()]))
+                out_csv.write(",".join([predict_file_path, test_path] + conf_paths + [config_file_path]))
                 self._save_model_config(config_file_path, final_config_str)
 
 
