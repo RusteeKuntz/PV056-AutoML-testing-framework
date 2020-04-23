@@ -4,7 +4,7 @@ import re, os, json
 
 import arff
 
-from pv056_2019.schemas import ClassCommandSchema, FeatureSelectionStepSchema, \
+from pv056_2019.schemas import CommandSchema, FeatureSelectionStepSchema, \
     WekaFSFilterConfigurationSchema, CustomFSSchema
 from pv056_2019.data_loader import DataLoader, DataFrameArff
 from pv056_2019.utils import OD_VALUE_NAME, ID_NAME, CUSTOM, WEKA
@@ -57,12 +57,12 @@ def _assert_trailing_slash(string):
         return string
 
 
-def get_weka_command_from_config(config: ClassCommandSchema) -> str:
+def get_weka_command_from_config(config: CommandSchema) -> str:
     """
     This will return a command containing an executable WEKA class with arguments, enclosed in double quotes
     ready to be placed as a parameter to another executable WEKA class.
     """
-    _command = config.class_name
+    _command = config.name
     _command += get_weka_command_arguments_for_class(config.parameters)
 
     return _command

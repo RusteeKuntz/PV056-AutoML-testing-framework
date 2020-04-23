@@ -120,23 +120,23 @@ class StatisticsSchema(BaseModel):
 class FSStepSchema(BaseModel):
     source_library: str
 
-class ClassCommandSchema(BaseModel):
+class CommandSchema(BaseModel):
     """ This represents the schema of configuration for an arbitrary WEKA class invokation from command line """
-    class_name: str
-    parameters: dict
+    name: str
+    parameters: dict = {}
 
 
 # TODO: Create generic scikit method calling mechanism
 class ScikitCommandSchema(FSStepSchema):
     source_library = SCIKIT
-    fs_method: ClassCommandSchema
-    score_func: ClassCommandSchema
+    fs_method: CommandSchema
+    score_func: CommandSchema
 
 
-class CustomFSSchema(FSStepSchema):
+class CustomFSSchema(FSStepSchema, CommandSchema):
     source_library = CUSTOM
     name: str
-    parameters: dict
+    parameters: dict = {}
 
     @validator("name")
     def detector_name(cls, value):
@@ -151,8 +151,8 @@ class CustomFSSchema(FSStepSchema):
 
 class WekaFSFilterConfigurationSchema(FSStepSchema):
     source_library = WEKA
-    eval_class: ClassCommandSchema
-    search_class: ClassCommandSchema
+    eval_class: CommandSchema
+    search_class: CommandSchema
     #n_folds: int = 0
     #cv_seed: int = 123
 

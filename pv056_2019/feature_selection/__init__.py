@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import sklearn.feature_selection as sklfs
 
+from pv056_2019.schemas import CommandSchema
+
 
 class AbstractFeatureSelector:
     name: str
@@ -27,14 +29,16 @@ score_funcs: Dict[str, Any] = {
     "chi2": sklfs.chi2,
 
 }
-def setup_score_func(name: str, **parameters):
+def setup_score_func(score_func: CommandSchema):
     # here we retrieve correct score function for FS by its name and set it up with parameters from JSON
     # TODO xbajger: We are not checking if the keyword arguments are right. We let the whole framework fail on an error
     #try:
-    score_func = lambda x, y: getattr(sklfs, name)(x, y, **parameters)
+    score_func = lambda x, y: getattr(sklfs, score_func.name)(x, y, **score_func.parameters)
     # if we got an unrecognized keyword, solve it by passing default arguments f
     #except TypeError:
     return score_func
+
+
 
 
 
@@ -55,7 +59,7 @@ class KBest(AbstractFeatureSelector):
         if "score_func" not in self.settings:
             score_func=sklfs.chi2
         else:
-            score_func = setup_score_func(name=self.settings['score_func']['name'], **self.settings['score_func']['parameters'])
+            score_func = setup_score_func(CommandSchema(**self.settings['score_func']))
 
         fs: sklfs.SelectKBest = sklfs.SelectKBest(score_func=score_func, **self.settings['parameters'])
         fs.fit(x, y)
