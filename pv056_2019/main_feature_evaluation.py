@@ -40,10 +40,6 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
                 fs_frame.arff_dump(command.output_file_path)
             else:
                 try:
-
-
-
-
                     time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
                     time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]

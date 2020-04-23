@@ -104,8 +104,13 @@ def main():
         reader = csv.reader(datasets_csv_file, delimiter=",")
         # here we get an array of datasets.csv lines arranged by the size of the file in first column of each row
         # paths are checked before usage. If they do not exist, 0 is used as size for comparison
-        datasets = sorted([row for row in reader],
+        unsorted_datasets = [row for row in reader]
+        print("UNSORTED DATASETS: ")
+        print(unsorted_datasets)
+        datasets = sorted(unsorted_datasets,
                           key=lambda x: os.path.getsize(x[0]) if os.path.exists(x[0]) else 0)
+        print("DATASETS: ")
+        print(datasets)
 
     # They taught us not to use GLOBAL variables, so I replaced them with normal variables and pass them as params
     #global times_file
