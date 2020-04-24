@@ -80,9 +80,6 @@ def main():
             "alpha": 0.5
         }
     })
-    csf_schema = CommandSchema(**{
-
-    })
 
     #colnames = df.columns
 
