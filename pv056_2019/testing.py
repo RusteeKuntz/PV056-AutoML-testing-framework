@@ -68,7 +68,7 @@ def main():
 
     ], columns=["a", "b", "c", "d", "e"])
 
-    fs_schema = FSStepSchema(**{
+    fs_schema = {
         "source_library": SCIKIT,
         "fs_method": {
             "name": "SelectFpr",
@@ -77,7 +77,7 @@ def main():
             }
         }
 
-    })
+    }
 
     #colnames = df.columns
 
@@ -86,8 +86,8 @@ def main():
     #df[colnames[-1]] = pd.Series([8 for _ in range(8)])
     #print(df)
 
-    if fs_schema.source_library == SCIKIT:
-        conf = ScikitCommandSchema(**fs_schema.dict())
+    if FSStepSchema(**fs_schema).source_library == SCIKIT:
+        conf = ScikitCommandSchema(**fs_schema)
         newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func))
 
         print(newFrame)
