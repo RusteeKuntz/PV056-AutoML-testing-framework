@@ -45,6 +45,14 @@ def select_features_with_sklearn(dataframe: pd.DataFrame, selector: _BaseFilter)
     selector.fit(x, y)
     # remove features from the dataset without classes.
     transformed_df = selector.transform(x)
+    print(transformed_df)
+    print(type(transformed_df))
+
+    print(colnames[-1])
+    print(type(colnames[-1]))
+    print(colnames)
+    print(type(colnames))
+    print(type(y))
     # push classes back in
     transformed_df[colnames[-1]] = y
     return transformed_df
@@ -74,20 +82,16 @@ def main():
         "parameters": {}
     })
 
-
-    colnames = df.columns
-    print(colnames[-1])
-    print(type(colnames[-1]))
-    print(colnames)
-    print(type(colnames))
-
-    df['kokot'] = pd.Series([8 for _ in range(8)])
-    df[colnames[-1]] = pd.Series([8 for _ in range(8)])
-    print(df)
-    exit()
+    #colnames = df.columns
 
 
-    #newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(class_schema, csf_schema))
+    #df['kokot'] = pd.Series([8 for _ in range(8)])
+    #df[colnames[-1]] = pd.Series([8 for _ in range(8)])
+    #print(df)
 
-    #print(newFrame)
+
+
+    newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(class_schema, csf_schema))
+
+    print(newFrame)
 
