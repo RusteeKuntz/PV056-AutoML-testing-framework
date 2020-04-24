@@ -4,7 +4,8 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_selection.univariate_selection import _BaseFilter
 
-from pv056_2019.schemas import ScikitCommandSchema, FSStepSchema
+from pv056_2019.schemas import ScikitCommandSchema, FSStepSchema, CommandSchema
+
 from pv056_2019.utils import SCIKIT
 
 
