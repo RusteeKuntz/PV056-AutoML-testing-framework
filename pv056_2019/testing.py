@@ -81,6 +81,8 @@ def main():
     print(type(colnames))
 
     df['kokot'] = pd.Series([8, 8, 8, 8, 8])
+    df[colnames[-1]] = pd.Series([8, 8, 8, 8, 8])
+    print(df)
     exit()
 
 
