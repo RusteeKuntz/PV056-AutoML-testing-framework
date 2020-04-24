@@ -4,14 +4,8 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_selection.univariate_selection import _BaseFilter
 
-from pv056_2019.schemas import ScikitCommandSchema, FSStepSchema
+from pv056_2019.schemas import ScikitCommandSchema, FSStepSchema, CommandSchema
 from pv056_2019.utils import SCIKIT
-
-
-class CommandSchema(BaseModel):
-    """ This represents the schema of configuration for an arbitrary WEKA class invokation from command line """
-    name: str
-    parameters: dict = {}
 
 
 def setup_sklearn_score_func(score_func_schema: CommandSchema):
