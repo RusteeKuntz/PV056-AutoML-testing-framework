@@ -52,11 +52,15 @@ def select_features_with_sklearn(dataframe: pd.DataFrame, selector: _BaseFilter)
 
 def main():
     df = pd.DataFrame([
-        [1,1,1,2,1,2,1,2,2,1,1, 1,2,1, 2, 1,1,2,2,1],
-        [1,2,1,2,2,1,2,1,2,1,1, 2,1,2, 1, 1,5,4,2,4],
-        [2,3,3,2,3,3,2,4,5,7,89, 8, 7, 58,54, 5, 4,2,3, 3],
-        [5, 6, 5, 5, 6, 7, 8, 6, 8, 6, 160,16,20,98,111,10,8, 4,10,10],
-        [10, 10, 10, 10,14,20,13,16,16,320,33,42,203,21,19,16,8,22,22]
+        [1, 1, 2, 4, 8],
+        [0, 1, 1, 3, 5],
+        [1, 2, 3, 6, 13],
+        [53, 0, 3, 7, 15],
+        [1, 2, 1, 2, 3],
+        [0, 1, 1, 3, 7],
+        [53, 2, 4, 7, 15],
+        [4, 0, 3, 6, 12]
+
     ], columns=["a", "b", "c", "d", "e"])
 
     class_schema = CommandSchema(**{
@@ -77,8 +81,8 @@ def main():
     print(colnames)
     print(type(colnames))
 
-    df['kokot'] = pd.Series([8 for _ in range(19)])
-    df[colnames[-1]] = pd.Series([8 for _ in range(19)])
+    df['kokot'] = pd.Series([8 for _ in range(8)])
+    df[colnames[-1]] = pd.Series([8 for _ in range(8)])
     print(df)
     exit()
 
