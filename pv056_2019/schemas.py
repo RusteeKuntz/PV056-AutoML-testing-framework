@@ -4,8 +4,6 @@ from typing import List, Union
 
 from pydantic import BaseModel, validator
 
-from pv056_2019.feature_selection import F_SELECTORS
-from pv056_2019.outlier_detection import DETECTORS
 from pv056_2019.utils import NONE_STR, WEKA, SCIKIT, CUSTOM
 
 
@@ -42,7 +40,6 @@ class OutlierDetectorSchema(BaseModel):
                     value, ", ".join(DETECTORS.keys())
                 )
             )
-
         return value
 
 
@@ -141,7 +138,7 @@ class CustomFSSchema(FSStepSchema, CommandSchema):
     parameters: dict = {}
 
     @validator("name")
-    def detector_name(cls, value):
+    def f_selector_name(cls, value):
         if value not in F_SELECTORS.keys():
             raise ValueError(
                 "Feature selector {} is not supported. Supported selectors are: {}".format(
@@ -174,3 +171,6 @@ class FeatureSelectionStepSchema(BaseModel):
     timeout: int = 1800
     selection_methods: List[FSStepSchema]
 
+# importing stuff from feature_selection to avoid circular dependency error
+from pv056_2019.feature_selection import F_SELECTORS
+from pv056_2019.outlier_detection import DETECTORS
