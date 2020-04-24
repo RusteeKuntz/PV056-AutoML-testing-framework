@@ -45,6 +45,8 @@ def select_features_with_sklearn(dataframe: pd.DataFrame, selector: _BaseFilter)
     selector.fit(x, y)
     # remove features from the dataset without classes.
     transformed_df = selector.transform(x)
+    selected_features = selector.get_support()
+    print(selected_features)
     print(transformed_df)
     print(type(transformed_df))
 
