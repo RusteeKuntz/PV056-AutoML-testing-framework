@@ -73,7 +73,14 @@ def main():
         "parameters": {}
     })
 
-    newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(class_schema, csf_schema))
+    colnames = df.columns
+    print(colnames[-1])
+    print(colnames)
+    print(type(colnames))
+    exit()
 
-    print(newFrame)
+
+    #newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(class_schema, csf_schema))
+
+    #print(newFrame)
 
