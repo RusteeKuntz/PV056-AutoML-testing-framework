@@ -71,14 +71,13 @@ def main():
     ], columns=["a", "b", "c", "d", "e"])
 
     class_schema = CommandSchema(**{
-        "name": "SelectKBest",
+        "name": "SelectFpr",
         "parameters": {
-            "k": 2
+            "alpha": 0.5
         }
     })
     csf_schema = CommandSchema(**{
-        "name": "f_classif",
-        "parameters": {}
+
     })
 
     #colnames = df.columns
