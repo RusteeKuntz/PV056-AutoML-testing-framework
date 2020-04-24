@@ -11,20 +11,23 @@ class CommandSchema(BaseModel):
     parameters: dict = {}
 
 
-def setup_sklearn_score_func(score_func: CommandSchema):
+def setup_sklearn_score_func(score_func_schema: CommandSchema):
     # here we retrieve correct score function for FS by its name and set it up with parameters from JSON
     # TODO xbajger: We are not checking if the keyword arguments are right. We let the whole framework fail on an error
     #try:
-    score_func = lambda x, y: getattr(sklfs, score_func.name)(x, y, **score_func.parameters)
+    score_func = lambda x, y: getattr(sklfs, score_func_schema.name)(x, y, **score_func_schema.parameters)
     # if we got an unrecognized keyword, solve it by passing default arguments f
     #except TypeError:
     return score_func
 
 
-def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: CommandSchema="chi2") -> _BaseFilter:
+def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: CommandSchema = None) -> _BaseFilter:
     # here we make use of a structural similarity between FS classes in scikit-learn
     # they all contain a "score_func" callable argument and then some other configuration
     # so we need 2 config: for class and for score_func
+    if score_func_schema is None:
+        score_func_schema = CommandSchema(**{"name": "chi2", "parameters": {}})
+
     score_func = setup_sklearn_score_func(score_func_schema)
     # load class by name and construct instance with keyword arguments
     fsl = getattr(sklfs, class_schema.name)(score_func=score_func, **class_schema.parameters)
