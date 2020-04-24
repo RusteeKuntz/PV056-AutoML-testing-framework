@@ -2,6 +2,7 @@ import sklearn.feature_selection as sklfs
 from pydantic import BaseModel
 import pandas as pd
 import numpy as np
+from sklearn.feature_selection.univariate_selection import _BaseFilter
 
 
 class CommandSchema(BaseModel):
@@ -20,50 +21,56 @@ def setup_sklearn_score_func(score_func: CommandSchema):
     return score_func
 
 
-def setup_sklearn_fs_class(class_schema: CommandSchema):
+def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: CommandSchema="chi2") -> _BaseFilter:
     # here we make use of a structural similarity between FS classes in scikit-learn
     # they all contain a "score_func" callable argument and then some other configuration
-    if "score_func" not in class_schema.parameters:
-        score_func = sklfs.chi2
-    else:
-        score_func = setup_sklearn_score_func(CommandSchema(**class_schema.parameters))
+    # so we need 2 config: for class and for score_func
+    score_func = setup_sklearn_score_func(score_func_schema)
     # load class by name and construct instance with keyword arguments
     fsl = getattr(sklfs, class_schema.name)(score_func=score_func, **class_schema.parameters)
     return fsl
 
-def select_features_with_sklearn(self, dataframe_without_classes: pd.DataFrame, classes: np.array)->pd.DataFrame:
-    colnames = dataframe_without_classes.columns
-    # if the k is negative, use it as "remove k worst" instead of "select k best" features.
-    if "k" in self.settings["parameters"] and self.settings["parameters"]["k"] < 0:
-        self.settings["parameters"]["k"] = len(colnames) + self.settings["parameters"]["k"]
-    # split data and classes
-    #x = dataframe_without_classes[colnames[:-1]]
-    #y = dataframe_without_classes[colnames[-1]]
-    # another score functions are: f_classif, mutual_info_classif
-    if "score_func" not in self.settings:
-        score_func=sklfs.chi2
-    else:
-        score_func = setup_sklearn_score_func(CommandSchema(**self.settings['score_func']))
 
-    fs: sklfs.SelectKBest = sklfs.SelectKBest(score_func=score_func, **self.settings['parameters'])
-    fs.fit(dataframe_without_classes, classes)
-    transformed_df = fs.transform(dataframe_without_classes)
-    return pd.DataFrame()
+def select_features_with_sklearn(self, dataframe: pd.DataFrame, selector: _BaseFilter) -> pd.DataFrame:
+    colnames = dataframe.columns
+
+    # split data and classes. We rely on the fact that classes are in the last column
+    x = dataframe[colnames[:-1]]
+    y = dataframe[colnames[-1]]
+    # another score functions are: f_classif, mutual_info_classif
+
+    selector.fit(x, y)
+    # remove features from the dataset without classes.
+    transformed_df = selector.transform(x)
+    # push classes back in
+    transformed_df[colnames[-1]] = y
+    return transformed_df
 
 
 def main():
     df = pd.DataFrame([
-        [1, 2, 3, 4, 5],
-        [1, 2, 3, 4, 5],
-        [1, 2, 3, 4, 5],
-        [1, 2, 3, 4, 5],
-        [1, 2, 3, 4, 5]
+        [1, 2, 2, 4, 5],
+        [2, 2, 1, 2, 3],
+        [2, 1, 1, 2, 3],
+        [1, 58, 0, 1, 2],
+        [1, 2, 3, 5, 6],
+        [2, 2, 20, 41, 42],
+        [1, 2, 6, 11, 12],
+        [1, 2, 5, 10, 11]
     ], columns=["a", "b", "c", "d", "e"])
 
-    colnames = df.columns
-    x = df[colnames[:-1]]
-    y = df[[colnames[-1]]]
+    class_schema = CommandSchema(**{
+        "name": "SelectKBest",
+        "parameters": {
+            "k": 4
+        }
+    })
+    csf_schema = CommandSchema(**{
+        "name": "f_classif",
+        "parameters": {}
+    })
 
-    print(x.columns)
-    print(y.columns)
+    newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(class_schema, csf_schema))
+
+    print(newFrame)
 
