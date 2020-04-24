@@ -29,7 +29,7 @@ score_funcs: Dict[str, Any] = {
     "chi2": sklfs.chi2,
 
 }
-def setup_score_func(score_func: CommandSchema):
+def setup_sklearn_score_func(score_func: CommandSchema):
     # here we retrieve correct score function for FS by its name and set it up with parameters from JSON
     # TODO xbajger: We are not checking if the keyword arguments are right. We let the whole framework fail on an error
     #try:
@@ -38,7 +38,10 @@ def setup_score_func(score_func: CommandSchema):
     #except TypeError:
     return score_func
 
-
+def setup_sklearn_fs_class(class_schema: CommandSchema):
+    # here we make use of a structural similarity between FS classes in scikit-learn
+    # they all contain a "score_func" callable argument and then some other configuration
+    ftsl = getattr(sklfs, class_schema.name)
 
 
 
@@ -59,9 +62,10 @@ class KBest(AbstractFeatureSelector):
         if "score_func" not in self.settings:
             score_func=sklfs.chi2
         else:
-            score_func = setup_score_func(CommandSchema(**self.settings['score_func']))
+            score_func = setup_sklearn_score_func(CommandSchema(**self.settings['score_func']))
 
         fs: sklfs.SelectKBest = sklfs.SelectKBest(score_func=score_func, **self.settings['parameters'])
         fs.fit(x, y)
         return fs.transform(x)
+
 
