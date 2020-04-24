@@ -62,7 +62,7 @@ def main():
 
     colnames = df.columns
     x = df[colnames[:-1]]
-    y = df[colnames[-1]]
+    y = df[[colnames[-1]]]
 
     print(x.columns)
     print(y.columns)
