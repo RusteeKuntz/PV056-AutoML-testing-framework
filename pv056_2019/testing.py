@@ -73,10 +73,14 @@ def main():
         "parameters": {}
     })
 
+
     colnames = df.columns
     print(colnames[-1])
+    print(type(colnames[-1]))
     print(colnames)
     print(type(colnames))
+
+    df['kokot'] = pd.Series([8, 8, 8, 8, 8])
     exit()
 
 
