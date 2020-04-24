@@ -70,10 +70,13 @@ def main():
 
     fs_schema = FSStepSchema(**{
         "source_library": SCIKIT,
-        "name": "SelectFpr",
-        "parameters": {
-            "alpha": 0.5
+        "fs_method": {
+            "name": "SelectFpr",
+            "parameters": {
+                "alpha": 0.5
+            }
         }
+
     })
 
     #colnames = df.columns
