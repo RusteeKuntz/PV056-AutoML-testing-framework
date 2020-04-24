@@ -65,4 +65,5 @@ def main():
     y = df[colnames[-1]]
 
     print(x.columns)
+    print(y.columns)
 
