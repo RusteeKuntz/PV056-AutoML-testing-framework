@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_selection.univariate_selection import _BaseFilter
 
-from pv056_2019.schemas import ScikitCommandSchema, FSStepSchema, CommandSchema
+from pv056_2019.schemas import ScikitCommandSchema, FSStepSchema
 from pv056_2019.utils import SCIKIT
 
 
@@ -86,5 +86,5 @@ def main():
         conf = ScikitCommandSchema(**fs_schema.dict())
         newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func))
 
-    print(newFrame)
+        print(newFrame)
 
