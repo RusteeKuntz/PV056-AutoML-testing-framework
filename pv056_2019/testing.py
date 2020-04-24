@@ -73,7 +73,7 @@ def main():
     class_schema = CommandSchema(**{
         "name": "SelectKBest",
         "parameters": {
-            "k": 3
+            "k": 2
         }
     })
     csf_schema = CommandSchema(**{
