@@ -31,7 +31,7 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
     return fsl
 
 
-def select_features_with_sklearn(self, dataframe: pd.DataFrame, selector: _BaseFilter) -> pd.DataFrame:
+def select_features_with_sklearn(dataframe: pd.DataFrame, selector: _BaseFilter) -> pd.DataFrame:
     colnames = dataframe.columns
 
     # split data and classes. We rely on the fact that classes are in the last column
