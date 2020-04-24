@@ -20,10 +20,7 @@ class AbstractFeatureSelector:
         raise NotImplementedError()
 
 
-
 F_SELECTORS: Dict[str, Any] = {}
-
-
 
 
 def feature_selector(cls):
