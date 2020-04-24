@@ -117,11 +117,13 @@ class StatisticsSchema(BaseModel):
     aggregate: bool = True
     pattern: str = ".*"
 
+
 class FSStepSchema(BaseModel):
     source_library: str
 
+
 class CommandSchema(BaseModel):
-    """ This represents the schema of configuration for an arbitrary WEKA class invokation from command line """
+    """ This represents the schema of configuration for an arbitrary feature selection class invokation """
     name: str
     parameters: dict = {}
 
@@ -130,7 +132,7 @@ class CommandSchema(BaseModel):
 class ScikitCommandSchema(FSStepSchema):
     source_library = SCIKIT
     fs_method: CommandSchema
-    score_func: CommandSchema
+    score_func: CommandSchema = None
 
 
 class CustomFSSchema(FSStepSchema, CommandSchema):

@@ -4,6 +4,9 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_selection.univariate_selection import _BaseFilter
 
+from pv056_2019.schemas import ScikitCommandSchema, FSStepSchema
+from pv056_2019.utils import SCIKIT
+
 
 class CommandSchema(BaseModel):
     """ This represents the schema of configuration for an arbitrary WEKA class invokation from command line """
@@ -70,7 +73,8 @@ def main():
 
     ], columns=["a", "b", "c", "d", "e"])
 
-    class_schema = CommandSchema(**{
+    fs_schema = FSStepSchema(**{
+        "source_library": SCIKIT,
         "name": "SelectFpr",
         "parameters": {
             "alpha": 0.5
@@ -87,9 +91,9 @@ def main():
     #df[colnames[-1]] = pd.Series([8 for _ in range(8)])
     #print(df)
 
-
-
-    newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(class_schema, csf_schema))
+    if fs_schema.source_library == SCIKIT:
+        conf = ScikitCommandSchema(**fs_schema.dict())
+        newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func))
 
     print(newFrame)
 
