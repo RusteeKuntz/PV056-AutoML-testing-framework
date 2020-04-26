@@ -44,6 +44,7 @@ def weka_worker(queue,
             try:
                 time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                 result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                print(" ".join(args))
                 print(result.stdout)
                 print(result.stderr)
                 time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
