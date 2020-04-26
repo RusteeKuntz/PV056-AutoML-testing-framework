@@ -43,7 +43,9 @@ def weka_worker(queue,
         if not (clf, dataset) in blacklist:
             try:
                 time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-                subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout)
+                result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                print(result.stdout)
+                print(result.stderr)
                 time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
                 time_diff = time_end - time_start
@@ -105,12 +107,8 @@ def main():
         # here we get an array of datasets.csv lines arranged by the size of the file in first column of each row
         # paths are checked before usage. If they do not exist, 0 is used as size for comparison
         unsorted_datasets = [row for row in reader]
-        print("UNSORTED DATASETS: ")
-        print(unsorted_datasets)
         datasets = sorted(unsorted_datasets,
                           key=lambda x: os.path.getsize(x[0]) if os.path.exists(x[0]) else 0)
-        print("DATASETS: ")
-        print(datasets)
 
     # They taught us not to use GLOBAL variables, so I replaced them with normal variables and pass them as params
     #global times_file
