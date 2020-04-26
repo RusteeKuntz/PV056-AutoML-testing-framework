@@ -141,7 +141,7 @@ class ClassifierManager:
 
                 run_args = [
                     "java",
-                    "-Xmx1024m",
+                    "-Xmx4096m",
                     "-cp",
                     self.weka_jar_path,
                     "weka.classifiers.meta.FilteredClassifier",

@@ -176,7 +176,7 @@ class FeatureSelectionManager:
                     )]
 
                     # the command begins with 'java', '-Xmx1024m' max heap size and '-cp' classpath specification
-                    _run_args = ['java', '-Xmx1024m', '-cp', self.config.weka_jar_path,
+                    _run_args = ['java', '-Xmx2048m', '-cp', self.config.weka_jar_path,
                                  # add input/output file path and
                                  # filters
                                  'weka.filters.MultiFilter'] + filters + ['-i', train_path, '-o', _output_file_path]
