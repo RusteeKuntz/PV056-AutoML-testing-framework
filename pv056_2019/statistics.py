@@ -1,4 +1,5 @@
 import argparse
+import csv
 import json
 import os
 import re
@@ -24,19 +25,30 @@ def main():
         description="Script for counting basic statistic (Accuracy, )"
     )
     parser.add_argument("--config-file", "-c", required=True, help="JSON configuration")
+    parser.add_argument("--datasets-csv-in", "-di", required=True,
+                        help="CSV file with paths to predictions, test files and configurations histories")
+    parser.add_argument("--datasets-csv-baseline", "-db", required=False,
+                        help="CSV file with paths to predictions, test files and configurations histories")
 
     args = vars(parser.parse_args())
 
     with open(args["config_file"]) as json_file:
         conf: StatisticsSchema = StatisticsSchema(**json.load(json_file))
 
-    reg = re.compile(r"removed-0*")
-    files = sorted([x for x in os.listdir(conf.results_dir) if x.endswith(".csv")])
+    #reg = re.compile(r"removed-0*")
+    # Previously these files were listed from a directory
+    #files = sorted([x for x in os.listdir(conf.results_dir) if x.endswith(".csv")])
 
-    pattern = compile_reg(conf.pattern)
+    with open(args["datasets_csv_in"], "r") as csv_in:
+        #csv_reader = csv.reader(csv_in, delimiter=",")
+        csv_rows = sorted([row for row in csv.reader(csv_in, delimiter=",")], key=lambda x: os.path.getsize(x[0]))
 
+    #pattern = compile_reg(conf.pattern)
+
+    # TODO: migh be used again in future versions
     config_file_paths = [
-        x for x in os.listdir(conf.results_dir) if x.endswith(".json")
+        # Previously these jsons were also listed from a directory
+        # x for x in os.listdir(conf.results_dir) if x.endswith(".json")
     ]
 
     config_dict = {}
@@ -46,37 +58,44 @@ def main():
     #         conf_hash = basename.split("_")[1].replace(".json", "")
     #         config_dict[conf_hash] = json.load(config_file)
 
-
-
-    headers = [
-        "dataset",
-        "fold",
-        "clf",
-        "od_name",
-        "removed",
-        "clf_hex",
-        "accuracy",
-    ]
     data = []
-    for fl in files:
-        if not pattern.match(fl):
-            continue
+    # We actually take into account future upgrades, which might include non-identical number of preprocessing steps applied
+    greatest_steps_count = 0
+    for csv_row in csv_rows:
+        #if not pattern.match(fl):
+        #    continue
+        prediction_file = csv_row[0]
+        conf_path = csv_row[2]
 
-        file_split = fl.split("_")
-        file_split[-1] = file_split[-1].replace(".csv", "")
 
-        if "removed-" in file_split[-1]:
-            file_split[-1] = reg.sub("", file_split[-1])
-        else:
-            file_split.append(0)
+        file_split = prediction_file.split("_")
+        #file_split[-1] = file_split[-1].replace(".csv", "")
+
+        # We dont care about filenames anymore
+        # if "removed-" in file_split[-1]:
+        #     file_split[-1] = reg.sub("", file_split[-1])
+        # else:
+        #     file_split.append(0)
 
         #datest, split, classifier, conf_hash, removed = file_split
 
-        classifier = config_dict[conf_hash]["model_config"].get("class_name").split(".")[-1]
+        # we still do care about json filenames (practical reasons) Here we extract a hash fro that filename
+        conf_hash = conf_path.split(".")[0]
+        if conf_hash not in config_dict:
+            with open(conf_path) as config_file:
+                config_dict[conf_hash] = json.load(config_file)
 
-        od_name = config_dict[conf_hash]["od_configs"].get("name", "")
+        conf = config_dict[conf_hash]
 
-        dataframe = pd.read_csv(os.path.join(conf.results_dir, fl))
+        classifier = conf["model_config"].get("class_name").split(".")[-1]
+        classifier_args = conf["model_config"].get("args")
+        steps_count = conf["model_config"].get("steps_count")
+        if steps_count > greatest_steps_count:
+            greatest_steps_count = steps_count
+
+        #od_name = config_dict[conf_hash]["od_configs"].get("name", "")
+
+        dataframe = pd.read_csv(prediction_file)
         all_results = dataframe.shape[0]
         accuracy = np.sum(dataframe["error"] != "+") / all_results
 
@@ -90,6 +109,17 @@ def main():
     #times['fold'] = times['fold'].astype(str)
     #times.loc[(times.removed == 0), 'od_time'] = 0.0
     #times['total_time'] = times['od_time'] + times['clf_time']
+
+
+    headers = [
+        "dataset",
+        "fold",
+        "clf",
+        "clf_hex",
+        *["step_{}".format(x) for x in range(greatest_steps_count)],
+        "accuracy",
+    ]
+
 
     dataframe = pd.DataFrame(data, columns=headers)
     dataframe['removed'] = dataframe['removed'].astype(float)

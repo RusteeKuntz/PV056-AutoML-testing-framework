@@ -102,18 +102,19 @@ class FeatureSelectionManager:
         for feature_selection_config in self.config.selection_methods:
             # this hash is here to uniquely identify output files. It prevents new files with different settings
             # from overwriting older files with different settings
-            hash_md5 = hashlib.md5(feature_selection_config.json().encode()).hexdigest()
+            conf_string = json.dumps(feature_selection_config, sort_keys=True)
+            hash_md5 = hashlib.md5(conf_string.encode(encoding="UTF-8")).hexdigest()
             fs_config_json_basename = hash_md5 + ".json"
 
             with open(os.path.join(self.config.output_folder_path, fs_config_json_basename), "w") as config_json:
-                config_json.write(feature_selection_config.json())
+                config_json.write(conf_string)
 
             fs_settings.append((feature_selection_config, hash_md5, fs_config_json_basename))
 
         # TODO: remove limitation to 20 datasets later
         limit_counter = 0
         for line in datasets_mapping_csv:
-            if limit_counter > 20:
+            if limit_counter > 30:
                 break
             else:
                 limit_counter += 1

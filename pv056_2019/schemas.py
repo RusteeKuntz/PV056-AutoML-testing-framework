@@ -23,8 +23,8 @@ class SplitterSchema(BaseModel):
 
     @validator("k_of_folds")
     def k_of_folds_validator(cls, value):
-        if value < 1:
-            raise ValueError("k_of_folds must be greater than 0")
+        if value <= 1:
+            raise ValueError("k_of_folds must be greater than 1")
         return value
 
 

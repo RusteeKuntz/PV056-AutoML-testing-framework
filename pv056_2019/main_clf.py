@@ -107,8 +107,8 @@ def main():
         reader = csv.reader(datasets_csv_file, delimiter=",")
         # here we get an array of datasets.csv lines arranged by the size of the file in first column of each row
         # paths are checked before usage. If they do not exist, 0 is used as size for comparison
-        unsorted_datasets = [row for row in reader]
-        datasets = sorted(unsorted_datasets,
+        unsorted_dataset_rows = [row for row in reader]
+        datasets = sorted(unsorted_dataset_rows,
                           key=lambda x: os.path.getsize(x[0]) if os.path.exists(x[0]) else 0)
 
     # They taught us not to use GLOBAL variables, so I replaced them with normal variables and pass them as params

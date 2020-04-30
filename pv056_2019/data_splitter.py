@@ -1,5 +1,6 @@
 import argparse
 import csv
+import hashlib
 import json
 import os
 import sys
@@ -43,6 +44,7 @@ def main():
         pseudo_random_states = [conf.random_state]
 
     datasets_output = []
+    #confs_dict = {}
     try:
         for dataframe in data_loader.load_files():
             print("Splitting:", dataframe._arff_data["relation"], flush=True)
@@ -56,18 +58,22 @@ def main():
                     train_index, test_index = data_fold
 
                     train_frame = dataframe.select_by_index(train_index)
+                    hash = hashlib.md5(conf.json().encode(encoding="UTF-8")).hexdigest()
                     train_name = (
-                        dataframe._arff_data["relation"] + "_" + str(k) + "-" + str(m) + "_train.arff"
+                        dataframe._arff_data["relation"] + "_" + str(k) + "-" + str(m) + "_" + hash + "_train.arff"
                     )
                     train_split_output = os.path.join(conf.train_split_dir, train_name)
                     train_frame.arff_dump(train_split_output)
 
                     test_frame = dataframe.select_by_index(test_index)
                     test_name = (
-                        dataframe._arff_data["relation"] + "_" + str(k) + "-" + str(m) + "_test.arff"
+                        dataframe._arff_data["relation"] + "_" + str(k) + "-" + str(m) + "_" + hash + "_test.arff"
                     )
                     test_split_output = os.path.join(conf.test_split_dir, test_name)
                     test_frame.arff_dump(test_split_output)
+
+                    with open(os.path.join(conf.train_split_dir, hash+".json"), "w", encoding="UTF-8") as json_file:
+                        json_file.write(json.dumps(conf.dict(), sort_keys=True))
 
                     datasets_output.append([train_split_output, test_split_output, "SPLIT-INFO"])
 

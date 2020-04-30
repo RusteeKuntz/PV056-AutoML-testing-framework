@@ -39,13 +39,15 @@ class ClassifierManager:
     def _create_final_config_file(dataset_conf_paths, classifier):
         """This method returns the final full configuration of an experiment in the form of JSON string"""
         json_configs = []
+        number_of_steps = 0
         for dataset_conf_path in dataset_conf_paths:
             #print("DATASETS CONF PATH: " + dataset_conf_path)
             with open(dataset_conf_path, "r") as f:
                 json_configs.append(json.load(f))
+            number_of_steps += 1
 
         final_config = json.dumps(
-            {"model_config": classifier.dict(), "od_configs": json_configs},
+            {"model_config": classifier.dict(), "preprocessing_configs": json_configs, "steps_count": number_of_steps},
             indent=4,
             separators=(",", ":"),
         )
