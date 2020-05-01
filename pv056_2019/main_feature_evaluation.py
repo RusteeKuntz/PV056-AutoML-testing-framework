@@ -48,7 +48,7 @@ def fs_worker(queue: Queue, blacklist: (str, str), timeout):
                 if command.args.source_library == CUSTOM:
                     fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
                 elif command.args.source_library == SCIKIT:
-                    args: ScikitFSSchema = ScikitFSSchema(**command.args)
+                    args: ScikitFSSchema = command.args
                     fs_frame, time_diff = df.select_features_with_sklearn(
                         setup_sklearn_fs_class(args.fs_method, args.score_func)
                     )
