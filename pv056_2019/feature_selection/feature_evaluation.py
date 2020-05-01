@@ -102,7 +102,7 @@ class FeatureSelectionManager:
         for feature_selection_config in self.config.selection_methods:
             # this hash is here to uniquely identify output files. It prevents new files with different settings
             # from overwriting older files with different settings
-            conf_string = json.dumps(feature_selection_config, sort_keys=True)
+            conf_string = json.dumps(feature_selection_config.dict(), sort_keys=True)
             hash_md5 = hashlib.md5(conf_string.encode(encoding="UTF-8")).hexdigest()
             fs_config_json_basename = hash_md5 + ".json"
 
