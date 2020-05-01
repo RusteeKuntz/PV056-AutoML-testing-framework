@@ -10,8 +10,7 @@ from pv056_2019.main_clf import _valid_config_path
 from pv056_2019.schemas import FeatureSelectionStepSchema
 from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionManager, _assert_trailing_slash, \
     FSJobWithInfo
-from pv056_2019.utils import valid_path
-
+from pv056_2019.utils import valid_path, CUSTOM, SCIKIT
 
 debugging = False
 
@@ -35,10 +34,6 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
         # I believe it does not make sense to blacklist search methods.
         if not (eval_method, dataset) in blacklist:
             if command.is_cmd:
-                df = DataLoader._load_arff_file(command.input_path)
-                fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
-                fs_frame.arff_dump(command.output_file_path)
-            else:
                 try:
                     time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
@@ -47,6 +42,13 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
                 except subprocess.TimeoutExpired:
                     time_diff = timeout
                     blacklist.append((eval_method, dataset))
+            else:
+                if command.args.library == CUSTOM:
+                    df = DataLoader._load_arff_file(command.input_path)
+                    fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
+                    fs_frame.arff_dump(command.output_file_path)
+                elif command.args.library == SCIKIT:
+                    pass
         else:
             time_diff = timeout
 

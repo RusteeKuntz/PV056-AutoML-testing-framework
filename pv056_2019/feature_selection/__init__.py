@@ -4,6 +4,7 @@ from typing import Any, Dict
 import numpy as np
 import pandas as pd
 import sklearn.feature_selection as sklfs
+from sklearn.feature_selection.univariate_selection import _BaseFilter
 
 from pv056_2019.schemas import CommandSchema
 
@@ -27,23 +28,30 @@ def feature_selector(cls):
     F_SELECTORS.update({cls.name: cls})
     return cls
 
-score_funcs: Dict[str, Any] = {
-    "chi2": sklfs.chi2,
-
-}
-def setup_sklearn_score_func(score_func: CommandSchema):
+# score_funcs: Dict[str, Any] = {
+#     "chi2": sklfs.chi2,
+#
+# }
+def setup_sklearn_score_func(score_func_schema: CommandSchema):
     # here we retrieve correct score function for FS by its name and set it up with parameters from JSON
     # TODO xbajger: We are not checking if the keyword arguments are right. We let the whole framework fail on an error
     #try:
-    score_func = lambda x, y: getattr(sklfs, score_func.name)(x, y, **score_func.parameters)
+    score_func = lambda x, y: getattr(sklfs, score_func_schema.name)(x, y, **score_func_schema.parameters)
     # if we got an unrecognized keyword, solve it by passing default arguments f
     #except TypeError:
     return score_func
 
-def setup_sklearn_fs_class(class_schema: CommandSchema):
+def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: CommandSchema = None) -> _BaseFilter:
     # here we make use of a structural similarity between FS classes in scikit-learn
     # they all contain a "score_func" callable argument and then some other configuration
-    ftsl = getattr(sklfs, class_schema.name)
+    # so we need 2 config: for class and for score_func
+    if score_func_schema is None:
+        score_func_schema = CommandSchema(**{"name": "chi2", "parameters": {}})
+
+    score_func = setup_sklearn_score_func(score_func_schema)
+    # load class by name and construct instance with keyword arguments
+    fsl = getattr(sklfs, class_schema.name)(score_func=score_func, **class_schema.parameters)
+    return fsl
 
 
 
@@ -70,4 +78,5 @@ class KBest(AbstractFeatureSelector):
         fs.fit(x, y)
         return fs.transform(x)
 
-def select_features_scikit(dataframe: pd.DataFrame, classes: np.array)
+def select_features_scikit(dataframe: pd.DataFrame, classes: np.array):
+    pass
