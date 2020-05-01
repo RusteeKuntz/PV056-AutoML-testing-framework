@@ -72,10 +72,11 @@ def main():
                     test_split_output = os.path.join(conf.test_split_dir, test_name)
                     test_frame.arff_dump(test_split_output)
 
-                    with open(os.path.join(conf.train_split_dir, hash+".json"), "w", encoding="UTF-8") as json_file:
+                    json_path = os.path.join(conf.train_split_dir, hash+".json")
+                    with open(json_path, "w", encoding="UTF-8") as json_file:
                         json_file.write(json.dumps(conf.dict(), sort_keys=True))
 
-                    datasets_output.append([train_split_output, test_split_output, "SPLIT-INFO"])
+                    datasets_output.append([train_split_output, test_split_output, json_path])
 
     except KeyboardInterrupt:
         print("\nInterupted!", flush=True, file=sys.stderr)

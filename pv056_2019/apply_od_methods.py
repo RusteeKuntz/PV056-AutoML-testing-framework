@@ -134,7 +134,7 @@ def main():
     with open(args["datasets_csv_out"], "w", encoding="UTF-8") as output_csv:
         # TODO xbajger: Creating baseline files just for OD step is currently disabled. Considered useless.
         for od_settings in conf.od_methods: #+ [OutlierDetectorSchema(**{"name": NONE_STR, "parameters": {}})]:
-            if counter > 30:
+            if counter >= 30:
                 continue
             # if the setting is empty (None) take it as baseline setting and mark it by appropriate hex string
             if od_settings.name == NONE_STR:
