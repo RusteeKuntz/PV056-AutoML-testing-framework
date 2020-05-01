@@ -5,7 +5,7 @@ import re, os, json
 import arff
 
 from pv056_2019.schemas import CommandSchema, FeatureSelectionStepSchema, \
-    WekaFSFilterConfigurationSchema, CustomFSSchema, ScikitFSSchema
+    WekaFSFilterConfigurationSchema, CustomFSSchema, ScikitFSSchema, FSStepSchema
 from pv056_2019.data_loader import DataLoader, DataFrameArff
 from pv056_2019.utils import OD_VALUE_NAME, ID_NAME, CUSTOM, WEKA, SCIKIT
 
@@ -99,17 +99,17 @@ class FeatureSelectionManager:
 
         # precompute hashes for configurations and json files to speed up execution and avoid redundancy
         fs_settings = []
-        for feature_selection_config in self.config.selection_methods:
+        for fs_conf_dict in self.config.selection_methods:
             # this hash is here to uniquely identify output files. It prevents new files with different settings
             # from overwriting older files with different settings
-            conf_string = json.dumps(feature_selection_config.dict(), sort_keys=True)
+            conf_string = json.dumps(fs_conf_dict, sort_keys=True)
             hash_md5 = hashlib.md5(conf_string.encode(encoding="UTF-8")).hexdigest()
             fs_config_json_basename = hash_md5 + ".json"
 
             with open(os.path.join(self.config.output_folder_path, fs_config_json_basename), "w") as config_json:
                 config_json.write(conf_string)
 
-            fs_settings.append((feature_selection_config, hash_md5, fs_config_json_basename))
+            fs_settings.append((fs_conf_dict, hash_md5, fs_config_json_basename))
 
         # TODO: remove limitation to 20 datasets later
         limit_counter = 0
@@ -133,7 +133,8 @@ class FeatureSelectionManager:
             _output_directory = _assert_trailing_slash(self.config.output_folder_path)
             _base_name = os.path.basename(train_path)
 
-            for feature_selection_config, hash_md5, fs_config_json_basename in fs_settings:
+            for fs_conf_dict, hash_md5, fs_config_json_basename in fs_settings:
+                fs_conf: FSStepSchema = FSStepSchema(**fs_conf_dict)
                 _fs_identifier = '_FS-' + hash_md5
                 # this part checks if train file contains _train substring and places FS identifier string before of it
                 if '_train' in _base_name:
@@ -154,7 +155,8 @@ class FeatureSelectionManager:
                 mapping_csv_file.flush()
 
                 # generate command with info appropriately for used library
-                if feature_selection_config.source_library == WEKA:
+                if fs_conf.source_library == WEKA:
+                    fs_conf = WekaFSFilterConfigurationSchema(**fs_conf_dict)
                     # here we prepare filters for currently useless columns that should not be considered for FS
                     filters = ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(  # noqa
                         ID_NAME
@@ -167,10 +169,10 @@ class FeatureSelectionManager:
 
                     # specify search method and its arguments
                     fs_filter_args += ' -S ' + '"' + _nest_double_quotes(
-                        get_weka_command_from_config(feature_selection_config.search_class)) + '"'
+                        get_weka_command_from_config(fs_conf.search_class)) + '"'
                     # specify evaluation method and its arguments
                     fs_filter_args += ' -E ' + '"' + _nest_double_quotes(get_weka_command_from_config(
-                        feature_selection_config.eval_class)) + '"'
+                        fs_conf.eval_class)) + '"'
 
                     filters += ['-F', 'weka.filters.supervised.attribute.AttributeSelection {}'.format(
                         fs_filter_args
@@ -193,20 +195,20 @@ class FeatureSelectionManager:
                                         args=_run_args,
                                         ds=train_path,
                                         # fold=file_split[1],
-                                        ev=feature_selection_config.eval_class.class_name,
+                                        ev=fs_conf.eval_class.class_name,
                                         out=_output_file_path)
-                elif feature_selection_config.source_library == CUSTOM:
+                elif fs_conf.source_library == CUSTOM:
                     # here we load config into pydantic Schema to apply validation before running teh experiment
-                    conf: CustomFSSchema = CustomFSSchema(**feature_selection_config.dict())
+                    fs_conf: CustomFSSchema = CustomFSSchema(**fs_conf_dict)
                     yield FSJobWithInfo(is_cmd=False,
-                                        args=conf,
+                                        args=fs_conf,
                                         ds=train_path,
-                                        ev=conf.name,
+                                        ev=fs_conf.name,
                                         out=_output_file_path)
-                elif feature_selection_config.source_library == SCIKIT:
-                    conf: ScikitFSSchema = ScikitFSSchema(**feature_selection_config.dict())
+                elif fs_conf.source_library == SCIKIT:
+                    fs_conf: ScikitFSSchema = ScikitFSSchema(**fs_conf_dict)
                     yield FSJobWithInfo(is_cmd=False,
-                                        args=conf,
+                                        args=fs_conf,
                                         ds=train_path,
-                                        ev=conf.fs_method.name,
+                                        ev=fs_conf.fs_method.name,
                                         out=test_path)
