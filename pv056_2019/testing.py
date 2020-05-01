@@ -77,11 +77,8 @@ def main():
             }
         },
         "score_func": {
-            "name": "mutual_info_classif",
-            "parameters": {
-                "n_neighbors": 4,
-                "random_state": 123
-            }
+            "name": "f_classif",
+            "parameters": {}
 
         }
 
