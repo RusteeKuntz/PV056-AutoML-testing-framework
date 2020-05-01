@@ -43,12 +43,15 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
                     time_diff = timeout
                     blacklist.append((eval_method, dataset))
             else:
+                df = DataLoader._load_arff_file(command.input_path)
                 if command.args.library == CUSTOM:
-                    df = DataLoader._load_arff_file(command.input_path)
                     fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
-                    fs_frame.arff_dump(command.output_file_path)
                 elif command.args.library == SCIKIT:
-                    pass
+                    fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
+                else:
+                    raise NotImplementedError()
+                fs_frame.arff_dump(command.output_file_path)
+
         else:
             time_diff = timeout
 

@@ -10,6 +10,8 @@ import arff
 import numpy as np
 import pandas as pd
 import time
+
+from sklearn.feature_selection.univariate_selection import _BaseFilter
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
 
@@ -169,6 +171,37 @@ class DataFrameArff(pd.DataFrame):
 
         return new_frame_arff, fs_time
 
+    def select_features_with_sklearn(self, selector: _BaseFilter) -> pd.DataFrame:
+        colnames = self.columns
+
+        # split data and classes. We rely on the fact that classes are in the last column
+        x = self[colnames[:-1]]
+        y = self[colnames[-1]]
+        # another score functions are: f_classif, mutual_info_classif
+
+        time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
+        time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+
+        selector.fit(x, y)
+        # remove features from the dataset without classes.
+        # selector.transform(x)
+
+        selected_features = selector.get_support()
+
+        transformed_df = x.iloc[:, selected_features]
+
+        # print(selected_features)
+        # print(transformed_df)
+        # print(type(transformed_df))
+
+        time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
+        time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+
+        fs_time = (time_end - time_start) + (time_end_children - time_start_children)
+
+        # push classes back in
+        transformed_df[colnames[-1]] = y
+        return transformed_df, fs_time
 
     def select_by_index(self, index: np.array):
         dataframe = self.iloc[index]
