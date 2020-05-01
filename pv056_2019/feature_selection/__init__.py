@@ -70,4 +70,4 @@ class KBest(AbstractFeatureSelector):
         fs.fit(x, y)
         return fs.transform(x)
 
-
+def select_features_scikit(dataframe: pd.DataFrame, classes: np.array)

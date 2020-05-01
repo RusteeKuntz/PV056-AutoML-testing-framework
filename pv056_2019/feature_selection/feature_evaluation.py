@@ -5,27 +5,27 @@ import re, os, json
 import arff
 
 from pv056_2019.schemas import CommandSchema, FeatureSelectionStepSchema, \
-    WekaFSFilterConfigurationSchema, CustomFSSchema
+    WekaFSFilterConfigurationSchema, CustomFSSchema, ScikitFSSchema
 from pv056_2019.data_loader import DataLoader, DataFrameArff
-from pv056_2019.utils import OD_VALUE_NAME, ID_NAME, CUSTOM, WEKA
+from pv056_2019.utils import OD_VALUE_NAME, ID_NAME, CUSTOM, WEKA, SCIKIT
 
 
-class FSCommandWithInfo:
-    is_custom: bool
-    args: []
+class FSJobWithInfo:
+    is_cmd: bool
+    args: [str] or ScikitFSSchema or CustomFSSchema
     input_path: str
     fold: str
     eval_method_name: str
     output_file_path: str
 
     def __init__(self,
-                 is_custom,
-                 args: [str],
+                 is_cmd,
+                 args: [str] or ScikitFSSchema or CustomFSSchema,
                  ds: str,
                  # fold: str,
                  ev: str,
                  out: str) -> None:
-        self.is_custom = is_custom
+        self.is_cmd = is_cmd
         self.args = args
         self.input_path = ds
         # self.fold = fold
@@ -87,7 +87,7 @@ class FeatureSelectionManager:
     def __init__(self, config: FeatureSelectionStepSchema):
         self.config = config
 
-    def generate_fs_weka_commands(self, datasets_mapping_csv, mapping_csv_file) -> [FSCommandWithInfo]:
+    def generate_fs_jobs(self, datasets_mapping_csv, mapping_csv_file) -> [FSJobWithInfo]:
         """ this takes a csv file with datasets and their configurations use by other workflow steps (if any)
         Such csv file contains 3 columns: train_dataset,test_dataset,configuration_json_path
         This method uses options for weka evaluation class and weka search method class and calculates all the necessary
@@ -189,17 +189,24 @@ class FeatureSelectionManager:
 
                     # print(_run_args)
 
-                    yield FSCommandWithInfo(is_custom=True,
-                                            args=_run_args,
-                                            ds=train_path,
-                                            # fold=file_split[1],
-                                            ev=feature_selection_config.eval_class.class_name,
-                                            out=_output_file_path)
+                    yield FSJobWithInfo(is_cmd=True,
+                                        args=_run_args,
+                                        ds=train_path,
+                                        # fold=file_split[1],
+                                        ev=feature_selection_config.eval_class.class_name,
+                                        out=_output_file_path)
                 elif feature_selection_config.source_library == CUSTOM:
                     # here we load config into pydantic Schema to apply validation before running teh experiment
                     conf: CustomFSSchema = CustomFSSchema(**feature_selection_config.dict())
-                    yield FSCommandWithInfo(is_custom=False,
-                                            args=conf.parameters,
-                                            ds=train_path,
-                                            ev=conf.name,
-                                            out=_output_file_path)
+                    yield FSJobWithInfo(is_cmd=False,
+                                        args=conf,
+                                        ds=train_path,
+                                        ev=conf.name,
+                                        out=_output_file_path)
+                elif feature_selection_config.source_library == SCIKIT:
+                    conf: ScikitFSSchema = ScikitFSSchema(**feature_selection_config.dict())
+                    yield FSJobWithInfo(is_cmd=False,
+                                        args=conf,
+                                        ds=train_path,
+                                        ev=conf.fs_method.name,
+                                        out=test_path)

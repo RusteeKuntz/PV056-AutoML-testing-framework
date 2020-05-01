@@ -9,7 +9,7 @@ from pv056_2019.data_loader import DataLoader
 from pv056_2019.main_clf import _valid_config_path
 from pv056_2019.schemas import FeatureSelectionStepSchema
 from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionManager, _assert_trailing_slash, \
-    FSCommandWithInfo
+    FSJobWithInfo
 from pv056_2019.utils import valid_path
 
 
@@ -26,7 +26,7 @@ def extract_and_save_ranking_from_fs_output(fs_output: str, fs_output_filepath: 
 
 def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
     while not queue.empty():
-        command: FSCommandWithInfo = queue.get()
+        command: FSJobWithInfo = queue.get()
         time_diff: float
 
         dataset = command.input_path.split("_")[0]
@@ -34,7 +34,7 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
 
         # I believe it does not make sense to blacklist search methods.
         if not (eval_method, dataset) in blacklist:
-            if command.is_custom:
+            if command.is_cmd:
                 df = DataLoader._load_arff_file(command.input_path)
                 fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
                 fs_frame.arff_dump(command.output_file_path)
@@ -114,7 +114,7 @@ def main():
             # parameters were used in the process (config).
             # The file is then passed to the method below to write the actual mappings, because it is easier.
             # the generator below yields commands but also records their arguments to a csv file for reference
-            for command in fs_manager.generate_fs_weka_commands(datasets_mapping_csv, fs_mapping_csv):
+            for command in fs_manager.generate_fs_jobs(datasets_mapping_csv, fs_mapping_csv):
                 #print(" ".join(command.args))
                 queue.put(command)
 

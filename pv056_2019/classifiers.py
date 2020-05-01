@@ -4,6 +4,7 @@ import hashlib
 import re
 from multiprocessing import Queue
 
+from pv056_2019.data_loader import DataLoader
 from pv056_2019.utils import ID_NAME, OD_VALUE_NAME
 
 from pv056_2019.schemas import ClassifierSchema
@@ -129,6 +130,19 @@ class ClassifierManager:
                 ) + ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
                     OD_VALUE_NAME
                 )
+
+                train_df = DataLoader._load_arff_file(train_path)
+                test_df = DataLoader._load_arff_file(test_path)
+                all_features_set = set(test_df.columns)
+                new_features_set = set(train_df.columns)
+                missing_features: [str] = list(all_features_set.difference(new_features_set))
+
+                for feature_name in missing_features:
+                    str_filters += ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
+                        feature_name
+                    )
+
+                # adding optional more filters before classification
                 for one_filter in classifier.filters:
                     str_filters += '-F "{0} {1}"'.format(
                         one_filter.name, " ".join(one_filter.args)
