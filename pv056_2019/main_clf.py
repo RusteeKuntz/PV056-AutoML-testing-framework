@@ -118,6 +118,8 @@ def main():
     #times_file = conf.times_output
     #blacklist_file = conf.blacklist_file
     #timeout = conf.timeout
+    if len(datasets) == 0:
+        return 0
 
     # count the number of path to config jsons (the number of steps applied)
     number_of_steps = len(datasets[0][2:])

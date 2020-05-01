@@ -45,16 +45,19 @@ def main():
     # Previously these files were listed from a directory
     # files = sorted([x for x in os.listdir(conf.results_dir) if x.endswith(".csv")])
 
+    # load datasets, sort them by size, if some do not exists, exclude them
     with open(args["datasets_csv_in"], "r") as csv_in:
         # csv_reader = csv.reader(csv_in, delimiter=",")
-        csv_rows = sorted([row for row in csv.reader(csv_in, delimiter=",")], key=lambda x: os.path.getsize(x[0]))
+        csv_rows = sorted([row for row in csv.reader(csv_in, delimiter=",") if os.path.exists(row[0])], key=lambda x: os.path.getsize(x[0]))
 
+    # if a baseline predictions csv was supplied
     baseline_supplied = False
+    # load datasets, sort them by size, if some do not exists, exclude them
     if args["datasets_csv_baseline"] is not None:
         baseline_supplied = True
         with open(args["datasets_csv_in"], "r") as csv_baseline:
             # csv_reader = csv.reader(csv_in, delimiter=",")
-            csv_b_rows = sorted([row for row in csv.reader(csv_baseline, delimiter=",")],
+            csv_b_rows = sorted([row for row in csv.reader(csv_baseline, delimiter=",") if os.path.exists(row[0])],
                                 key=lambda x: os.path.getsize(x[0]))
 
     # pattern = compile_reg(conf.pattern)
