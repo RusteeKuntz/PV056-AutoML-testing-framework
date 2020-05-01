@@ -171,7 +171,7 @@ class DataFrameArff(pd.DataFrame):
 
         return new_frame_arff, fs_time
 
-    def select_features_with_sklearn(self, selector: _BaseFilter) -> pd.DataFrame:
+    def select_features_with_sklearn(self, selector: _BaseFilter):
         colnames = self.columns
 
         # split data and classes. We rely on the fact that classes are in the last column

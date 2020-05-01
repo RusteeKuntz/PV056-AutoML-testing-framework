@@ -6,6 +6,9 @@ import pandas as pd
 import sklearn.feature_selection as sklfs
 from sklearn.feature_selection.univariate_selection import _BaseFilter
 
+F_SELECTORS: Dict[str, Any] = {}
+
+
 from pv056_2019.schemas import CommandSchema
 
 
@@ -21,7 +24,7 @@ class AbstractFeatureSelector:
         raise NotImplementedError()
 
 
-F_SELECTORS: Dict[str, Any] = {}
+
 
 
 def feature_selector(cls):
@@ -78,5 +81,5 @@ class KBest(AbstractFeatureSelector):
         fs.fit(x, y)
         return fs.transform(x)
 
-def select_features_scikit(dataframe: pd.DataFrame, classes: np.array):
-    pass
+
+
