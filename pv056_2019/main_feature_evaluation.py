@@ -6,8 +6,9 @@ import sys, resource
 from multiprocessing import Queue, Manager, Process
 
 from pv056_2019.data_loader import DataLoader
+from pv056_2019.feature_selection import setup_sklearn_fs_class
 from pv056_2019.main_clf import _valid_config_path
-from pv056_2019.schemas import FeatureSelectionStepSchema
+from pv056_2019.schemas import FeatureSelectionStepSchema, ScikitFSSchema
 from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionManager, _assert_trailing_slash, \
     FSJobWithInfo
 from pv056_2019.utils import valid_path, CUSTOM, SCIKIT
@@ -47,7 +48,10 @@ def fs_worker(queue: Queue, blacklist: (str, str), timeout):
                 if command.args.source_library == CUSTOM:
                     fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
                 elif command.args.source_library == SCIKIT:
-                    fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
+                    args: ScikitFSSchema = ScikitFSSchema(**command.args)
+                    fs_frame, time_diff = df.select_features_with_sklearn(
+                        setup_sklearn_fs_class(args.fs_method, args.score_func)
+                    )
                 else:
                     raise NotImplementedError()
                 fs_frame.arff_dump(command.output_file_path)
