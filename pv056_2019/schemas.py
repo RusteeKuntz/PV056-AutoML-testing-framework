@@ -169,7 +169,7 @@ class FeatureSelectionStepSchema(BaseModel):
     blacklist_file_path: str
     n_jobs: int = 5
     timeout: int = 1800
-    selection_methods: List[FSStepSchema]
+    selection_methods: List[dict]
 
 # importing stuff from feature_selection to avoid circular dependency error
 from pv056_2019.feature_selection import F_SELECTORS
