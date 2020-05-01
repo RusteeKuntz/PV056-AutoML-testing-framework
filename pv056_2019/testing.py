@@ -12,10 +12,10 @@ from pv056_2019.utils import SCIKIT
 def setup_sklearn_score_func(score_func_schema: CommandSchema):
     # here we retrieve correct score function for FS by its name and set it up with parameters from JSON
     # TODO xbajger: We are not checking if the keyword arguments are right. We let the whole framework fail on an error
-    #try:
+    # try:
     score_func = lambda x, y: getattr(sklfs, score_func_schema.name)(x, y, **score_func_schema.parameters)
     # if we got an unrecognized keyword, solve it by passing default arguments f
-    #except TypeError:
+    # except TypeError:
     return score_func
 
 
@@ -42,7 +42,7 @@ def select_features_with_sklearn(dataframe: pd.DataFrame, selector: _BaseFilter)
 
     selector.fit(x, y)
     # remove features from the dataset without classes.
-    #selector.transform(x)
+    # selector.transform(x)
     selected_features = selector.get_support()
     transformed_df = x.iloc[:, selected_features]
 
@@ -52,7 +52,7 @@ def select_features_with_sklearn(dataframe: pd.DataFrame, selector: _BaseFilter)
 
     # push classes back in
     transformed_df[colnames[-1]] = y
-    return  transformed_df
+    return transformed_df
 
 
 def main():
@@ -75,20 +75,26 @@ def main():
             "parameters": {
                 "alpha": 0.5
             }
+        },
+        "score_func": {
+            "name": "mutual_info_classif",
+            "parameters": {
+                "n_neighbors": 4,
+                "random_state": 123
+            }
+
         }
 
     }
 
-    #colnames = df.columns
+    # colnames = df.columns
 
-
-    #df['kokot'] = pd.Series([8 for _ in range(8)])
-    #df[colnames[-1]] = pd.Series([8 for _ in range(8)])
-    #print(df)
+    # df['kokot'] = pd.Series([8 for _ in range(8)])
+    # df[colnames[-1]] = pd.Series([8 for _ in range(8)])
+    # print(df)
 
     if FSStepSchema(**fs_schema).source_library == SCIKIT:
         conf = ScikitFSSchema(**fs_schema)
         newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func))
 
         print(newFrame)
-
