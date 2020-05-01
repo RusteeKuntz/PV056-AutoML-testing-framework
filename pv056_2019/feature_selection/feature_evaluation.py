@@ -156,7 +156,7 @@ class FeatureSelectionManager:
 
                 # generate command with info appropriately for used library
                 if fs_conf.source_library == WEKA:
-                    fs_conf = WekaFSFilterConfigurationSchema(**fs_conf_dict)
+                    fs_conf: WekaFSFilterConfigurationSchema = WekaFSFilterConfigurationSchema(**fs_conf_dict)
                     # here we prepare filters for currently useless columns that should not be considered for FS
                     filters = ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(  # noqa
                         ID_NAME
@@ -195,7 +195,7 @@ class FeatureSelectionManager:
                                         args=_run_args,
                                         ds=train_path,
                                         # fold=file_split[1],
-                                        ev=fs_conf.eval_class.class_name,
+                                        ev=fs_conf.eval_class.name,
                                         out=_output_file_path)
                 elif fs_conf.source_library == CUSTOM:
                     # here we load config into pydantic Schema to apply validation before running teh experiment
