@@ -23,7 +23,7 @@ def extract_and_save_ranking_from_fs_output(fs_output: str, fs_output_filepath: 
     print(fs_output)
 
 
-def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
+def fs_worker(queue: Queue, blacklist: (str, str), timeout):
     while not queue.empty():
         command: FSJobWithInfo = queue.get()
         time_diff: float
@@ -44,9 +44,9 @@ def fs_weka_worker(queue: Queue, blacklist: (str, str), timeout):
                     blacklist.append((eval_method, dataset))
             else:
                 df = DataLoader._load_arff_file(command.input_path)
-                if command.args.library == CUSTOM:
+                if command.args.source_library == CUSTOM:
                     fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
-                elif command.args.library == SCIKIT:
+                elif command.args.source_library == SCIKIT:
                     fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
                 else:
                     raise NotImplementedError()
@@ -126,7 +126,7 @@ def main():
         print("queue filled")
 
         # create a pool of processes that will work in parallel
-        pool = [Process(target=fs_weka_worker, args=(queue, blacklist, conf.timeout,)) for _ in range(conf.n_jobs)]
+        pool = [Process(target=fs_worker, args=(queue, blacklist, conf.timeout,)) for _ in range(conf.n_jobs)]
 
         try:
             pass
