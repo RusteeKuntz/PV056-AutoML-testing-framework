@@ -53,8 +53,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
 
     colnames = self.columns
     print(colnames)
-    bin_df: DataFrameArff = self._binarize_categorical_values()
-    print(bin_df.arff_data()["attributes"])
+    bin_df: pd.DataFrame = self._binarize_categorical_values()
     print(bin_df.columns)
 
     # split data and classes. We rely on the fact that classes are in the last column
