@@ -161,7 +161,7 @@ class DataFrameArff(pd.DataFrame):
 
         new_frame_arff = DataFrameArff(new_frame.values, columns=new_frame.columns)
         new_frame_arff._arff_data = self._arff_data
-        attribute_set = set([x[0] for x in new_frame.columns])
+        attribute_set = set(new_frame.columns)
         # copy only those arff attributes that were selected, presuming that column names are same as arff attribute names
         new_frame._arff_data["attributes"] = [
             x
@@ -173,7 +173,6 @@ class DataFrameArff(pd.DataFrame):
 
     def select_features_with_sklearn(self, selector: _BaseFilter):
         colnames = self.columns
-        arff_data = self.arff_data()
 
         # split data and classes. We rely on the fact that classes are in the last column
         x = self[colnames[:-1]]
@@ -191,16 +190,26 @@ class DataFrameArff(pd.DataFrame):
 
         transformed_df = x.iloc[:, selected_features]
 
-        # print(selected_features)
-        # print(transformed_df)
-        # print(type(transformed_df))
+        # create new ARFF dataframe object
+        new_frame_arff: DataFrameArff = DataFrameArff(transformed_df.values, columns=transformed_df.columns)
+        new_frame_arff._arff_data = self.arff_data()  # reassign full arff data
 
+        attribute_set = set(transformed_df.columns)  # create the set of selected attributes
+        # reassing arff data attribues and retain only those arff attributes that were selected,
+        # presuming that column names are same as arff attribute names
+        new_frame_arff._arff_data["attributes"] = [
+            x
+            for x in self._arff_data["attributes"]
+            if x[0] in attribute_set
+        ]
+
+        # conclude time (resource) consumption
         time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
         time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
         fs_time = (time_end - time_start) + (time_end_children - time_start_children)
 
-        # push classes back in
+        # push classes back into the dataframe
         transformed_df[colnames[-1]] = y
         return transformed_df, fs_time
 
