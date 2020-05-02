@@ -45,7 +45,6 @@ def fs_worker(queue: Queue, blacklist: (str, str), timeout):
                     blacklist.append((eval_method, dataset))
             else:
                 df = DataLoader._load_arff_file(command.input_path)
-                arff_data = df.arff_data()
                 if command.args.source_library == CUSTOM:
                     fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
                 elif command.args.source_library == SCIKIT:

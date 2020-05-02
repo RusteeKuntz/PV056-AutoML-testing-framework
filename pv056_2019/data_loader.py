@@ -189,6 +189,8 @@ class DataFrameArff(pd.DataFrame):
         selected_features = selector.get_support()
 
         transformed_df = x.iloc[:, selected_features]
+        # push classes back into the dataframe
+        transformed_df[colnames[-1]] = y
 
         # create new ARFF dataframe object
         new_frame_arff: DataFrameArff = DataFrameArff(transformed_df.values, columns=transformed_df.columns)
@@ -209,9 +211,7 @@ class DataFrameArff(pd.DataFrame):
 
         fs_time = (time_end - time_start) + (time_end_children - time_start_children)
 
-        # push classes back into the dataframe
-        transformed_df[colnames[-1]] = y
-        return transformed_df, fs_time
+        return new_frame_arff, fs_time
 
     def select_by_index(self, index: np.array):
         dataframe = self.iloc[index]
