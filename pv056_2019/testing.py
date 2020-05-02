@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import pandas as pd
 import numpy as np
 from sklearn.feature_selection.univariate_selection import _BaseFilter
+from sklearn.preprocessing import OneHotEncoder
 
 from pv056_2019.data_loader import DataLoader, DataFrameArff
 from pv056_2019.schemas import ScikitFSSchema, FSStepSchema, CommandSchema
@@ -34,11 +35,15 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
 
 
 def select_features_with_sklearn(self: DataFrameArff, selector: _BaseFilter):
+
     colnames = self.columns
     print(self)
     print("BIG PHAT PHUQ MAN")
     # split data and classes. We rely on the fact that classes are in the last column
     x = self.loc[:, colnames[:-1]]
+    enc = OneHotEncoder(handle_unknown='ignore')
+    enc.fit(x)
+    x = enc.transform(x)
     y = self.loc[:, colnames[-1]]
     print(x)
 
