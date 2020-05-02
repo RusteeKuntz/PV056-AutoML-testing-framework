@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_selection.univariate_selection import _BaseFilter
 
-from pv056_2019.data_loader import DataLoader
+from pv056_2019.data_loader import DataLoader, DataFrameArff
 from pv056_2019.schemas import ScikitFSSchema, FSStepSchema, CommandSchema
 
 from pv056_2019.utils import SCIKIT
@@ -33,27 +33,49 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
     return fsl
 
 
-def select_features_with_sklearn(dataframe: pd.DataFrame, selector: _BaseFilter) -> pd.DataFrame:
-    colnames = dataframe.columns
-
+def select_features_with_sklearn(self, selector: _BaseFilter):
+    colnames = self.columns
+    print("BIG PHAT PHUQ MAN")
     # split data and classes. We rely on the fact that classes are in the last column
-    x = dataframe[colnames[:-1]]
-    y = dataframe[colnames[-1]]
+    x = self.loc[:, colnames[:-1]]
+    y = self.loc[:, colnames[-1]]
+    print(x)
+    print(y)
     # another score functions are: f_classif, mutual_info_classif
+
+    # time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
+    # time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
     selector.fit(x, y)
     # remove features from the dataset without classes.
     # selector.transform(x)
+
     selected_features = selector.get_support()
+
     transformed_df = x.iloc[:, selected_features]
+    # push classes back into the dataframe
+    transformed_df.loc[:, colnames[-1]] = y
 
-    # print(selected_features)
-    # print(transformed_df)
-    # print(type(transformed_df))
+    # create new ARFF dataframe object
+    new_frame_arff: DataFrameArff = DataFrameArff(transformed_df.values, columns=transformed_df.columns)
+    new_frame_arff._arff_data = self.arff_data()  # reassign full arff data
 
-    # push classes back in
-    transformed_df[colnames[-1]] = y
-    return transformed_df
+    attribute_set = set(transformed_df.columns)  # create the set of selected attributes
+    # reassing arff data attribues and retain only those arff attributes that were selected,
+    # presuming that column names are same as arff attribute names
+    new_frame_arff._arff_data["attributes"] = [
+        x
+        for x in self._arff_data["attributes"]
+        if x[0] in attribute_set
+    ]
+
+    # conclude time (resource) consumption
+    # time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
+    # time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+
+    # fs_time = (time_end - time_start) + (time_end_children - time_start_children)
+
+    return new_frame_arff#, fs_time
 
 
 def main():
@@ -68,9 +90,9 @@ def main():
     #     [4, 0, 3, 6, 12]
     #
     # ], columns=["a", "b", "c", "d", "e"])
+
     df = DataLoader._load_arff_file("data/datasets/abalone.arff")
-    print(df.arff_data())
-    exit()
+
     fs_schema = {
         "source_library": SCIKIT,
         "fs_method": {
@@ -95,6 +117,6 @@ def main():
 
     if FSStepSchema(**fs_schema).source_library == SCIKIT:
         conf = ScikitFSSchema(**fs_schema)
-        newFrame = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func))
+        new_frame = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func))
 
-        print(newFrame)
+        print(new_frame)
