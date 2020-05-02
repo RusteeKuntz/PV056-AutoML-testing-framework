@@ -41,9 +41,6 @@ def select_features_with_sklearn(self: DataFrameArff, selector: _BaseFilter):
     print("BIG PHAT PHUQ MAN")
     # split data and classes. We rely on the fact that classes are in the last column
     x = self.loc[:, colnames[:-1]]
-    enc = OneHotEncoder(handle_unknown='ignore')
-    enc.fit(x)
-    x = enc.transform(x)
     y = self.loc[:, colnames[-1]]
     print(x)
 
@@ -107,9 +104,9 @@ def main():
     fs_schema = {
         "source_library": SCIKIT,
         "fs_method": {
-            "name": "SelectFpr",
+            "name": "SelectKBest",
             "parameters": {
-                "alpha": 0.6
+                "k": 6
             }
         },
         "score_func": {
