@@ -35,11 +35,13 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
 
 def select_features_with_sklearn(self: DataFrameArff, selector: _BaseFilter):
     colnames = self.columns
+    print(self)
     print("BIG PHAT PHUQ MAN")
     # split data and classes. We rely on the fact that classes are in the last column
     x = self._binarize_categorical_values().loc[:, colnames[:-1]]
     y = self.loc[:, colnames[-1]]
-    #print(x)
+    print(x)
+
     #print(y)
     # another score functions are: f_classif, mutual_info_classif
 
