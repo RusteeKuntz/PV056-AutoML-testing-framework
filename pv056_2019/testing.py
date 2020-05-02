@@ -55,6 +55,8 @@ def select_features_with_sklearn(self: DataFrameArff, selector: _BaseFilter):
     selected_features = selector.get_support()
     print(selected_features)
 
+    print(self.shape)
+    print(len(selected_features))
     # here we are indexing by a list of bools.
     transformed_df = self.iloc[:, selected_features]
     # push classes back into the dataframe
