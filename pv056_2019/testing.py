@@ -108,7 +108,7 @@ def main():
             }
         },
         "score_func": {
-            "name": "f_classif",
+            "name": "chi2",
             "parameters": {}
 
         }
