@@ -36,15 +36,32 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
 
 
 def select_features_with_sklearn(self, selector: _BaseFilter):
+    # Categorical boolean mask
+    categorical_feature_mask = self.dtypes == object
+    # filter categorical columns using mask and turn it into a list
+    categorical_cols = self.columns[categorical_feature_mask].tolist()
+
+    # import OneHotEncoder
+    #ohe = OneHotEncoder(categorical_features=categorical_feature_mask, sparse=False)
+    # categorical_features = boolean mask for categorical columns
+    # sparse = False output an array not sparse matrix
+
+    # apply OneHotEncoder on categorical feature columns
+    #X_ohe = ohe.fit_transform(self)  # It returns an numpy array
+
+
 
     colnames = self.columns
     print(self)
     print("BIG PHAT PHUQ MAN")
     # split data and classes. We rely on the fact that classes are in the last column
-    x: DataFrameArff = self.loc[:, colnames[:-1]]
+    x: DataFrameArff = self._binarize_categorical_values().loc[:, colnames[:-1]]
     print(x.dtypes)
     y = self.loc[:, colnames[-1]]
-    print(x)
+    print(x[categorical_cols])
+    exit()
+
+
 
     #print(y)
     # another score functions are: f_classif, mutual_info_classif
@@ -62,7 +79,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     print(self.shape)
     print(len(selected_features))
     # here we are indexing by a list of bools.
-    transformed_df = self.iloc[:, selected_features]
+    transformed_df = x.iloc[:, selected_features]
     # push classes back into the dataframe
     #transformed_df.loc[:, colnames[-1]] = y
 
