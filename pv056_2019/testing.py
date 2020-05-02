@@ -53,7 +53,7 @@ def select_features_with_sklearn(self: DataFrameArff, selector: _BaseFilter):
     selected_features = selector.get_support()
     print(selected_features)
 
-    transformed_df = x.iloc[:, selected_features]
+    transformed_df = self.iloc[:, selected_features]
     # push classes back into the dataframe
     transformed_df.loc[:, colnames[-1]] = y
 
@@ -99,7 +99,7 @@ def main():
         "fs_method": {
             "name": "SelectFpr",
             "parameters": {
-                "alpha": 0.5
+                "alpha": 0.6
             }
         },
         "score_func": {
