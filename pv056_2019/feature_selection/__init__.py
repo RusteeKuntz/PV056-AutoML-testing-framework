@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import sys
 from typing import Any, Dict
 import numpy as np
 import pandas as pd
@@ -64,6 +65,9 @@ class KBest(AbstractFeatureSelector):
     data_type = "REAL"
 
     def select_features(self, dataframe: pd.DataFrame, classes: np.array)->pd.DataFrame:
+        print("This feature selection is not implemented properly!", file=sys.stderr)
+        raise NotImplementedError()
+
         colnames = dataframe.columns
         # if the k is negative, use it as "remove k worst" instead of "select k best" features.
         if "k" in self.settings["parameters"] and self.settings["parameters"]["k"] < 0:
@@ -79,7 +83,8 @@ class KBest(AbstractFeatureSelector):
 
         fs: sklfs.SelectKBest = sklfs.SelectKBest(score_func=score_func, **self.settings['parameters'])
         fs.fit(x, y)
-        return fs.transform(x)
+        transformed_df = fs.transform(x)
+        return transformed_df
 
 
 

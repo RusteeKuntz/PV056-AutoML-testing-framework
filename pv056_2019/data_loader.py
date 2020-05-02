@@ -190,7 +190,7 @@ class DataFrameArff(pd.DataFrame):
 
         transformed_df = x.iloc[:, selected_features]
         # push classes back into the dataframe
-        transformed_df[colnames[-1]] = y
+        transformed_df.loc[:, colnames[-1]] = y
 
         # create new ARFF dataframe object
         new_frame_arff: DataFrameArff = DataFrameArff(transformed_df.values, columns=transformed_df.columns)
