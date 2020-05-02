@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_selection.univariate_selection import _BaseFilter
 
+from pv056_2019.data_loader import DataLoader
 from pv056_2019.schemas import ScikitFSSchema, FSStepSchema, CommandSchema
 
 from pv056_2019.utils import SCIKIT
@@ -56,18 +57,20 @@ def select_features_with_sklearn(dataframe: pd.DataFrame, selector: _BaseFilter)
 
 
 def main():
-    df = pd.DataFrame([
-        [1, 1, 2, 4, 8],
-        [0, 1, 1, 3, 5],
-        [1, 2, 3, 6, 13],
-        [53, 0, 3, 7, 15],
-        [1, 2, 1, 2, 3],
-        [0, 1, 1, 3, 7],
-        [53, 2, 4, 7, 15],
-        [4, 0, 3, 6, 12]
-
-    ], columns=["a", "b", "c", "d", "e"])
-
+    # df = pd.DataFrame([
+    #     [1, 1, 2, 4, 8],
+    #     [0, 1, 1, 3, 5],
+    #     [1, 2, 3, 6, 13],
+    #     [53, 0, 3, 7, 15],
+    #     [1, 2, 1, 2, 3],
+    #     [0, 1, 1, 3, 7],
+    #     [53, 2, 4, 7, 15],
+    #     [4, 0, 3, 6, 12]
+    #
+    # ], columns=["a", "b", "c", "d", "e"])
+    df = DataLoader._load_arff_file("data/datasets/abalone_mod.arff")
+    print(df.arff_data())
+    exit()
     fs_schema = {
         "source_library": SCIKIT,
         "fs_method": {

@@ -173,6 +173,7 @@ class DataFrameArff(pd.DataFrame):
 
     def select_features_with_sklearn(self, selector: _BaseFilter):
         colnames = self.columns
+        arff_data = self.arff_data()
 
         # split data and classes. We rely on the fact that classes are in the last column
         x = self[colnames[:-1]]
