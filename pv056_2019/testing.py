@@ -68,7 +68,7 @@ def main():
     #     [4, 0, 3, 6, 12]
     #
     # ], columns=["a", "b", "c", "d", "e"])
-    df = DataLoader._load_arff_file("data/datasets/abalone_mod.arff")
+    df = DataLoader._load_arff_file("data/datasets/abalone.arff")
     print(df.arff_data())
     exit()
     fs_schema = {
