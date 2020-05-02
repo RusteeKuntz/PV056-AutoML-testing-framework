@@ -175,8 +175,8 @@ class DataFrameArff(pd.DataFrame):
         colnames = self.columns
 
         # split data and classes. We rely on the fact that classes are in the last column
-        x = self[colnames[:-1]]
-        y = self[colnames[-1]]
+        x = self.loc[:, colnames[:-1]]
+        y = self.loc[:, colnames[-1]]
         # another score functions are: f_classif, mutual_info_classif
 
         time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
