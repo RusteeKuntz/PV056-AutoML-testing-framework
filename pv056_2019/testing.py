@@ -39,8 +39,8 @@ def select_features_with_sklearn(self: DataFrameArff, selector: _BaseFilter):
     # split data and classes. We rely on the fact that classes are in the last column
     x = self._binarize_categorical_values().loc[:, colnames[:-1]]
     y = self.loc[:, colnames[-1]]
-    print(x)
-    print(y)
+    #print(x)
+    #print(y)
     # another score functions are: f_classif, mutual_info_classif
 
     # time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
@@ -51,6 +51,7 @@ def select_features_with_sklearn(self: DataFrameArff, selector: _BaseFilter):
     # selector.transform(x)
 
     selected_features = selector.get_support()
+    print(selected_features)
 
     transformed_df = x.iloc[:, selected_features]
     # push classes back into the dataframe
