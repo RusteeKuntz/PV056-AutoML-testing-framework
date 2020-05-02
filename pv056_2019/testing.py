@@ -55,9 +55,11 @@ def select_features_with_sklearn(self: DataFrameArff, selector: _BaseFilter):
     selected_features = selector.get_support()
     print(selected_features)
 
-    transformed_df = self.iloc[:, selected_features]
+    # here we are indexing by a list of bools. Last True value is appended to select the class column,
+    # because the selected features do not contain class feature.
+    transformed_df = self.iloc[:, [*selected_features, True]]
     # push classes back into the dataframe
-    transformed_df.loc[:, colnames[-1]] = y
+    #transformed_df.loc[:, colnames[-1]] = y
 
     # create new ARFF dataframe object
     new_frame_arff: DataFrameArff = DataFrameArff(transformed_df.values, columns=transformed_df.columns)
