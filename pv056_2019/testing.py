@@ -11,6 +11,7 @@ from pv056_2019.schemas import ScikitFSSchema, FSStepSchema, CommandSchema
 from pv056_2019.utils import SCIKIT
 
 
+
 def setup_sklearn_score_func(score_func_schema: CommandSchema):
     # here we retrieve correct score function for FS by its name and set it up with parameters from JSON
     # TODO xbajger: We are not checking if the keyword arguments are right. We let the whole framework fail on an error
@@ -34,13 +35,14 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
     return fsl
 
 
-def select_features_with_sklearn(self: DataFrameArff, selector: _BaseFilter):
+def select_features_with_sklearn(self, selector: _BaseFilter):
 
     colnames = self.columns
     print(self)
     print("BIG PHAT PHUQ MAN")
     # split data and classes. We rely on the fact that classes are in the last column
-    x = self.loc[:, colnames[:-1]]
+    x: DataFrameArff = self.loc[:, colnames[:-1]]
+    print(x.dtypes)
     y = self.loc[:, colnames[-1]]
     print(x)
 
