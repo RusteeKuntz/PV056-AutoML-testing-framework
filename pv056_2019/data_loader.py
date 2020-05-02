@@ -175,10 +175,9 @@ class DataFrameArff(pd.DataFrame):
         colnames = self.columns
         print("BIG PHAT PHUQ MAN")
         # split data and classes. We rely on the fact that classes are in the last column
-        x = self.loc[:, colnames[:-1]]
+        x = self._binarize_categorical_values().loc[:, colnames[:-1]]
         y = self.loc[:, colnames[-1]]
-        print(x)
-        print(y)
+
         # another score functions are: f_classif, mutual_info_classif
 
         time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
