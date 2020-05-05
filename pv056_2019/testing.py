@@ -96,13 +96,25 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     # remove features from the dataset without classes.
     # selector.transform(x)
 
-    selected_features = selector.get_support()
-    print(selected_features)
+    selected_features_set = selector.get_support()
+    print(selected_features_set)
 
     # here we are indexing by a list of bools.
-    transformed_df = x.iloc[:, selected_features]
+    transformed_df = x.iloc[:, selected_features_set]
     print(transformed_df)
-    print(transformed_df.columns)
+    nmi = transformed_df.columns
+
+    selected_features_set = set()
+    selected_features_list = []
+    for code in nmi.codes[0]:
+        if code not in selected_features_set:
+            selected_features_list.append(code)
+        selected_features_set.add(code)
+
+    final_df = self.iloc[:, selected_features_list]
+    print(final_df)
+    exit()
+
     # push classes back into the dataframe
     #transformed_df.loc[:, colnames[-1]] = y
 
