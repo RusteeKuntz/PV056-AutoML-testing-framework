@@ -37,9 +37,9 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
 
 def select_features_with_sklearn(self, selector: _BaseFilter):
     # Categorical boolean mask
-    categorical_feature_mask = self.dtypes == object
+    #categorical_feature_mask = self.dtypes == object
     # filter categorical columns using mask and turn it into a list
-    categorical_cols = self.columns[categorical_feature_mask].tolist()
+    #categorical_cols = self.columns[categorical_feature_mask].tolist()
 
     # import OneHotEncoder
     #ohe = OneHotEncoder(categorical_features=categorical_feature_mask, sparse=False)
@@ -55,15 +55,34 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     print(colnames)
     bin_df: pd.DataFrame = self._binarize_categorical_values()
     print(bin_df.columns)
+    # Index(['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'Class'], dtype='object')
+    # MultiIndex(levels=[['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'], ['F', 'I', 'M', 'NUMERIC']],
+    #            codes=[[0, 0, 0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 3, 3, 3, 3, 3, 3]],
+    #            names=['0', '1'])
+    mi: pd.MultiIndex = bin_df.columns  # We have a MUltiIndex on our hands here
+    original_columns = mi.levels[0]
 
-    # split data and classes. We rely on the fact that classes are in the last column
+
+
+# split data and classes. We rely on the fact that classes are in the last column
     x = bin_df.loc[:, colnames[:-1]]
     print(x.dtypes)
+    # 0   1
+    # V1  F       float64
+    #     I       float64
+    #     M       float64
+    # V2  NUMERIC float64
+    # V3  NUMERIC float64
+    # V4  NUMERIC float64
+    # V5  NUMERIC float64
+    # V6  NUMERIC float64
+    # V7  NUMERIC float64
+    # V8  NUMERIC float64
+    # dtype: object
     y = self.loc[:, colnames[-1]]
-    print(x.arff_data())
-    print(x[categorical_cols])
 
-    exit()
+
+
 
 
 
@@ -80,10 +99,9 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     selected_features = selector.get_support()
     print(selected_features)
 
-    print(self.shape)
-    print(len(selected_features))
     # here we are indexing by a list of bools.
     transformed_df = x.iloc[:, selected_features]
+    print(transformed_df)
     # push classes back into the dataframe
     #transformed_df.loc[:, colnames[-1]] = y
 
