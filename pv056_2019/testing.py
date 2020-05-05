@@ -162,7 +162,7 @@ def main():
         "fs_method": {
             "name": "SelectKBest",
             "parameters": {
-                "k": 4
+                "k": 6
             }
         },
         "score_func": {
