@@ -66,7 +66,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
 
 # split data and classes. We rely on the fact that classes are in the last column
     x = bin_df.loc[:, colnames[:-1]]
-    print(x.dtypes)
+    #print(x.dtypes)
     # 0   1
     # V1  F       float64
     #     I       float64
@@ -96,11 +96,11 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     # remove features from the dataset without classes.
     # selector.transform(x)
 
-    selected_features_set = selector.get_support()
-    print(selected_features_set)
+    selected_features_indexes = selector.get_support()
+    #print(selected_features_indexes)
 
     # here we are indexing by a list of bools.
-    transformed_df = x.iloc[:, selected_features_set]
+    transformed_df = x.iloc[:, selected_features_indexes]
     print(transformed_df)
     nmi = transformed_df.columns
 
@@ -111,6 +111,8 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
             selected_features_list.append(code)
         selected_features_set.add(code)
 
+
+    print(selected_features_list)
     final_df = self.iloc[:, selected_features_list]
     print(final_df)
     exit()
