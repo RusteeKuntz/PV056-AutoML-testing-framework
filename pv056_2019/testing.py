@@ -102,6 +102,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     # here we are indexing by a list of bools.
     transformed_df = x.iloc[:, selected_features]
     print(transformed_df)
+    print(transformed_df.columns)
     # push classes back into the dataframe
     #transformed_df.loc[:, colnames[-1]] = y
 
