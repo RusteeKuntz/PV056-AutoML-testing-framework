@@ -2,6 +2,7 @@ import sklearn.feature_selection as sklfs
 from pydantic import BaseModel
 import pandas as pd
 import numpy as np
+import resource
 from sklearn.feature_selection.univariate_selection import _BaseFilter
 from sklearn.preprocessing import OneHotEncoder
 
@@ -9,7 +10,6 @@ from pv056_2019.data_loader import DataLoader, DataFrameArff
 from pv056_2019.schemas import ScikitFSSchema, FSStepSchema, CommandSchema
 
 from pv056_2019.utils import SCIKIT
-
 
 
 def setup_sklearn_score_func(score_func_schema: CommandSchema):
@@ -36,37 +36,18 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
 
 
 def select_features_with_sklearn(self, selector: _BaseFilter):
-    # Categorical boolean mask
-    #categorical_feature_mask = self.dtypes == object
-    # filter categorical columns using mask and turn it into a list
-    #categorical_cols = self.columns[categorical_feature_mask].tolist()
-
-    # import OneHotEncoder
-    #ohe = OneHotEncoder(categorical_features=categorical_feature_mask, sparse=False)
-    # categorical_features = boolean mask for categorical columns
-    # sparse = False output an array not sparse matrix
-
-    # apply OneHotEncoder on categorical feature columns
-    #X_ohe = ohe.fit_transform(self)  # It returns an numpy array
-
-
-
     colnames = self.columns
-    print(colnames)
     bin_df: pd.DataFrame = self._binarize_categorical_values()
-    print(bin_df.columns)
     # Index(['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'Class'], dtype='object')
     # MultiIndex(levels=[['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'], ['F', 'I', 'M', 'NUMERIC']],
     #            codes=[[0, 0, 0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 3, 3, 3, 3, 3, 3]],
     #            names=['0', '1'])
-    mi: pd.MultiIndex = bin_df.columns  # We have a MUltiIndex on our hands here
-    original_columns = mi.levels[0]
+    #mi: pd.MultiIndex = bin_df.columns  # We have a MUltiIndex on our hands here
+    #original_columns = mi.levels[0]
 
-
-
-# split data and classes. We rely on the fact that classes are in the last column
+    # split data and classes. We rely on the fact that classes are in the last column
     x = bin_df.loc[:, colnames[:-1]]
-    #print(x.dtypes)
+    # print(x.dtypes)
     # 0   1
     # V1  F       float64
     #     I       float64
@@ -81,65 +62,61 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     # dtype: object
     y = self.loc[:, colnames[-1]]
 
-
-
-
-
-
-    #print(y)
+    # print(y)
     # another score functions are: f_classif, mutual_info_classif
 
-    # time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
-    # time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+    time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
+    time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
     selector.fit(x, y)
     # remove features from the dataset without classes.
     # selector.transform(x)
 
     selected_features_indexes = selector.get_support()
-    #print(selected_features_indexes)
+    # print(selected_features_indexes)
 
     # here we are indexing by a list of bools.
     transformed_df = x.iloc[:, selected_features_indexes]
     print(transformed_df)
     nmi = transformed_df.columns
 
-    selected_features_set = set()
-    selected_features_list = []
+    selected_feature_indexes_set = set()
+    selected_feature_indexes_list = []
     for code in nmi.codes[0]:
-        if code not in selected_features_set:
-            selected_features_list.append(code)
-        selected_features_set.add(code)
+        if code not in selected_feature_indexes_set:
+            selected_feature_indexes_list.append(code)
+        selected_feature_indexes_set.add(code)
 
-
-    print(selected_features_list)
-    final_df = self.iloc[:, selected_features_list]
+    print(selected_feature_indexes_list)
+    final_df = self.iloc[:, selected_feature_indexes_list]
     print(final_df)
-    exit()
 
     # push classes back into the dataframe
-    #transformed_df.loc[:, colnames[-1]] = y
+    # transformed_df.loc[:, colnames[-1]] = y
 
     # create new ARFF dataframe object
-    new_frame_arff: DataFrameArff = DataFrameArff(transformed_df.values, columns=transformed_df.columns)
-    new_frame_arff._arff_data = self.arff_data()  # reassign full arff data
+    selected_columns_set = set(final_df.columns)
+    arff_data = self.arff_data()
+    arff_data["attributes"] = [x for x in arff_data if x[0] in selected_columns_set]
+    new_frame_arff: DataFrameArff = DataFrameArff(final_df.values, arff_data=arff_data)
+    #new_frame_arff._arff_data = self.arff_data()  # reassign full arff data
 
-    attribute_set = set(transformed_df.columns)  # create the set of selected attributes
-    # reassing arff data attribues and retain only those arff attributes that were selected,
-    # presuming that column names are same as arff attribute names
-    new_frame_arff._arff_data["attributes"] = [
-        x
-        for x in self._arff_data["attributes"]
-        if x[0] in attribute_set
-    ]
+    # attribute_set = set(transformed_df.columns)  # create the set of selected attributes
+    # # reassing arff data attribues and retain only those arff attributes that were selected,
+    # # presuming that column names are same as arff attribute names
+    # new_frame_arff._arff_data["attributes"] = [
+    #     x
+    #     for x in self._arff_data["attributes"]
+    #     if x[0] in attribute_set
+    # ]
 
     # conclude time (resource) consumption
-    # time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
-    # time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+    time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
+    time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
-    # fs_time = (time_end - time_start) + (time_end_children - time_start_children)
+    fs_time = (time_end - time_start) + (time_end_children - time_start_children)
 
-    return new_frame_arff#, fs_time
+    return new_frame_arff  , fs_time
 
 
 def main():
