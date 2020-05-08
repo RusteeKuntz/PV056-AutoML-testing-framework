@@ -53,9 +53,6 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     selector.fit(x, y)
 
     selected_features_indexes = selector.get_support()
-    selected_features_indexes = np.append(selected_features_indexes, True)
-    print(type(selected_features_indexes))  # here we probably add the class column to the selected features
-    print(selected_features_indexes)
     # print(selected_features_indexes)
 
     # here we are indexing by a list of bools.
@@ -69,6 +66,8 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
         if code not in selected_feature_indexes_set:
             selected_feature_indexes_list.append(code)
         selected_feature_indexes_set.add(code)
+    # here we actually push in the "classes" column
+    selected_feature_indexes_list.append(len(colnames))
 
     #print(selected_feature_indexes_list)
     final_df = self.iloc[:, selected_feature_indexes_list]
