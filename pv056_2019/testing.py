@@ -37,7 +37,7 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
 
 def select_features_with_sklearn(self, selector: _BaseFilter):
     colnames = self.columns
-    #print(colnames)
+    # print(colnames)
     bin_df: pd.DataFrame = self._binarize_categorical_values()
 
     # split data and classes. We rely on the fact that classes are in the last column
@@ -58,7 +58,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
 
     # here we are indexing by a list of bools.
     transformed_df = x.iloc[:, selected_features_indexes]
-    #print(transformed_df)
+    # print(transformed_df)
     nmi = transformed_df.columns
 
     selected_feature_indexes_set = set()
@@ -68,15 +68,15 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
             selected_feature_indexes_list.append(code)
         selected_feature_indexes_set.add(code)
     # here we actually push in the "classes" column
-    selected_feature_indexes_list.append(len(colnames)-1)
+    selected_feature_indexes_list.append(len(colnames) - 1)
 
-    #print(selected_feature_indexes_list)
+    # print(selected_feature_indexes_list)
     final_df = self.iloc[:, selected_feature_indexes_list]
-    #print(self)
-    #print(final_df)
+    # print(self)
+    # print(final_df)
 
     # push classes back into the dataframe
-    #final_df.loc[:, colnames[-1]] = y
+    # final_df.loc[:, colnames[-1]] = y
 
     # create new ARFF dataframe object
     selected_columns_set = set(final_df.columns)
@@ -85,9 +85,9 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     # adding the "arff_data" keyword bypasses the super.__init__() method in DataFrameArff, so we need to overwrite the
     # vlaues inside the arff_data themselves.
     arff_data["data"] = final_df.values
-    #print(arff_data["data"])
+    # print(arff_data["data"])
     new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
-    #new_frame_arff._arff_data = self.arff_data()  # reassign full arff data
+    # new_frame_arff._arff_data = self.arff_data()  # reassign full arff data
 
     # attribute_set = set(transformed_df.columns)  # create the set of selected attributes
     # # reassing arff data attribues and retain only those arff attributes that were selected,
@@ -123,9 +123,23 @@ def main():
     df = DataLoader._load_arff_file("data/datasets/abalone.arff")
 
     fs_schema = {
+        "source_library": "SCIKIT",
+        "fs_method": {
+            "name": "SelectFpr",
+            "parameters": {
+                "alpha": 0.01
+            }
+        },
+        "score_func": {
+            "name": "f_classif",
+            "parameters": {}
+        }
+    }
+
+    fs_schema2 = {
         "source_library": SCIKIT,
         "fs_method": {
-            "name": "SelectKBest",
+            "name": "S",
             "parameters": {
                 "k": 6
             }
