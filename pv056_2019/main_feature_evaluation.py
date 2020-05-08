@@ -44,10 +44,13 @@ def fs_worker(queue: Queue, blacklist: (str, str), timeout):
                     time_diff = timeout
                     blacklist.append((eval_method, dataset))
             else:
+                print("We are in a correct conditional branch")
                 df = DataLoader._load_arff_file(command.input_path)
                 if command.args.source_library == CUSTOM:
+                    print("We are in a wrong conditional branch")
                     fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
                 elif command.args.source_library == SCIKIT:
+                    print("We are in a correct conditional branch 2")
                     args: ScikitFSSchema = command.args
                     fs_frame, time_diff = df.select_features_with_sklearn(
                         setup_sklearn_fs_class(args.fs_method, args.score_func)
@@ -55,7 +58,8 @@ def fs_worker(queue: Queue, blacklist: (str, str), timeout):
                 else:
                     raise NotImplementedError()
 
-                fs_frame.arff_dump(command.output_file_path)
+                #fs_frame.arff_dump(command.output_file_path)
+
 
         else:
             time_diff = timeout
