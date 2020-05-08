@@ -53,6 +53,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     selector.fit(x, y)
 
     selected_features_indexes = selector.get_support()
+    selected_features_indexes = np.append(selected_features_indexes, len(colnames))
     print(type(selected_features_indexes))  # here we probably add the class column to the selected features
     # print(selected_features_indexes)
 
