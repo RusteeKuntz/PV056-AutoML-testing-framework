@@ -67,10 +67,11 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
             selected_feature_indexes_list.append(code)
         selected_feature_indexes_set.add(code)
     # here we actually push in the "classes" column
-    selected_feature_indexes_list.append(len(colnames))
+    #selected_feature_indexes_list.append(len(colnames))
 
     #print(selected_feature_indexes_list)
     final_df = self.iloc[:, selected_feature_indexes_list]
+    print(self)
     #print(final_df)
 
     # push classes back into the dataframe
