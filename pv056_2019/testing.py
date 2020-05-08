@@ -55,11 +55,12 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     selected_features_indexes = selector.get_support()
     #selected_features_indexes = np.append(selected_features_indexes, len(colnames))
     print(type(selected_features_indexes))  # here we probably add the class column to the selected features
+    print(selected_features_indexes)
     # print(selected_features_indexes)
 
     # here we are indexing by a list of bools.
     transformed_df = x.iloc[:, selected_features_indexes]
-    print(transformed_df)
+    #print(transformed_df)
     nmi = transformed_df.columns
 
     selected_feature_indexes_set = set()
@@ -69,9 +70,9 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
             selected_feature_indexes_list.append(code)
         selected_feature_indexes_set.add(code)
 
-    print(selected_feature_indexes_list)
+    #print(selected_feature_indexes_list)
     final_df = self.iloc[:, selected_feature_indexes_list]
-    print(final_df)
+    #print(final_df)
 
     # push classes back into the dataframe
     #final_df.loc[:, colnames[-1]] = y
