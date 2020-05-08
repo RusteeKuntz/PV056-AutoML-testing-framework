@@ -37,7 +37,7 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
 
 def select_features_with_sklearn(self, selector: _BaseFilter):
     colnames = self.columns
-    print(colnames)
+    #print(colnames)
     bin_df: pd.DataFrame = self._binarize_categorical_values()
 
     # split data and classes. We rely on the fact that classes are in the last column
@@ -70,9 +70,9 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     # here we actually push in the "classes" column
     selected_feature_indexes_list.append(len(colnames)-1)
 
-    print(selected_feature_indexes_list)
+    #print(selected_feature_indexes_list)
     final_df = self.iloc[:, selected_feature_indexes_list]
-    print(self)
+    #print(self)
     #print(final_df)
 
     # push classes back into the dataframe
