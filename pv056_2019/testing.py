@@ -38,28 +38,9 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
 def select_features_with_sklearn(self, selector: _BaseFilter):
     colnames = self.columns
     bin_df: pd.DataFrame = self._binarize_categorical_values()
-    # Index(['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'Class'], dtype='object')
-    # MultiIndex(levels=[['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'], ['F', 'I', 'M', 'NUMERIC']],
-    #            codes=[[0, 0, 0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 3, 3, 3, 3, 3, 3]],
-    #            names=['0', '1'])
-    #mi: pd.MultiIndex = bin_df.columns  # We have a MUltiIndex on our hands here
-    #original_columns = mi.levels[0]
 
     # split data and classes. We rely on the fact that classes are in the last column
     x = bin_df.loc[:, colnames[:-1]]
-    # print(x.dtypes)
-    # 0   1
-    # V1  F       float64
-    #     I       float64
-    #     M       float64
-    # V2  NUMERIC float64
-    # V3  NUMERIC float64
-    # V4  NUMERIC float64
-    # V5  NUMERIC float64
-    # V6  NUMERIC float64
-    # V7  NUMERIC float64
-    # V8  NUMERIC float64
-    # dtype: object
     y = self.loc[:, colnames[-1]]
 
     # print(y)
@@ -68,11 +49,11 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
     time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
+    # fit selector to the dataset (this basically looks at the dataset and identifies useful features)
     selector.fit(x, y)
-    # remove features from the dataset without classes.
-    # selector.transform(x)
 
     selected_features_indexes = selector.get_support()
+    selected_features_indexes += len(colnames)  # here we probably add the class column to the selected features
     # print(selected_features_indexes)
 
     # here we are indexing by a list of bools.
@@ -92,7 +73,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     print(final_df)
 
     # push classes back into the dataframe
-    # transformed_df.loc[:, colnames[-1]] = y
+    #final_df.loc[:, colnames[-1]] = y
 
     # create new ARFF dataframe object
     selected_columns_set = set(final_df.columns)
@@ -120,7 +101,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
 
     fs_time = (time_end - time_start) + (time_end_children - time_start_children)
 
-    return new_frame_arff  , fs_time
+    return new_frame_arff, fs_time
 
 
 def main():
