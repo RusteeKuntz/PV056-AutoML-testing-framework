@@ -44,7 +44,7 @@ def fs_worker(queue: Queue, blacklist: (str, str), timeout):
                     time_diff = timeout
                     blacklist.append((eval_method, dataset))
             else:
-                print("We are in a correct conditional branch")
+                print("We are in a correct conditional branch, loading file on path: " + command.input_path)
                 df = DataLoader._load_arff_file(command.input_path)
                 if command.args.source_library == CUSTOM:
                     print("We are in a wrong conditional branch")
@@ -58,7 +58,7 @@ def fs_worker(queue: Queue, blacklist: (str, str), timeout):
                 else:
                     raise NotImplementedError()
 
-                #fs_frame.arff_dump(command.output_file_path)
+                fs_frame.arff_dump(command.output_file_path)
 
 
         else:
