@@ -4,6 +4,7 @@ import json
 import subprocess
 import sys, resource
 from multiprocessing import Queue, Manager, Process
+from typing import TextIO
 
 from pv056_2019.data_loader import DataLoader
 from pv056_2019.feature_selection import setup_sklearn_fs_class
@@ -24,7 +25,7 @@ def extract_and_save_ranking_from_fs_output(fs_output: str, fs_output_filepath: 
     print(fs_output)
 
 
-def fs_worker(queue: Queue, blacklist: (str, str), timeout):
+def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout):
     while not queue.empty():
         command: FSJobWithInfo = queue.get()
         time_diff: float
@@ -59,6 +60,8 @@ def fs_worker(queue: Queue, blacklist: (str, str), timeout):
                     raise NotImplementedError()
 
                 fs_frame.arff_dump(command.output_file_path)
+                # We write the line into the datasets mapping CSV only if the preprocessing is actually done
+                mapping_csv.write(command.mapping_csv_line)
 
 
         else:
@@ -123,28 +126,31 @@ def main():
                 blacklist.append(i.replace("\n", "").split(','))
 
         queue = Queue()
-        with open(fs_mapping_csv_path, "w") as fs_mapping_csv, open(args.datasets_csv_in, "r") as datasets_mapping_csv:
+        with open(args.datasets_csv_in, "r") as datasets_mapping_csv:
             # Here we open a file to record which file was used for feature selection, where the result was stored and which
             # parameters were used in the process (config).
             # The file is then passed to the method below to write the actual mappings, because it is easier.
             # the generator below yields commands but also records their arguments to a csv file for reference
-            for command in fs_manager.generate_fs_jobs(datasets_mapping_csv, fs_mapping_csv):
+            for command in fs_manager.generate_fs_jobs(datasets_mapping_csv):
                 #print(" ".join(command.args))
                 queue.put(command)
 
         print("queue filled")
 
+        # get a file handle to write preprocessed datasets and their configuration histories to. File gets closed later
+        fs_mapping_csv = open(fs_mapping_csv_path, "w", encoding="UTF-8")
         # create a pool of processes that will work in parallel
-        pool = [Process(target=fs_worker, args=(queue, blacklist, conf.timeout,)) for _ in range(conf.n_jobs)]
+        pool = [Process(target=fs_worker, args=(queue, fs_mapping_csv, blacklist, conf.timeout)) for _ in range(conf.n_jobs)]
 
         try:
-            pass
             [process.start() for process in pool]
             # join below will result in waiting for all above processes to finish before continuing
             [process.join() for process in pool]
         except KeyboardInterrupt:
             [process.terminate() for process in pool]
             print("\nInterupted!", flush=True, file=sys.stderr)
+        # close the mapping file after everything is finished
+        fs_mapping_csv.close()
 
     print("Done")
 

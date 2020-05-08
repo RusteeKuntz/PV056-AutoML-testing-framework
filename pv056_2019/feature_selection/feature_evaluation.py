@@ -17,6 +17,7 @@ class FSJobWithInfo:
     fold: str
     eval_method_name: str
     output_file_path: str
+    mapping_csv_line: str
 
     def __init__(self,
                  is_cmd,
@@ -24,13 +25,15 @@ class FSJobWithInfo:
                  ds: str,
                  # fold: str,
                  ev: str,
-                 out: str) -> None:
+                 out: str,
+                 csv_line: str) -> None:
         self.is_cmd = is_cmd
         self.args = args
         self.input_path = ds
         # self.fold = fold
         self.eval_method_name = ev
         self.output_file_path = out
+        self.mapping_csv_line = csv_line
 
     def __str__(self) -> str:
         return " ".join(self.args)
@@ -87,7 +90,7 @@ class FeatureSelectionManager:
     def __init__(self, config: FeatureSelectionStepSchema):
         self.config = config
 
-    def generate_fs_jobs(self, datasets_mapping_csv, mapping_csv_file) -> [FSJobWithInfo]:
+    def generate_fs_jobs(self, datasets_mapping_csv) -> [FSJobWithInfo]:
         """ this takes a csv file with datasets and their configurations use by other workflow steps (if any)
         Such csv file contains 3 columns: train_dataset,test_dataset,configuration_json_path
         This method uses options for weka evaluation class and weka search method class and calculates all the necessary
@@ -136,6 +139,8 @@ class FeatureSelectionManager:
             for fs_conf_dict, hash_md5, fs_config_json_basename in fs_settings:
                 fs_conf: FSStepSchema = FSStepSchema(**fs_conf_dict)
                 _fs_identifier = '_FS-' + hash_md5
+
+                # TODO xbajger: Remove this "_train" gymnastic, it should be obsolete to keep that string in filenames
                 # this part checks if train file contains _train substring and places FS identifier string before of it
                 if '_train' in _base_name:
                     _output_file_path = _output_directory + _base_name.replace('_train', _fs_identifier + '_train')
@@ -145,14 +150,11 @@ class FeatureSelectionManager:
                         -1]
 
                 # here we write mapping of train and test files along with a history of pre-processing configurations
-                mapping_csv_file.write(
-                    ",".join(
+                mapping_csv_file_line = ",".join(
                         [_output_file_path, test_path] +
                         conf_paths +
                         [_output_directory + fs_config_json_basename]
                     ) + "\n"
-                )
-                mapping_csv_file.flush()
 
                 # generate command with info appropriately for used library
                 if fs_conf.source_library == WEKA:
@@ -196,19 +198,23 @@ class FeatureSelectionManager:
                                         ds=train_path,
                                         # fold=file_split[1],
                                         ev=fs_conf.eval_class.name,
-                                        out=_output_file_path)
+                                        out=_output_file_path,
+                                        csv_line=mapping_csv_file_line)
                 elif fs_conf.source_library == CUSTOM:
-                    # here we load config into pydantic Schema to apply validation before running teh experiment
+                    # here we load config into pydantic Schema to apply validation before running the experiment
                     fs_conf: CustomFSSchema = CustomFSSchema(**fs_conf_dict)
                     yield FSJobWithInfo(is_cmd=False,
                                         args=fs_conf,
                                         ds=train_path,
                                         ev=fs_conf.name,
-                                        out=_output_file_path)
+                                        out=_output_file_path,
+                                        csv_line=mapping_csv_file_line)
                 elif fs_conf.source_library == SCIKIT:
+                    # here we load config into pydantic Schema to apply validation before running the experiment
                     fs_conf: ScikitFSSchema = ScikitFSSchema(**fs_conf_dict)
                     yield FSJobWithInfo(is_cmd=False,
                                         args=fs_conf,
                                         ds=train_path,
                                         ev=fs_conf.fs_method.name,
-                                        out=test_path)
+                                        out=test_path,
+                                        csv_line=mapping_csv_file_line)
