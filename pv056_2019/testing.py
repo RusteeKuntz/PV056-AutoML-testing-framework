@@ -98,6 +98,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
     selected_columns_set = set(final_df.columns)
     arff_data = self.arff_data()
     arff_data["attributes"] = [x for x in arff_data["attributes"] if x[0] in selected_columns_set]
+    print(arff_data["attributes"])
     new_frame_arff: DataFrameArff = DataFrameArff(final_df.values, arff_data=arff_data)
     #new_frame_arff._arff_data = self.arff_data()  # reassign full arff data
 
