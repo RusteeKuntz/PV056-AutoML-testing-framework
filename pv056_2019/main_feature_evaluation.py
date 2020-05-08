@@ -54,7 +54,6 @@ def fs_worker(queue: Queue, blacklist: (str, str), timeout):
                     )
                 else:
                     raise NotImplementedError()
-                columns = fs_frame.columns
 
                 fs_frame.arff_dump(command.output_file_path)
 
