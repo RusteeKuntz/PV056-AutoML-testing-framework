@@ -184,7 +184,10 @@ class FeatureSelectionManager:
                     _run_args = ['java', '-Xmx2048m', '-cp', self.config.weka_jar_path,
                                  # add input/output file path and
                                  # filters
-                                 'weka.filters.MultiFilter'] + filters + ['-i', train_path, '-o', _output_file_path]
+                                 'weka.filters.MultiFilter'] + filters + ['-i', train_path, '-o', "\""+_output_file_path+"\""]
+
+
+                    #"/var/tmp/xbajger/BAKPR/data_exp/fs_outputs/ar1_1-2_e1f9d3e3d84ace3422e3d715688add12_OD-414bd82745e9a87176dd4401a880a9ff_RM5.00_FS-1e4787c934fd048ab9e8fdd605d78578_train.arff"
 
                     # TODO: remove after testing is done.
                     #  Training data always have to be in folds, but here we fix if they are not
