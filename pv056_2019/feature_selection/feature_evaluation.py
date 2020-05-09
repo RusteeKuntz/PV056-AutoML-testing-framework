@@ -138,23 +138,23 @@ class FeatureSelectionManager:
 
             for fs_conf_dict, hash_md5, fs_config_json_basename in fs_settings:
                 fs_conf: FSStepSchema = FSStepSchema(**fs_conf_dict)
-                _fs_identifier = '_FS-' + hash_md5
+                _fs_identifier = '_FS' + hash_md5
 
                 # TODO xbajger: Remove this "_train" gymnastic, it should be obsolete to keep that string in filenames
                 # this part checks if train file contains _train substring and places FS identifier string before of it
                 if '_train' in _base_name:
                     _output_file_path = _output_directory + _base_name.replace('_train', _fs_identifier + '_train')
                 else:
-                    dot_split = _base_name.split('.')
-                    _output_file_path = _output_directory + '.'.join(dot_split[:-1]) + _fs_identifier + '.' + dot_split[
-                        -1]
+                    dot_split: [str] = _base_name.split('.')
+                    _output_file_path = os.path.join(_output_directory, '.'.join(dot_split[:-1]) + _fs_identifier + '.'
+                                                     + dot_split[-1])
 
                 # here we write mapping of train and test files along with a history of pre-processing configurations
                 mapping_csv_file_line = ",".join(
-                        [_output_file_path, test_path] +
-                        conf_paths +
-                        [_output_directory + fs_config_json_basename]
-                    ) + "\n"
+                    [_output_file_path, test_path,
+                     *conf_paths,
+                     os.path.join(_output_directory, fs_config_json_basename)]
+                ) + "\n"
 
                 # generate command with info appropriately for used library
                 if fs_conf.source_library == WEKA:
@@ -184,10 +184,9 @@ class FeatureSelectionManager:
                     _run_args = ['java', '-Xmx2048m', '-cp', self.config.weka_jar_path,
                                  # add input/output file path and
                                  # filters
-                                 'weka.filters.MultiFilter'] + filters + ['-i', train_path, '-o', "\""+_output_file_path+"\""]
+                                 'weka.filters.MultiFilter'] + filters + ['-i', train_path, '-o', _output_file_path]
 
-
-                    #"/var/tmp/xbajger/BAKPR/data_exp/fs_outputs/ar1_1-2_e1f9d3e3d84ace3422e3d715688add12_OD-414bd82745e9a87176dd4401a880a9ff_RM5.00_FS-1e4787c934fd048ab9e8fdd605d78578_train.arff"
+                    # "/var/tmp/xbajger/BAKPR/data_exp/fs_outputs/ar1_1-2_e1f9d3e3d84ace3422e3d715688add12_OD-414bd82745e9a87176dd4401a880a9ff_RM5.00_FS-1e4787c934fd048ab9e8fdd605d78578_train.arff"
 
                     # TODO: remove after testing is done.
                     #  Training data always have to be in folds, but here we fix if they are not
