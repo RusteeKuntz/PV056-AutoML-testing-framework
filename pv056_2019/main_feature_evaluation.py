@@ -39,6 +39,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                 try:
                     time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                    print(" ".join(command.args))
                     print(results.stdout)
                     print(results.stderr)
                     time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]

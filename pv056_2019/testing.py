@@ -131,7 +131,7 @@ def main():
             }
         },
         "score_func": {
-            "name": "f_classif",
+            "name": "mutual_info_classif",
             "parameters": {}
         }
     }
