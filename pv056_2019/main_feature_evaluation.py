@@ -39,9 +39,9 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                 try:
                     time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
-                    print(results.args)
-                    print(results.stdout.decode(encoding="UTF-8"))
-                    print(results.stderr.decode(encoding="UTF-8"))
+                    # print(results.args)
+                    # print(results.stdout.decode(encoding="UTF-8"))
+                    # print(results.stderr.decode(encoding="UTF-8"))
                     time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     time_diff = time_end - time_start
                 except subprocess.TimeoutExpired:
@@ -61,8 +61,10 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                     )
                 else:
                     raise NotImplementedError()
-
+                print(command.output_file_path)
                 fs_frame.arff_dump(command.output_file_path)
+
+
                 # We write the line into the datasets mapping CSV only if the preprocessing is actually done
                 mapping_csv.write(command.mapping_csv_line)
 

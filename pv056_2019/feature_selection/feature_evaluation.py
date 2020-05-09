@@ -218,5 +218,5 @@ class FeatureSelectionManager:
                                         args=fs_conf,
                                         ds=train_path,
                                         ev=fs_conf.fs_method.name,
-                                        out=test_path,
+                                        out=_output_file_path,
                                         csv_line=mapping_csv_file_line)
