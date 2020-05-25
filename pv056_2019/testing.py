@@ -149,7 +149,7 @@ def main():
 
     fs_schema = {
         "source_library": "SCIKIT",
-        "leave_attributes_binarized": False,
+        "leave_attributes_binarized": True,
         "fs_method": {
             "name": "SelectFpr",
             "parameters": {
