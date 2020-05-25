@@ -56,7 +56,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
     selected_features_indexes = selector.get_support()
     # print(selected_features_indexes)
 
-    # here we are indexing by a list of bools.
+    # here we are indexing the binarized, filtered dataset by a list of bools.
     transformed_df = x.iloc[:, selected_features_indexes]
 
     # print(transformed_df)
@@ -87,6 +87,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
         new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
     else:
+
         pass
     # conclude time (resource) consumption
     time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
@@ -114,6 +115,7 @@ def main():
 
     fs_schema = {
         "source_library": "SCIKIT",
+        "leave_attributes_binarized": False,
         "fs_method": {
             "name": "SelectFpr",
             "parameters": {
@@ -150,7 +152,8 @@ def main():
 
     if FSStepSchema(**fs_schema).source_library == SCIKIT:
         conf = ScikitFSSchema(**fs_schema)
-        new_frame, fs_time = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func), False)
+        new_frame, fs_time = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func),
+                                                          conf.leave_attributes_binarized)
 
         print(new_frame)
         new_frame.arff_dump("FUCKING_ARFF.arff")
