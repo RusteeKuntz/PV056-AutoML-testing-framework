@@ -171,7 +171,7 @@ class DataFrameArff(pd.DataFrame):
 
         return new_frame_arff, fs_time
 
-    def select_features_with_sklearn(self, selector: _BaseFilter):
+    def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
         colnames = self.columns
         # print(colnames)
         bin_df: pd.DataFrame = self._binarize_categorical_values()
@@ -194,6 +194,8 @@ class DataFrameArff(pd.DataFrame):
 
         # here we are indexing by a list of bools.
         transformed_df = x.iloc[:, selected_features_indexes]
+
+
         # print(transformed_df)
         nmi = transformed_df.columns
 

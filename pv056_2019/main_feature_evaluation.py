@@ -57,7 +57,8 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                     print("We are in a correct conditional branch 2")
                     args: ScikitFSSchema = command.args
                     fs_frame, time_diff = df.select_features_with_sklearn(
-                        setup_sklearn_fs_class(args.fs_method, args.score_func)
+                        setup_sklearn_fs_class(args.fs_method, args.score_func),
+                        args.leave_attributes_binarized
                     )
                 else:
                     raise NotImplementedError()

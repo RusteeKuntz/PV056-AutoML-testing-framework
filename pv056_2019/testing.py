@@ -35,7 +35,7 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
     return fsl
 
 
-def select_features_with_sklearn(self, selector: _BaseFilter):
+def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
     colnames = self.columns
     # print(colnames)
     bin_df: pd.DataFrame = self._binarize_categorical_values()
@@ -58,46 +58,36 @@ def select_features_with_sklearn(self, selector: _BaseFilter):
 
     # here we are indexing by a list of bools.
     transformed_df = x.iloc[:, selected_features_indexes]
+
     # print(transformed_df)
     nmi = transformed_df.columns
 
-    selected_feature_indexes_set = set()
-    selected_feature_indexes_list = []
-    for code in nmi.codes[0]:
-        if code not in selected_feature_indexes_set:
-            selected_feature_indexes_list.append(code)
-        selected_feature_indexes_set.add(code)
-    # here we actually push in the "classes" column
-    selected_feature_indexes_list.append(len(colnames) - 1)
+    print(transformed_df)
 
-    # print(selected_feature_indexes_list)
-    final_df = self.iloc[:, selected_feature_indexes_list]
-    # print(self)
-    # print(final_df)
+    if not leave_binarized:
+        selected_feature_indexes_set = set()
+        selected_feature_indexes_list = []
+        for code in nmi.codes[0]:
+            if code not in selected_feature_indexes_set:
+                selected_feature_indexes_list.append(code)
+            selected_feature_indexes_set.add(code)
+        # here we actually add the "classes" column back into the list of selected features
+        selected_feature_indexes_list.append(len(colnames) - 1)
 
-    # push classes back into the dataframe
-    # final_df.loc[:, colnames[-1]] = y
+        # print(selected_feature_indexes_list)
+        final_df = self.iloc[:, selected_feature_indexes_list]
 
-    # create new ARFF dataframe object
-    selected_columns_set = set(final_df.columns)
-    arff_data = self.arff_data()
-    arff_data["attributes"] = [x for x in arff_data["attributes"] if x[0] in selected_columns_set]
-    # adding the "arff_data" keyword bypasses the super.__init__() method in DataFrameArff, so we need to overwrite the
-    # vlaues inside the arff_data themselves.
-    arff_data["data"] = final_df.values
-    # print(arff_data["data"])
-    new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
-    # new_frame_arff._arff_data = self.arff_data()  # reassign full arff data
+        # create new ARFF dataframe object
+        selected_columns_set = set(final_df.columns)
+        arff_data = self.arff_data()
+        arff_data["attributes"] = [x for x in arff_data["attributes"] if x[0] in selected_columns_set]
+        # adding the "arff_data" keyword bypasses the super.__init__() method in DataFrameArff, so we need to overwrite
+        # the vlaues inside the arff_data themselves.
+        arff_data["data"] = final_df.values
+        new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
-    # attribute_set = set(transformed_df.columns)  # create the set of selected attributes
-    # # reassing arff data attribues and retain only those arff attributes that were selected,
-    # # presuming that column names are same as arff attribute names
-    # new_frame_arff._arff_data["attributes"] = [
-    #     x
-    #     for x in self._arff_data["attributes"]
-    #     if x[0] in attribute_set
-    # ]
-
+    else:
+        pass
     # conclude time (resource) consumption
     time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
     time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]

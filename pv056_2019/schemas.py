@@ -128,6 +128,7 @@ class CommandSchema(BaseModel):
 # TODO: Create generic scikit method calling mechanism
 class ScikitFSSchema(FSStepSchema):
     source_library = SCIKIT
+    leave_attributes_binarized: bool
     fs_method: CommandSchema
     score_func: CommandSchema = None
 
