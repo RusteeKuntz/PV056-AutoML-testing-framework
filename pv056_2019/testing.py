@@ -125,7 +125,7 @@ def main():
             }
         },
         "score_func": {
-            "name": "mutual_info_classif",
+            "name": "chi2",
             "parameters": {}
         }
     }
