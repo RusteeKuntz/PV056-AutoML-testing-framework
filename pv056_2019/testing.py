@@ -35,7 +35,8 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
     return fsl
 
 def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
-    for code in mi.codes
+    for code in mi.codes:
+        pass
 
 def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
     colnames = self.columns
