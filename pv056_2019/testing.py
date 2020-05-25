@@ -53,6 +53,8 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
     # fit selector to the dataset (this basically looks at the dataset and identifies useful features)
     selector.fit(x, y)
 
+    print(selector.pvalues_)
+    print(selector.alpha)
     selected_features_indexes = selector.get_support()
     # print(selected_features_indexes)
 
