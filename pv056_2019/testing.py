@@ -9,7 +9,7 @@ from sklearn.preprocessing import OneHotEncoder
 from pv056_2019.data_loader import DataLoader, DataFrameArff
 from pv056_2019.schemas import ScikitFSSchema, FSStepSchema, CommandSchema
 
-from pv056_2019.utils import SCIKIT
+from pv056_2019.utils import SCIKIT, ID_NAME
 
 
 def setup_sklearn_score_func(score_func_schema: CommandSchema):
@@ -35,12 +35,35 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
     return fsl
 
 def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
-    for code in mi.codes:
-        pass
+    # setup dictionary that will contain column names of column created by binarisation in lists under keys by their
+    # original columns names before binarisation
+    columns = {}
+    for i in range(len(mi)):
+        original_colname = mi.levels[0][mi.codes[0][i]]  # this extracts the original name of column
+        catname = mi.levels[1][mi.codes[1][i]]  # this extracts the subcolumn names (categories)
+        if original_colname not in columns:
+            # create an entry for a column name
+            columns[original_colname] = []
+        # append to the list of subcolumn names (categories) of the column
+        columns[original_colname].append(catname)
+    #init a list of new columns
+    new_columns = []
+    for original_colname in mi.levels[0]:
+        if len(columns[original_colname]) == 1:
+            new_columns.append(original_colname)
+        else:
+            for subcolname in columns[original_colname]:
+                new_columns.append(original_colname + "_" + subcolname)
+    return new_columns
+
 
 def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
     colnames = self.columns
     # print(colnames)
+
+    # make sure that ID column does not compromise the feature selection
+    if ID_NAME in colnames:
+        self.drop(ID_NAME)
     bin_df: pd.DataFrame = self._binarize_categorical_values()
 
     print(bin_df.columns)
@@ -62,13 +85,11 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
     # print(selected_features_indexes)
 
     # here we are indexing the binarized, filtered dataset by a list of bools.
-    transformed_df = x.iloc[:, selected_features_indexes]
+    transformed_df: pd.DataFrame = x.iloc[:, selected_features_indexes]
 
     # print(transformed_df)
-    nmi = transformed_df.columns
+    nmi: pd.MultiIndex = transformed_df.columns
 
-    print(nmi)
-    exit()
     if not leave_binarized:
         selected_feature_indexes_set = set()
         selected_feature_indexes_list = []
@@ -82,8 +103,9 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
         # print(selected_feature_indexes_list)
         final_df = self.iloc[:, selected_feature_indexes_list]
 
-        # create new ARFF dataframe object
+        # change the ARFF data so that they contain updated data
         selected_columns_set = set(final_df.columns)
+        # obtain original arff data
         arff_data = self.arff_data()
         arff_data["attributes"] = [x for x in arff_data["attributes"] if x[0] in selected_columns_set]
         # adding the "arff_data" keyword bypasses the super.__init__() method in DataFrameArff, so we need to overwrite
@@ -92,8 +114,15 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
         new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
     else:
+        new_columns = convert_multiindex_to_index(nmi)
+        arff_data = {
+            "relation": self.arff_data["relation"],
+            "description": self.arff_data["description"],
+            "attributes": [(name, 'NUMERIC') for name in new_columns],
+            "data": [transformed_df.values]
+        }
+        new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
-        pass
     # conclude time (resource) consumption
     time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
     time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
