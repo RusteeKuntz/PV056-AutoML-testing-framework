@@ -63,7 +63,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
     nmi = transformed_df.columns
 
     print(transformed_df)
-
+    exit()
     if not leave_binarized:
         selected_feature_indexes_set = set()
         selected_feature_indexes_list = []
