@@ -34,11 +34,15 @@ def setup_sklearn_fs_class(class_schema: CommandSchema, score_func_schema: Comma
     fsl = getattr(sklfs, class_schema.name)(score_func=score_func, **class_schema.parameters)
     return fsl
 
+def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
+    for code in mi.codes
 
 def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
     colnames = self.columns
     # print(colnames)
     bin_df: pd.DataFrame = self._binarize_categorical_values()
+
+    print(bin_df.columns)
 
     # split data and classes. We rely on the fact that classes are in the last column
     x = bin_df.loc[:, colnames[:-1]]
@@ -53,8 +57,6 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
     # fit selector to the dataset (this basically looks at the dataset and identifies useful features)
     selector.fit(x, y)
 
-    print(selector.pvalues_)
-    print(selector.alpha)
     selected_features_indexes = selector.get_support()
     # print(selected_features_indexes)
 
@@ -64,7 +66,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
     # print(transformed_df)
     nmi = transformed_df.columns
 
-    print(transformed_df)
+    print(nmi)
     exit()
     if not leave_binarized:
         selected_feature_indexes_set = set()
