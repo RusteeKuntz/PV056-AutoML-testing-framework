@@ -150,7 +150,7 @@ def main():
 
     if FSStepSchema(**fs_schema).source_library == SCIKIT:
         conf = ScikitFSSchema(**fs_schema)
-        new_frame, fs_time = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func))
+        new_frame, fs_time = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func), False)
 
         print(new_frame)
         new_frame.arff_dump("FUCKING_ARFF.arff")
