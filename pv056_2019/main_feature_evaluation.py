@@ -12,7 +12,7 @@ from pv056_2019.main_clf import _valid_config_path
 from pv056_2019.schemas import FeatureSelectionStepSchema, ScikitFSSchema
 from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionManager, _assert_trailing_slash, \
     FSJobWithInfo
-from pv056_2019.utils import valid_path, CUSTOM, SCIKIT
+from pv056_2019.utils import valid_path, CUSTOM, SCIKIT, convert_multiindex_to_index
 
 debugging = False
 
@@ -56,6 +56,13 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                 elif command.args.source_library == SCIKIT:
                     print("We are in a correct conditional branch 2")
                     args: ScikitFSSchema = command.args
+                    if args.leave_attributes_binarized:
+                        test_file_path = command.mapping_csv_line.split(",")[1]
+                        test_df = DataLoader._load_arff_file(test_file_path)
+                        bin_test_df = test_df._binarize_categorical_values()
+                        bin_test_df.columns = convert_multiindex_to_index(bin_test_df.columns)
+
+
                     fs_frame, time_diff = df.select_features_with_sklearn(
                         setup_sklearn_fs_class(args.fs_method, args.score_func),
                         args.leave_attributes_binarized

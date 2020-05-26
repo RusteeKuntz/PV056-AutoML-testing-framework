@@ -153,7 +153,7 @@ def main():
         "fs_method": {
             "name": "SelectFpr",
             "parameters": {
-                "alpha": 0.1
+                "alpha": 0.3
             }
         },
         "score_func": {

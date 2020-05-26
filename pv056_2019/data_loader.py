@@ -17,7 +17,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 from pv056_2019.feature_selection import F_SELECTORS, AbstractFeatureSelector
 from pv056_2019.outlier_detection import DETECTORS
-from pv056_2019.utils import ID_NAME, OD_VALUE_NAME
+from pv056_2019.utils import ID_NAME, OD_VALUE_NAME, convert_multiindex_to_index
 from pv056_2019.schemas import OutlierDetectorSchema, CustomFSSchema
 
 warnings.simplefilter(action="ignore", category=UserWarning)
@@ -174,7 +174,13 @@ class DataFrameArff(pd.DataFrame):
     def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
         colnames = self.columns
         # print(colnames)
+
+        # make sure that ID column does not compromise the feature selection
+        if ID_NAME in colnames:
+            self.drop(ID_NAME)
         bin_df: pd.DataFrame = self._binarize_categorical_values()
+
+        print(bin_df.columns)
 
         # split data and classes. We rely on the fact that classes are in the last column
         x = bin_df.loc[:, colnames[:-1]]
@@ -192,34 +198,44 @@ class DataFrameArff(pd.DataFrame):
         selected_features_indexes = selector.get_support()
         # print(selected_features_indexes)
 
-        # here we are indexing by a list of bools.
-        transformed_df = x.iloc[:, selected_features_indexes]
-
+        # here we are indexing the binarized, filtered dataset by a list of bools.
+        transformed_df: pd.DataFrame = x.iloc[:, selected_features_indexes]
 
         # print(transformed_df)
-        nmi = transformed_df.columns
+        nmi: pd.MultiIndex = transformed_df.columns
 
-        selected_feature_indexes_set = set()
-        selected_feature_indexes_list = []
-        for code in nmi.codes[0]:
-            if code not in selected_feature_indexes_set:
-                selected_feature_indexes_list.append(code)
-            selected_feature_indexes_set.add(code)
-        # here we actually add the "classes" column back into the list of selected features
-        selected_feature_indexes_list.append(len(colnames) - 1)
+        if not leave_binarized:
+            selected_feature_indexes_set = set()
+            selected_feature_indexes_list = []
+            for code in nmi.codes[0]:
+                if code not in selected_feature_indexes_set:
+                    selected_feature_indexes_list.append(code)
+                selected_feature_indexes_set.add(code)
+            # here we actually add the "classes" column back into the list of selected features
+            selected_feature_indexes_list.append(len(colnames) - 1)
 
-        # print(selected_feature_indexes_list)
-        final_df = self.iloc[:, selected_feature_indexes_list]
+            # print(selected_feature_indexes_list)
+            final_df = self.iloc[:, selected_feature_indexes_list]
 
-        # create new ARFF dataframe object
-        selected_columns_set = set(final_df.columns)
-        arff_data = self.arff_data()
-        arff_data["attributes"] = [x for x in arff_data["attributes"] if x[0] in selected_columns_set]
-        # adding the "arff_data" keyword bypasses the super.__init__() method in DataFrameArff, so we need to overwrite
-        # the vlaues inside the arff_data themselves.
-        arff_data["data"] = final_df.values
-        new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
+            # change the ARFF data so that they contain updated data
+            selected_columns_set = set(final_df.columns)
+            # obtain original arff data
+            arff_data = self.arff_data()
+            arff_data["attributes"] = [x for x in arff_data["attributes"] if x[0] in selected_columns_set]
+            # adding the "arff_data" keyword bypasses the super.__init__() method in DataFrameArff, so we need to overwrite
+            # the vlaues inside the arff_data themselves.
+            arff_data["data"] = final_df.values
+            new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
+        else:
+            new_columns = convert_multiindex_to_index(nmi)
+            arff_data = {
+                "relation": self._arff_data["relation"],
+                "description": self._arff_data["description"],
+                "attributes": [(name, 'NUMERIC') for name in new_columns],
+                "data": transformed_df.values
+            }
+            new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
         # conclude time (resource) consumption
         time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
