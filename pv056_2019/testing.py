@@ -116,8 +116,8 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
     else:
         new_columns = convert_multiindex_to_index(nmi)
         arff_data = {
-            "relation": self.arff_data["relation"],
-            "description": self.arff_data["description"],
+            "relation": self._arff_data["relation"],
+            "description": self._arff_data["description"],
             "attributes": [(name, 'NUMERIC') for name in new_columns],
             "data": [transformed_df.values]
         }
