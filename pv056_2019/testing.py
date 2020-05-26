@@ -119,7 +119,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
             "relation": self._arff_data["relation"],
             "description": self._arff_data["description"],
             "attributes": [(name, 'NUMERIC') for name in new_columns],
-            "data": [transformed_df.values]
+            "data": transformed_df.values
         }
         new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
