@@ -60,6 +60,8 @@ def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
         else:
             for subcolname in columns[original_colname]:
                 new_columns.append(original_colname + "_" + subcolname)
+
+    print("NEW COLUMNS", new_columns)
     return new_columns
 
 
