@@ -9,7 +9,7 @@ from sklearn.preprocessing import OneHotEncoder
 from pv056_2019.data_loader import DataLoader, DataFrameArff
 from pv056_2019.schemas import ScikitFSSchema, FSStepSchema, CommandSchema
 
-from pv056_2019.utils import SCIKIT, ID_NAME
+from pv056_2019.utils import SCIKIT, ID_NAME, WEKA_DATA_TYPES
 
 
 def setup_sklearn_score_func(score_func_schema: CommandSchema):
@@ -55,7 +55,9 @@ def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
     new_columns = []
     for i in range(len(mi)):
         original_colname = mi.levels[0][mi.codes[0][i]]  # this again extracts the original name of column
-        if len(columns[original_colname]) == 1:
+        # the binarisation leaves names of WEKA data types instead of nominal values for columns representing
+        # non-categorical values. To avoid  unnecessary renaming, we actually check for those specific names.
+        if len(columns[original_colname]) == 1 and columns[0] in WEKA_DATA_TYPES:
             new_columns.append(original_colname)
         else:
             for subcolname in columns[original_colname]:

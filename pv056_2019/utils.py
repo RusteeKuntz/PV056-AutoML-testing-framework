@@ -47,6 +47,8 @@ CUSTOM = "CUSTOM"
 WEKA = "WEKA"
 SCIKIT = "SCIKIT"
 
+WEKA_DATA_TYPES = {"NUMERIC"}
+
 
 def valid_path(path, message):
     import os
