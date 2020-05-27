@@ -57,7 +57,7 @@ def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
         original_colname = mi.levels[0][mi.codes[0][i]]  # this again extracts the original name of column
         # the binarisation leaves names of WEKA data types instead of nominal values for columns representing
         # non-categorical values. To avoid  unnecessary renaming, we actually check for those specific names.
-        if len(columns[original_colname]) == 1 and columns[0] in WEKA_DATA_TYPES:
+        if len(columns[original_colname]) == 1 and columns[original_colname][0] in WEKA_DATA_TYPES:
             new_columns.append(original_colname)
         else:
             for subcolname in columns[original_colname]:
