@@ -47,6 +47,7 @@ def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
             columns[original_colname] = []
         # append to the list of subcolumn names (categories) of the column
         columns[original_colname].append(catname)
+    print("DUH")
     print(columns)
     print(mi)
     print(mi.levels[0])
@@ -69,7 +70,7 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
     if ID_NAME in colnames:
         self.drop(ID_NAME)
     bin_df: pd.DataFrame = self._binarize_categorical_values()
-
+    print("Original columns MultiIndex")
     print(bin_df.columns)
 
     # split data and classes. We rely on the fact that classes are in the last column
