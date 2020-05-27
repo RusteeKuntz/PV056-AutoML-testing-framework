@@ -164,6 +164,7 @@ def main():
 
     fs_schema2 = {
         "source_library": SCIKIT,
+        "leave_attributes_binarized": True,
         "fs_method": {
             "name": "SelectKBest",
             "parameters": {
