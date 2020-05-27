@@ -53,7 +53,8 @@ def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
     print(mi.levels[0])
     #init a list of new columns
     new_columns = []
-    for original_colname in mi.levels[0]:
+    for i in range(len(mi)):
+        original_colname = mi.levels[0][mi.codes[0][i]]  # this again extracts the original name of column
         if len(columns[original_colname]) == 1:
             new_columns.append(original_colname)
         else:
