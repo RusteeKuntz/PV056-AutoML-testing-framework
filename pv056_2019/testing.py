@@ -48,6 +48,8 @@ def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
         # append to the list of subcolumn names (categories) of the column
         columns[original_colname].append(catname)
     print(columns)
+    print(mi)
+    print(mi.levels[0])
     #init a list of new columns
     new_columns = []
     for original_colname in mi.levels[0]:
