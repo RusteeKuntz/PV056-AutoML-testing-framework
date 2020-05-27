@@ -41,11 +41,13 @@ def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
     for i in range(len(mi)):
         original_colname = mi.levels[0][mi.codes[0][i]]  # this extracts the original name of column
         catname = mi.levels[1][mi.codes[1][i]]  # this extracts the subcolumn names (categories)
+        print(i, "|", original_colname, "|", catname)
         if original_colname not in columns:
             # create an entry for a column name
             columns[original_colname] = []
         # append to the list of subcolumn names (categories) of the column
         columns[original_colname].append(catname)
+    print(columns)
     #init a list of new columns
     new_columns = []
     for original_colname in mi.levels[0]:
