@@ -102,7 +102,7 @@ class DataFrameArff(pd.DataFrame):
         # here we convert result into DataFrameArff to keep arff metadata TODO: Here starts the newer implememtation
         new_columns = convert_multiindex_to_index(encoded_dataframe.columns)
 
-        arff_data = ArffData(relation=self._arff_dat["relation"] + "_binarized",
+        arff_data = ArffData(relation=self._arff_data["relation"] + "_binarized",
                              description=self._arff_data["description"],
                              attributes=[(name, 'NUMERIC') for name in new_columns],
                              data=encoded_dataframe.values)

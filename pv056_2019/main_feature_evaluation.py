@@ -17,11 +17,8 @@ from pv056_2019.utils import valid_path, CUSTOM, SCIKIT
 debugging = False
 
 
-
-
 def extract_and_save_ranking_from_fs_output(fs_output: str, fs_output_filepath: str):
-
-    #with open(fs_output_filepath, mode="w") as output_file:
+    # with open(fs_output_filepath, mode="w") as output_file:
     print(fs_output)
 
 
@@ -38,7 +35,8 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
             if command.is_cmd:
                 try:
                     time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-                    results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                    results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                             timeout=timeout)
                     # print(results.args)
                     # print(results.stdout.decode(encoding="UTF-8"))
                     # print(results.stderr.decode(encoding="UTF-8"))
@@ -65,12 +63,13 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
 
                         # here we create new filepath and dump the binarized test dataframe to a that path
                         test_file_path_dotsplit = test_file_path.split(".")
-                        bin_test_file_path = ".".join([*test_file_path_dotsplit[0:-1], "_bin", test_file_path_dotsplit[-1]])
+                        bin_test_file_path = ".".join(
+                            [*test_file_path_dotsplit[0:-1], "_bin", test_file_path_dotsplit[-1]])
                         bin_test_df.arff_dump(bin_test_file_path)
                         # here we overwrite the old test path for this particular file
                         # (old path is still used in non-binarized datasets)
-                        command.mapping_csv_line = ",".join([csv_line_split[0], bin_test_file_path, *csv_line_split[2:]])
-
+                        command.mapping_csv_line = ",".join(
+                            [csv_line_split[0], bin_test_file_path, *csv_line_split[2:]])
 
                     fs_frame, time_diff = df.select_features_with_sklearn(
                         setup_sklearn_fs_class(args.fs_method, args.score_func),
@@ -81,7 +80,6 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                 print(command.output_file_path)
                 fs_frame.arff_dump(command.output_file_path)
 
-
                 # We write the line into the datasets mapping CSV only if the preprocessing is actually done
                 mapping_csv.write(command.mapping_csv_line)
 
@@ -89,19 +87,17 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
         else:
             time_diff = timeout
 
-
         # TODO: Add times output for feature selection
-        #clf_fam = ".".join(args[16].split(".")[2:-1])
-        #fs_hex = args[10].split("/")[-1].split("_")[-2]
-        #fold = command.fold
-        #od_hex = file_split[2]
-        #rm = file_split[3].split("-")[1]
+        # clf_fam = ".".join(args[16].split(".")[2:-1])
+        # fs_hex = args[10].split("/")[-1].split("_")[-2]
+        # fold = command.fold
+        # od_hex = file_split[2]
+        # rm = file_split[3].split("-")[1]
 
-        #with open(times_file, "a") as tf:
+        # with open(times_file, "a") as tf:
         #    print(",".join([dataset, fold, eval_method, fs_hex, od_hex, rm, str(time_diff)]), file=tf)
 
-
-        #print(";".join([args[16], args[6], args[8]]), flush=True)
+        # print(";".join([args[16], args[6], args[8]]), flush=True)
 
 
 def main():
@@ -134,7 +130,6 @@ def main():
     with open(args.config_fs, "r") as config_file:
         conf = FeatureSelectionStepSchema(**json.load(config_file))
 
-
     fs_manager = FeatureSelectionManager(conf)
     # default path to a CSV with datasets and their FS results is with the results
     fs_mapping_csv_path = "fs_mapping.csv" if args.datasets_csv_out is None else args.datasets_csv_out
@@ -154,7 +149,7 @@ def main():
             # The file is then passed to the method below to write the actual mappings, because it is easier.
             # the generator below yields commands but also records their arguments to a csv file for reference
             for command in fs_manager.generate_fs_jobs(datasets_mapping_csv):
-                #print(" ".join(command.args))
+                # print(" ".join(command.args))
                 queue.put(command)
 
         print("queue filled")
@@ -162,7 +157,8 @@ def main():
         # get a file handle to write preprocessed datasets and their configuration histories to. File gets closed later
         fs_mapping_csv = open(fs_mapping_csv_path, "w", encoding="UTF-8")
         # create a pool of processes that will work in parallel
-        pool = [Process(target=fs_worker, args=(queue, fs_mapping_csv, blacklist, conf.timeout)) for _ in range(conf.n_jobs)]
+        pool = [Process(target=fs_worker, args=(queue, fs_mapping_csv, blacklist, conf.timeout)) for _ in
+                range(conf.n_jobs)]
 
         try:
             [process.start() for process in pool]
@@ -175,6 +171,7 @@ def main():
         fs_mapping_csv.close()
 
     print("Done")
+
 
 if __name__ == '__main__':
     main()
