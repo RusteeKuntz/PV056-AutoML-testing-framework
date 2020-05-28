@@ -106,7 +106,7 @@ class DataFrameArff(pd.DataFrame):
                              description=self._arff_data["description"],
                              attributes=[(name, 'NUMERIC') for name in new_columns],
                              data=encoded_dataframe.values)
-        return DataFrameArff(arff_data=arff_data)
+        return DataFrameArff(arff_data=arff_data.__dict__)
 
         #return encoded_dataframe # TODO: This was old return value
 

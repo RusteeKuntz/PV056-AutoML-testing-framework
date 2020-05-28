@@ -42,6 +42,8 @@ class ArffData:
         self.attributes = attributes
         self.data = data
 
+
+
 def valid_path(path, message):
     import os
     import argparse
