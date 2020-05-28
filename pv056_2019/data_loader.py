@@ -188,6 +188,7 @@ class DataFrameArff(pd.DataFrame):
         # make sure that ID column does not compromise the feature selection
         if ID_NAME in colnames:
             del self[ID_NAME]
+            self._arff_data = [x for x in self._arff_data["attributes"] if x[0] != ID_NAME]
         bin_df: pd.DataFrame = self._binarize_categorical_values()
 
         # split data and classes. We rely on the fact that classes are in the last column
@@ -238,7 +239,7 @@ class DataFrameArff(pd.DataFrame):
 
             arff_data = {
                 "relation": self._arff_data["relation"],
-                "description": self._arff_data["description"],
+                "description": "", # self._arff_data["description"], # description takes space --> unnecessary
                 "attributes": [(name, 'NUMERIC') for name in new_columns],
                 "data": transformed_df.values
             }
