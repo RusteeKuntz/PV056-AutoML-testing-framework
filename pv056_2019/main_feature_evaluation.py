@@ -12,7 +12,7 @@ from pv056_2019.main_clf import _valid_config_path
 from pv056_2019.schemas import FeatureSelectionStepSchema, ScikitFSSchema
 from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionManager, _assert_trailing_slash, \
     FSJobWithInfo
-from pv056_2019.utils import valid_path, CUSTOM, SCIKIT, convert_multiindex_to_index
+from pv056_2019.utils import valid_path, CUSTOM, SCIKIT
 
 debugging = False
 
