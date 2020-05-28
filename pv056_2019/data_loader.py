@@ -173,20 +173,15 @@ class DataFrameArff(pd.DataFrame):
 
     def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
         colnames = self.columns
-        # print(colnames)
 
         # make sure that ID column does not compromise the feature selection
         if ID_NAME in colnames:
             self.drop(ID_NAME)
         bin_df: pd.DataFrame = self._binarize_categorical_values()
 
-        print(bin_df.columns)
-
         # split data and classes. We rely on the fact that classes are in the last column
         x = bin_df.loc[:, colnames[:-1]]
         y = self.loc[:, colnames[-1]]
-
-        # print(y)
         # another score functions are: f_classif, mutual_info_classif
 
         time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
@@ -229,6 +224,7 @@ class DataFrameArff(pd.DataFrame):
 
         else:
             new_columns = convert_multiindex_to_index(nmi)
+
             arff_data = {
                 "relation": self._arff_data["relation"],
                 "description": self._arff_data["description"],
@@ -240,7 +236,6 @@ class DataFrameArff(pd.DataFrame):
         # conclude time (resource) consumption
         time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
         time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-
         fs_time = (time_end - time_start) + (time_end_children - time_start_children)
 
         return new_frame_arff, fs_time

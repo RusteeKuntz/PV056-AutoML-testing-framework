@@ -41,51 +41,36 @@ def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
     for i in range(len(mi)):
         original_colname = mi.levels[0][mi.codes[0][i]]  # this extracts the original name of column
         catname = mi.levels[1][mi.codes[1][i]]  # this extracts the subcolumn names (categories)
-        print(i, "|", original_colname, "|", catname)
         if original_colname not in columns:
             # create an entry for a column name
             columns[original_colname] = []
         # append to the list of subcolumn names (categories) of the column
         columns[original_colname].append(catname)
-    print("DUH")
-    print(columns)
-    print(mi)
-    print(mi.levels[0])
 
     #init a list of new columns
     new_columns = []
     for original_colname in columns.keys():
-        #original_colname = mi.levels[0][mi.codes[0][i]]  # this again extracts the original name of column
         # the binarisation leaves names of WEKA data types instead of nominal values for columns representing
         # non-categorical values. To avoid  unnecessary renaming, we actually check for those specific names.
         if len(columns[original_colname]) == 1 and columns[original_colname][0] in WEKA_DATA_TYPES:
             new_columns.append(original_colname)
-            #print(i, "|", original_colname)
         else:
             for subcolname in columns[original_colname]:
                 new_columns.append(original_colname + "_" + subcolname)
-                #print(i, "|", original_colname, "|", subcolname)
-
-    print("NEW COLUMNS", new_columns)
     return new_columns
 
 
 def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
     colnames = self.columns
-    # print(colnames)
 
     # make sure that ID column does not compromise the feature selection
     if ID_NAME in colnames:
         self.drop(ID_NAME)
     bin_df: pd.DataFrame = self._binarize_categorical_values()
-    print("Original columns MultiIndex")
-    print(bin_df.columns)
 
     # split data and classes. We rely on the fact that classes are in the last column
     x = bin_df.loc[:, colnames[:-1]]
     y = self.loc[:, colnames[-1]]
-
-    # print(y)
     # another score functions are: f_classif, mutual_info_classif
 
     time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
@@ -140,7 +125,6 @@ def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: b
     # conclude time (resource) consumption
     time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
     time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-
     fs_time = (time_end - time_start) + (time_end_children - time_start_children)
 
     return new_frame_arff, fs_time
