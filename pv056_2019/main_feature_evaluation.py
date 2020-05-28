@@ -57,10 +57,19 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                     print("We are in a correct conditional branch 2")
                     args: ScikitFSSchema = command.args
                     if args.leave_attributes_binarized:
-                        test_file_path = command.mapping_csv_line.split(",")[1]
+                        # here we extract the test filepath of the test split
+                        csv_line_split = command.mapping_csv_line.split(",")
+                        test_file_path = csv_line_split[1]
                         test_df = DataLoader._load_arff_file(test_file_path)
                         bin_test_df = test_df._binarize_categorical_values()
-                        bin_test_df.columns = convert_multiindex_to_index(bin_test_df.columns)
+
+                        # here we create new filepath and dump the binarized test dataframe to a that path
+                        test_file_path_dotsplit = test_file_path.split(".")
+                        bin_test_file_path = ".".join([*test_file_path_dotsplit[0:-1], "_bin", test_file_path_dotsplit[-1]])
+                        bin_test_df.arff_dump(bin_test_file_path)
+                        # here we overwrite the old test path for this particular file
+                        # (old path is still used in non-binarized datasets)
+                        command.mapping_csv_line = ",".join([csv_line_split[0], bin_test_file_path, *csv_line_split[2:]])
 
 
                     fs_frame, time_diff = df.select_features_with_sklearn(

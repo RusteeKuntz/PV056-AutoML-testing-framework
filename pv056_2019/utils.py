@@ -10,32 +10,9 @@ OD_VALUE_NAME = "OD_VALUE"
 # Utils for feature selection
 # *********************************************************
 
-import pandas as pd
 
-def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
-    # setup dictionary that will contain column names of column created by binarisation in lists under keys by their
-    # original columns names before binarisation
-    columns = {}
-    for i in range(len(mi)):
-        original_colname = mi.levels[0][mi.codes[0][i]]  # this extracts the original name of column
-        catname = mi.levels[1][mi.codes[1][i]]  # this extracts the subcolumn names (categories)
-        if original_colname not in columns:
-            # create an entry for a column name
-            columns[original_colname] = []
-        # append to the list of subcolumn names (categories) of the column
-        columns[original_colname].append(catname)
 
-    #init a list of new columns
-    new_columns = []
-    for original_colname in columns.keys():
-        # the binarisation leaves names of WEKA data types instead of nominal values for columns representing
-        # non-categorical values. To avoid  unnecessary renaming, we actually check for those specific names.
-        if len(columns[original_colname]) == 1 and columns[original_colname][0] in WEKA_DATA_TYPES:
-            new_columns.append(original_colname)
-        else:
-            for subcolname in columns[original_colname]:
-                new_columns.append(original_colname + "_" + subcolname)
-    return new_columns
+
 
 
 
@@ -53,6 +30,17 @@ SCIKIT = "SCIKIT"
 
 WEKA_DATA_TYPES = {"NUMERIC"}
 
+class ArffData:
+    relation: str
+    description: str
+    attributes: [(str, str)]
+    data: [[any]]
+
+    def __init__(self, relation: str, description: str, attributes: [(str, str)], data: [[any]]):
+        self.relation = relation
+        self.description = description
+        self.attributes = attributes
+        self.data = data
 
 def valid_path(path, message):
     import os
