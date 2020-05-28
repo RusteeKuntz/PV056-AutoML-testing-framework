@@ -187,6 +187,7 @@ class DataFrameArff(pd.DataFrame):
 
         # make sure that ID column does not compromise the feature selection
         if ID_NAME in colnames:
+            print("COLNAMES: ", colnames)
             self.drop(ID_NAME)
         bin_df: pd.DataFrame = self._binarize_categorical_values()
 
