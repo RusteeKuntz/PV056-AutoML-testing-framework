@@ -53,7 +53,7 @@ class DataFrameArff(pd.DataFrame):
             data.update({"data": self.replace(np.nan, None).values.tolist()})
             arff.dump(data, output_file)
 
-    def _binarize_categorical_values(self) -> 'DataFrameArff':
+    def _binarize_categorical_values(self) -> pd.Dataframe:
         encoded_dataframe = pd.DataFrame()
         for attr, values in self._arff_data["attributes"][:-1]:
             enc = OneHotEncoder(handle_unknown="ignore")
@@ -100,15 +100,15 @@ class DataFrameArff(pd.DataFrame):
                 encoded_dataframe = encoded_dataframe.join(new)
 
         # here we convert result into DataFrameArff to keep arff metadata TODO: Here starts the newer implememtation
-        new_columns = convert_multiindex_to_index(encoded_dataframe.columns)
+        # new_columns = convert_multiindex_to_index(encoded_dataframe.columns)
+        #
+        # arff_data = ArffData(relation=self._arff_data["relation"] + "_binarized",
+        #                      description=self._arff_data["description"],
+        #                      attributes=[(name, 'NUMERIC') for name in new_columns],
+        #                      data=encoded_dataframe.values)
+        # return DataFrameArff(arff_data=arff_data.__dict__)
 
-        arff_data = ArffData(relation=self._arff_data["relation"] + "_binarized",
-                             description=self._arff_data["description"],
-                             attributes=[(name, 'NUMERIC') for name in new_columns],
-                             data=encoded_dataframe.values)
-        return DataFrameArff(arff_data=arff_data.__dict__)
-
-        #return encoded_dataframe # TODO: This was old return value
+        return encoded_dataframe # TODO: This was old return value
 
 
 
