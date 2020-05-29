@@ -25,7 +25,9 @@ warnings.simplefilter(action="ignore", category=UserWarning)
 
 class DataFrameArff(pd.DataFrame):
     def __init__(self, *args, **kwargs):
-        arff_data: Optional[dict] = kwargs.pop("arff_data", None)
+        arff_data: Optional[dict or ArffData] = kwargs.pop("arff_data", None)
+        if isinstance(arff_data, ArffData):
+            arff_data = arff_data.__dict__
         if arff_data is None:
             super().__init__(*args, **kwargs)
         else:
@@ -39,13 +41,13 @@ class DataFrameArff(pd.DataFrame):
                     self._arff_data.update({key: item})
             self._arff_data["relation"] = self._arff_data["relation"].replace("_", "-")
 
-    def arff_data(self):
+    def arff_data(self) -> ArffData:
         data = self._arff_data
         data.update({"data": self.replace(np.nan, None).values.tolist()})
-        return data
+        return ArffData(**data)
 
     def arff_dumps(self):
-        return arff.dumps(self.arff_data())
+        return arff.dumps(self.arff_data().__dict__)
 
     def arff_dump(self, file_path: str):
         with open(file_path, "w") as output_file:
@@ -113,10 +115,9 @@ class DataFrameArff(pd.DataFrame):
     def binarize_cat_feats_and_normalize(self)->'DataFrameArff':
         bin_df: pd.DataFrame = self._binarize_categorical_values()
         print("ARFF DATA", self._arff_data.keys())
-        arff_data: ArffData = ArffData(**self._arff_data)
         new_columns = convert_multiindex_to_index(bin_df.columns)
-        arff_data = ArffData(relation=arff_data.relation,
-                             description=arff_data.description,
+        arff_data = ArffData(relation=self._arff_data["relation"],
+                             description="", #self._arff_data["description"],  # TODO: description is truncated here
                              attributes=[(name, 'NUMERIC') for name in new_columns],
                              data=bin_df.values)
         return DataFrameArff(arff_data=arff_data)
@@ -243,10 +244,10 @@ class DataFrameArff(pd.DataFrame):
             selected_columns_set = set(final_df.columns)
             # obtain original arff data
             arff_data = self.arff_data()
-            arff_data["attributes"] = [x for x in arff_data["attributes"] if x[0] in selected_columns_set]
+            arff_data.attributes = [x for x in arff_data.attributes if x[0] in selected_columns_set]
             # adding the "arff_data" keyword bypasses the super.__init__() method in DataFrameArff, so we need to overwrite
             # the vlaues inside the arff_data themselves.
-            arff_data["data"] = final_df.values
+            arff_data.data = final_df.values
             new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
         else:

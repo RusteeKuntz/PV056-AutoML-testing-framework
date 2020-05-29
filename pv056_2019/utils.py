@@ -36,7 +36,9 @@ class ArffData:
     attributes: [(str, str)]
     data: [[any]]
 
-    def __init__(self, relation: str, description: str, attributes: [(str, str)], data: [[any]]):
+    def __init__(self, relation: str, attributes: [(str, str)], description: str = "", data: [[any]] = None):
+        if data is None:
+            data = []
         self.relation = relation
         self.description = description
         self.attributes = attributes
