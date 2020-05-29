@@ -112,6 +112,7 @@ class DataFrameArff(pd.DataFrame):
 
     def binarize_cat_feats_and_normalize(self)->'DataFrameArff':
         bin_df: pd.DataFrame = self._binarize_categorical_values()
+        print("ARFF DATA", self._arff_data.keys())
         arff_data: ArffData = ArffData(**self._arff_data)
         new_columns = convert_multiindex_to_index(bin_df.columns)
         arff_data = ArffData(relation=arff_data.relation,
