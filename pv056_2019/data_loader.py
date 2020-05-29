@@ -200,8 +200,8 @@ class DataFrameArff(pd.DataFrame):
         time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
         # fit selector to the dataset (this basically looks at the dataset and identifies useful features)
-        print("TRAIN DATA", *x, sep="\n")
-        print("TEST DATA", *y, sep="\n")
+        print("TRAIN DATA", x, sep="\n")
+        print("TEST DATA", y, sep="\n")
         selector.fit(x, y)
 
         selected_features_indexes = selector.get_support()
