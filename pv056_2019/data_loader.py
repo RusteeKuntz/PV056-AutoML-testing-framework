@@ -183,19 +183,20 @@ class DataFrameArff(pd.DataFrame):
         return new_frame_arff, fs_time
 
     def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
-        colnames = self.columns
+        #colnames = self.columns
 
         # make sure that ID column does not compromise the feature selection
-        if ID_NAME in colnames:
+        if ID_NAME in self.columns:
             self.drop(ID_NAME, 1, inplace=True)
             self._arff_data["attributes"] = [x for x in self._arff_data["attributes"] if x[0] != ID_NAME]
+            #colnames = self.columns
             print(ID_NAME, "deleted for dataset: ", self._arff_data["relation"])
             print(self)
         bin_df: pd.DataFrame = self._binarize_categorical_values()
 
         # split data and classes. We rely on the fact that classes are in the last column
-        x = bin_df.loc[:, colnames[:-1]]
-        y = self.loc[:, colnames[-1]]
+        x = bin_df.loc[:, self.columns[:-1]]
+        y = self.loc[:, self.columns[-1]]
         # another score functions are: f_classif, mutual_info_classif
 
         time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
@@ -223,7 +224,7 @@ class DataFrameArff(pd.DataFrame):
                     selected_feature_indexes_list.append(code)
                 selected_feature_indexes_set.add(code)
             # here we actually add the "classes" column back into the list of selected features
-            selected_feature_indexes_list.append(len(colnames) - 1)
+            selected_feature_indexes_list.append(len(self.columns) - 1)
 
             # print(selected_feature_indexes_list)
             final_df = self.iloc[:, selected_feature_indexes_list]
