@@ -55,10 +55,6 @@ class DataFrameArff(pd.DataFrame):
 
     def _binarize_categorical_values(self) -> 'DataFrameArff':
         encoded_dataframe = pd.DataFrame()
-        print("ARFF_DATA: ", self._arff_data)
-        print("TYPE1: ", type(self._arff_data), self._arff_data.keys())
-        print("TYPE2: ", type(self._arff_data["attributes"]))
-        print(self._arff_data["attributes"][:-1])
         for attr, values in self._arff_data["attributes"][:-1]:
             enc = OneHotEncoder(handle_unknown="ignore")
             enc.fit(np.array(values).reshape(-1, 1))
@@ -204,6 +200,8 @@ class DataFrameArff(pd.DataFrame):
         time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
         # fit selector to the dataset (this basically looks at the dataset and identifies useful features)
+        print("TRAIN DATA", *x, sep="\n")
+        print("TEST DATA", *y, sep="\n")
         selector.fit(x, y)
 
         selected_features_indexes = selector.get_support()
