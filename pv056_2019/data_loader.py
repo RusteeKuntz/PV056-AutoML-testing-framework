@@ -189,6 +189,8 @@ class DataFrameArff(pd.DataFrame):
         if ID_NAME in colnames:
             self.drop(ID_NAME, 1, inplace=True)
             self._arff_data["attributes"] = [x for x in self._arff_data["attributes"] if x[0] != ID_NAME]
+            print(ID_NAME, "deleted for dataset: ", self._arff_data["relation"])
+            print(self)
         bin_df: pd.DataFrame = self._binarize_categorical_values()
 
         # split data and classes. We rely on the fact that classes are in the last column
