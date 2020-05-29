@@ -53,7 +53,7 @@ class DataFrameArff(pd.DataFrame):
             data.update({"data": self.replace(np.nan, None).values.tolist()})
             arff.dump(data, output_file)
 
-    def _binarize_categorical_values(self) -> pd.Dataframe:
+    def _binarize_categorical_values(self) -> pd.DataFrame:
         encoded_dataframe = pd.DataFrame()
         for attr, values in self._arff_data["attributes"][:-1]:
             enc = OneHotEncoder(handle_unknown="ignore")
