@@ -110,6 +110,15 @@ class DataFrameArff(pd.DataFrame):
 
         return encoded_dataframe # TODO: This was old return value
 
+    def binarize_cat_feats_and_normalize(self)->'DataFrameArff':
+        bin_df: pd.DataFrame = self._binarize_categorical_values()
+        arff_data: ArffData = ArffData(**self._arff_data)
+        new_columns = convert_multiindex_to_index(bin_df.columns)
+        arff_data = ArffData(relation=arff_data.relation,
+                             description=arff_data.description,
+                             attributes=[(name, 'NUMERIC') for name in new_columns],
+                             data=bin_df.values)
+        return DataFrameArff(arff_data=arff_data)
 
 
     def add_index_column(self):
@@ -240,15 +249,15 @@ class DataFrameArff(pd.DataFrame):
             new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
         else:
-            new_columns = convert_multiindex_to_index(nmi)
-
-            arff_data = {
-                "relation": self._arff_data["relation"],
-                "description": "", # self._arff_data["description"], # description takes space --> unnecessary
-                "attributes": [(name, 'NUMERIC') for name in new_columns],
-                "data": transformed_df.values
-            }
-            new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
+            # new_columns = convert_multiindex_to_index(nmi)
+            #
+            # arff_data = {
+            #     "relation": self._arff_data["relation"],
+            #     "description": "", # self._arff_data["description"], # description takes space --> unnecessary
+            #     "attributes": [(name, 'NUMERIC') for name in new_columns],
+            #     "data": transformed_df.values
+            # }
+            new_frame_arff: DataFrameArff = add_arff_metadata_to_pandas_dataframe(transformed_df, ArffData(**self._arff_data))
 
         # conclude time (resource) consumption
         time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
@@ -343,15 +352,14 @@ def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
     return new_columns
 
 
-
-def combine_arff_metadata_with_binarized_dataframe(df: pd.DataFrame, arff_data: ArffData )->DataFrameArff:
+def add_arff_metadata_to_pandas_dataframe(df: pd.DataFrame, arff_data: ArffData)->DataFrameArff:
     if isinstance(df.columns, pd.MultiIndex):
         new_columns = convert_multiindex_to_index(df.columns)
     else:
         new_columns = df.columns
 
     arff_data = ArffData(relation=arff_data.relation,
-                         description=arff_data.description,
+                         description="",#arff_data.description,  # description is truncated for space preservation
                          attributes=[(name, 'NUMERIC') for name in new_columns],
                          data=df.values)
-    new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
+    return DataFrameArff(arff_data=arff_data.__dict__)

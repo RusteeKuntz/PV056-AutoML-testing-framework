@@ -54,12 +54,14 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                 elif command.args.source_library == SCIKIT:
                     print("We are in a correct conditional branch 2")
                     args: ScikitFSSchema = command.args
+
+                    # if we are leaving the categorical attributes binarized, we need to binarize the test split too
                     if args.leave_attributes_binarized:
                         # here we extract the test filepath of the test split
                         csv_line_split = command.mapping_csv_line.split(",")
                         test_file_path = csv_line_split[1]
                         test_df = DataLoader._load_arff_file(test_file_path)
-                        bin_test_df = test_df._binarize_categorical_values()
+                        bin_test_df = test_df.binarize_cat_feats_and_normalize()
 
                         # here we create new filepath and dump the binarized test dataframe to a that path
                         test_file_path_dotsplit = test_file_path.split(".")
