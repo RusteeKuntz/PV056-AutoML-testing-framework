@@ -56,6 +56,8 @@ class DataFrameArff(pd.DataFrame):
     def _binarize_categorical_values(self) -> 'DataFrameArff':
         encoded_dataframe = pd.DataFrame()
         print("ARFF_DATA: ", self._arff_data["attributes"])
+        print("TYPE: ", type(self._arff_data))
+        print("TYPE: ", type(self._arff_data["attributes"]))
         print(self._arff_data["attributes"][:-1])
         for attr, values in self._arff_data["attributes"][:-1]:
             enc = OneHotEncoder(handle_unknown="ignore")
