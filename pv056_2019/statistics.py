@@ -176,9 +176,10 @@ def main():
 
         dataframe_baseline = pd.DataFrame(baseline_data, columns=headers_baseline)
         print("DATAFRAME")
-        print(dataframe)
+        print(dataframe.dtypes)
         print("DATAFRAME_BASELINE")
-        print(dataframe_baseline)
+        print(dataframe_baseline.dtypes)
+
 
         dataframe = dataframe.merge(dataframe_baseline, on=headers_baseline[:-1], how="left", suffixes=("", "_base"))
 
