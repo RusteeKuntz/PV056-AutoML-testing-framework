@@ -145,7 +145,8 @@ def main():
     ]
 
     print("DATA from classifier prediction")
-    print(data)
+    print(headers_steps)
+    print(*data, sep="\n")
     dataframe = pd.DataFrame(data, columns=headers_proccessed)
 
     if baseline_supplied:
