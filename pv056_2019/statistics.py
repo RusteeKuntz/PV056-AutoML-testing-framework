@@ -107,7 +107,7 @@ def main():
         conf = config_dict[conf_hash]
 
         classifier = conf["model_config"].get("class_name").split(".")[-1]
-        classifier_args = conf["model_config"].get("args")
+        classifier_args = str(conf["model_config"].get("args"))
         steps_count = conf["steps_count"]
         preprocessing_steps_config_strings = conf["preprocessing_configs"]
         if steps_count > greatest_steps_count:
