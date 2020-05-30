@@ -85,7 +85,7 @@ def main():
         prediction_file = csv_row[0]
         conf_path = csv_row[2]  # this is created in the CLF step. Third element of a CSV row is path to config json.
 
-        accuracy = calculate_accuracy(prediction_file)
+        accuracy = "{:.4f}".format(calculate_accuracy(prediction_file))
         file_split = os.path.basename(prediction_file).split("_")
 
         # file_split[-1] = file_split[-1].replace(".csv", "")
