@@ -180,7 +180,8 @@ def main():
         print("DATAFRAME_BASELINE")
         print(dataframe_baseline.dtypes)
 
-        dataframe = dataframe.merge(dataframe_baseline, on=headers_baseline[:-1], how="left", suffixes=("", "_base"))
+
+        dataframe = dataframe.merge(dataframe_baseline, on=headers_baseline[:-1], how="right", suffixes=("", "_base"))
 
     # od_times = pd.read_csv(conf.od_times_path)
     # clf_times = pd.read_csv(conf.clf_times_path)
@@ -196,7 +197,7 @@ def main():
     #                           for ax in dataframe['clf_hex']]
     # dataframe['od_params'] = [str(config_dict[ax]["ad_config"].get("parameters")).replace(",", ";").replace("'", "")
     #                          for ax in dataframe['clf_hex']]
-
+    print("DATA BEFORE AGGREGATION")
     print(dataframe)
     if statistic_conf.aggregate:
         dataframe = dataframe.groupby(
