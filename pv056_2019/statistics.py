@@ -145,7 +145,7 @@ def main():
     ]
 
     print("DATA from classifier prediction")
-    print(headers_steps)
+    print(headers_proccessed)
     print(*data, sep="\n")
     dataframe = pd.DataFrame(data, columns=headers_proccessed)
 
