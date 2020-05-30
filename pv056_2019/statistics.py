@@ -85,7 +85,7 @@ def main():
         prediction_file = csv_row[0]
         conf_path = csv_row[2]  # this is created in the CLF step. Third element of a CSV row is path to config json.
 
-        accuracy = "{:.4f}".format(calculate_accuracy(prediction_file))
+        accuracy = calculate_accuracy(prediction_file)  #"{:.4f}".format(calculate_accuracy(prediction_file))
         file_split = os.path.basename(prediction_file).split("_")
 
         # file_split[-1] = file_split[-1].replace(".csv", "")
@@ -120,9 +120,9 @@ def main():
 
         # based on the maximum
         data_entry = [datest, split, classifier, clf_family, classifier_args, *preprocessing_steps_config_strings, accuracy]
-        for entry in data_entry:
-            if not isinstance(entry, str):
-                raise TypeError(entry, "should be string, is", type(entry))
+        # for entry in data_entry:
+        #     if not isinstance(entry, str):
+        #         raise TypeError(entry, "should be string, is", type(entry))
         data.append(data_entry)
 
         # ====================================
@@ -157,7 +157,7 @@ def main():
             conf_path = csv_row[2]
 
             accuracy = calculate_accuracy(prediction_file)
-            file_split = prediction_file.split("_")
+            file_split = os.path.basename(prediction_file).split("_")
 
             datest, split, *_ = file_split
 
@@ -170,7 +170,7 @@ def main():
             dotsplit = conf["model_config"].get("class_name").split(".")
             classifier = dotsplit[-1]
             classifier_family = dotsplit[-2]
-            classifier_args = conf["model_config"].get("args")
+            classifier_args = str(conf["model_config"].get("args"))
 
             baseline_data.append([datest, split, classifier, classifier_family, classifier_args, accuracy])
 
@@ -179,7 +179,6 @@ def main():
         print(dataframe.dtypes)
         print("DATAFRAME_BASELINE")
         print(dataframe_baseline.dtypes)
-
 
         dataframe = dataframe.merge(dataframe_baseline, on=headers_baseline[:-1], how="left", suffixes=("", "_base"))
 
