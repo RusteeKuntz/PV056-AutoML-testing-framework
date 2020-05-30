@@ -137,6 +137,8 @@ def main():
         "accuracy",
     ]
 
+    print("DATA from classifier predictiona")
+    print(data)
     dataframe = pd.DataFrame(data, columns=headers_proccessed)
 
     if baseline_supplied:
