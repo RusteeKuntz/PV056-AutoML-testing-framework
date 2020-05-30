@@ -116,7 +116,12 @@ def main():
         # od_name = config_dict[conf_hash]["od_configs"].get("name", "")
 
         # based on the maximum
-        data.append([datest, split, classifier, classifier_args, *preprocessing_steps_config_strings, accuracy])
+        data_entry = [datest, split, classifier, classifier_args, *preprocessing_steps_config_strings, accuracy]
+        for entry in data_entry:
+            if not isinstance(entry, str):
+                raise TypeError(entry, "should be string, is", type(entry))
+        data.append(data_entry)
+
         # ====================================
     headers_steps = ["step_{}".format(x) for x in range(greatest_steps_count)]
     headers_proccessed = [
