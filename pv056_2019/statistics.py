@@ -105,8 +105,9 @@ def main():
                 config_dict[conf_hash] = json.load(config_file)
 
         conf = config_dict[conf_hash]
-
-        classifier = conf["model_config"].get("class_name").split(".")[-1]
+        clf_fullname_dotsplit = conf["model_config"].get("class_name").split(".")
+        classifier = clf_fullname_dotsplit[-1]
+        clf_family = clf_fullname_dotsplit[-2]
         classifier_args = str(conf["model_config"].get("args"))
         steps_count = conf["steps_count"]
         # previous step concluded all the preprocessing configurations into a list of json dicts and saved the into JSON
@@ -118,7 +119,7 @@ def main():
         # od_name = config_dict[conf_hash]["od_configs"].get("name", "")
 
         # based on the maximum
-        data_entry = [datest, split, classifier, classifier_args, *preprocessing_steps_config_strings, accuracy]
+        data_entry = [datest, split, classifier, clf_family, classifier_args, *preprocessing_steps_config_strings, accuracy]
         for entry in data_entry:
             if not isinstance(entry, str):
                 raise TypeError(entry, "should be string, is", type(entry))
