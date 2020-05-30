@@ -211,9 +211,11 @@ def main():
         dataframe = dataframe.loc[:, dataframe.columns != "fold"]
 
     dataframe = dataframe.round(5)
+    print("FINAL DATA:")
     print(dataframe.to_csv())
-    with open(statistic_conf.output_table, "w+") as ot:
-        print(dataframe.to_csv(), file=ot)
+    with open(statistic_conf.output_table, "w") as ot:
+        dataframe.to_csv(ot)
+        #print(dataframe.to_csv(), file=ot)
     backup_ts = "backups/" + statistic_conf.output_table.split("/")[-1].replace(".csv", datetime.now()
                                                                       .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
     with open(backup_ts, "w+") as ot:
