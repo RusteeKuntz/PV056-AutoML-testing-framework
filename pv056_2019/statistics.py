@@ -182,6 +182,7 @@ def main():
     # dataframe['od_params'] = [str(config_dict[ax]["ad_config"].get("parameters")).replace(",", ";").replace("'", "")
     #                          for ax in dataframe['clf_hex']]
 
+    print(dataframe)
     if conf.aggregate:
         dataframe = dataframe.groupby(
             by=[
