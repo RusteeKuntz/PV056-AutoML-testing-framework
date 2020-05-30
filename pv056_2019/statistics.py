@@ -48,7 +48,19 @@ def main():
     # load datasets, sort them by size, if some do not exists, exclude them
     with open(args["datasets_csv_in"], "r") as csv_in:
         # csv_reader = csv.reader(csv_in, delimiter=",")
-        csv_rows = sorted([row for row in csv.reader(csv_in, delimiter=",") if os.path.exists(row[0])], key=lambda x: os.path.getsize(x[0]))
+        list_of_rows = []
+        for row in csv.reader(csv_in, delimiter=","):
+            print("ROW:", row)
+            print("FILE:", row[0])
+            if os.path.exists(row[0]):
+                print("EXISTS")
+                list_of_rows.append(row)
+            else:
+                print("DOES NOT EXISTS")
+
+        #csv_rows = sorted([row for row in csv.reader(csv_in, delimiter=",") if os.path.exists(row[0])], key=lambda x: os.path.getsize(x[0]))
+        csv_rows = sorted(list_of_rows,
+                          key=lambda x: os.path.getsize(x[0]))
 
     # if a baseline predictions csv was supplied
     baseline_supplied = False
