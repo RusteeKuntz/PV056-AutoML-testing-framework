@@ -104,15 +104,15 @@ def main():
             with open(conf_path) as config_file:
                 config_dict[conf_hash] = json.load(config_file)
 
-        conf = config_dict[conf_hash]
-        clf_fullname_dotsplit = conf["model_config"].get("class_name").split(".")
+        _conf = config_dict[conf_hash]
+        clf_fullname_dotsplit = _conf["model_config"].get("class_name").split(".")
         classifier = clf_fullname_dotsplit[-1]
         clf_family = clf_fullname_dotsplit[-2]
-        classifier_args = str(conf["model_config"].get("args"))
-        steps_count = conf["steps_count"]
+        classifier_args = str(_conf["model_config"].get("args"))
+        steps_count = _conf["steps_count"]
         # previous step concluded all the preprocessing configurations into a list of json dicts and saved the into JSON
         # we are here loading the json dicts and turning them into strings
-        preprocessing_steps_config_strings = [str(conf_dict) for conf_dict in conf["preprocessing_configs"]]
+        preprocessing_steps_config_strings = [str(conf_dict) for conf_dict in _conf["preprocessing_configs"]]
         if steps_count > greatest_steps_count:
             greatest_steps_count = steps_count
 
@@ -166,11 +166,11 @@ def main():
                 with open(conf_path) as config_file:
                     config_dict[conf_hash] = json.load(config_file)
 
-            conf = config_dict[conf_hash]
-            dotsplit = conf["model_config"].get("class_name").split(".")
+            _conf = config_dict[conf_hash]
+            dotsplit = _conf["model_config"].get("class_name").split(".")
             classifier = dotsplit[-1]
             classifier_family = dotsplit[-2]
-            classifier_args = str(conf["model_config"].get("args"))
+            classifier_args = str(_conf["model_config"].get("args"))
 
             baseline_data.append([datest, split, classifier, classifier_family, classifier_args, accuracy])
 
@@ -212,9 +212,9 @@ def main():
 
     dataframe = dataframe.round(5)
     print(dataframe.to_csv())
-    with open(conf.output_table, "w+") as ot:
+    with open(statistic_conf.output_table, "w+") as ot:
         print(dataframe.to_csv(), file=ot)
-    backup_ts = "backups/" + conf.output_table.split("/")[-1].replace(".csv", datetime.now()
+    backup_ts = "backups/" + statistic_conf.output_table.split("/")[-1].replace(".csv", datetime.now()
                                                                       .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
     with open(backup_ts, "w+") as ot:
         print(dataframe.to_csv(), file=ot)
