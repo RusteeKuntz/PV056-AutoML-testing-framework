@@ -83,7 +83,9 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                 fs_frame.arff_dump(command.output_file_path)
 
                 # We write the line into the datasets mapping CSV only if the preprocessing is actually done
+                print("The line printed is:", command.mapping_csv_line, sep="\n")
                 mapping_csv.write(command.mapping_csv_line)
+                mapping_csv.flush()
 
 
         else:
