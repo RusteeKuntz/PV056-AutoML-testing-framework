@@ -39,7 +39,7 @@ def main():
     args = vars(parser.parse_args())
 
     with open(args["config_file"]) as json_file:
-        conf: StatisticsSchema = StatisticsSchema(**json.load(json_file))
+        statistic_conf: StatisticsSchema = StatisticsSchema(**json.load(json_file))
 
     # reg = re.compile(r"removed-0*")
     # Previously these files were listed from a directory
@@ -198,7 +198,7 @@ def main():
     #                          for ax in dataframe['clf_hex']]
 
     print(dataframe)
-    if conf.aggregate:
+    if statistic_conf.aggregate:
         dataframe = dataframe.groupby(
             by=[
                 "dataset",
