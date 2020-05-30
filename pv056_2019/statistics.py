@@ -86,7 +86,7 @@ def main():
         conf_path = csv_row[2]  # this is created in the CLF step. Third element of a CSV row is path to config json.
 
         accuracy = calculate_accuracy(prediction_file)
-        file_split = prediction_file.split("_")
+        file_split = os.path.basename(prediction_file).split("_")
 
         # file_split[-1] = file_split[-1].replace(".csv", "")
 
@@ -137,7 +137,7 @@ def main():
         "accuracy",
     ]
 
-    print("DATA from classifier predictiona")
+    print("DATA from classifier prediction")
     print(data)
     dataframe = pd.DataFrame(data, columns=headers_proccessed)
 
