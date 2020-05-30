@@ -109,7 +109,9 @@ def main():
         classifier = conf["model_config"].get("class_name").split(".")[-1]
         classifier_args = str(conf["model_config"].get("args"))
         steps_count = conf["steps_count"]
-        preprocessing_steps_config_strings = conf["preprocessing_configs"]
+        # previous step concluded all the preprocessing configurations into a list of json dicts and saved the into JSON
+        # we are here loading the json dicts and turning them into strings
+        preprocessing_steps_config_strings = [str(conf_dict) for conf_dict in conf["preprocessing_configs"]]
         if steps_count > greatest_steps_count:
             greatest_steps_count = steps_count
 
