@@ -164,6 +164,10 @@ def main():
             baseline_data.append([datest, split, classifier, classifier_family, classifier_args, accuracy])
 
         dataframe_baseline = pd.DataFrame(baseline_data, columns=headers_baseline)
+        print("DATAFRAME")
+        print(dataframe)
+        print("DATAFRAME_BASELINE")
+        print(dataframe_baseline)
 
         dataframe = dataframe.merge(dataframe_baseline, on=headers_baseline[:-1], how="left", suffixes=("", "_base"))
 
