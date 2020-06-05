@@ -319,7 +319,7 @@ class DataLoader:
     def _load_arff_file(file_path: str) -> DataFrameArff:
         print("trying to open ", end="")
         with open(file_path) as arff_file:
-            print("and load and arff ", end="")
+            print("and load and arff", os.path.basename(file_path), end=" ")
             data = arff.load(arff_file)
             print("and then close it ", end="")
             arff_file.close()
