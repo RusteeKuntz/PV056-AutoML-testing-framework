@@ -177,7 +177,7 @@ class ClassifierManager:
                                        #conf_paths +
                                        [config_file_path])+"\n")
                 self._save_model_config(config_file_path, final_config_str)
-            print("QUEUE FILLED :)")
+            print("QUEUE FILLED")
 
 
 class CLFCommandWithInfo:
