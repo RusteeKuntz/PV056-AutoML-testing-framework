@@ -212,7 +212,7 @@ def main():
     print("DATA BEFORE AGGREGATION")
     print(dataframe)
     if statistic_conf.aggregate:
-        dataframe = dataframe.groupby(
+        group_fold_df = dataframe.groupby(
             by=[
                 "dataset",
                 "clf",
@@ -221,7 +221,8 @@ def main():
                 *headers_steps
             ]
         ).mean()
-        dataframe = dataframe.loc[:, dataframe.columns != "fold"]
+        print(group_fold_df)
+        dataframe = group_fold_df.loc[:, dataframe.columns != "fold"]
 
     dataframe = dataframe.round(5)
     print("FINAL DATA:")
