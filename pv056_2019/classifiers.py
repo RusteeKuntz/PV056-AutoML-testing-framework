@@ -71,8 +71,9 @@ class ClassifierManager:
         with open(out_csv_path, "w", encoding="UTF-8") as out_csv:
             _count = len(csv_rows)*len(classifiers)
             print("There is", str(_count), "of combinations.")
+            _c = 0
             for csv_row, classifier in product(csv_rows, classifiers):
-                print("[-1", end="")
+                print("["+str(_c)+"-1", end="")
                 # first two elements the datase_tuple are train file and test file
                 train_path, test_path = csv_row[:2]
                 conf_paths = csv_row[2:]
@@ -189,6 +190,7 @@ class ClassifierManager:
                 print("11-]", end="")
                 self._save_model_config(config_file_path, final_config_str)
                 print("Reached the end")
+                _c += 1
             print("QUEUE FILLED")
 
 
