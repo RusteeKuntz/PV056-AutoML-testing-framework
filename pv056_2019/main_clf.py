@@ -144,6 +144,7 @@ def main():
         print(headdings, file=tf)
 
     #open(blacklist_file, "a+").close()
+    open(conf.times_output, "w").close()
 
 
     clf_man = ClassifierManager(conf.output_folder, conf.weka_jar_path)
