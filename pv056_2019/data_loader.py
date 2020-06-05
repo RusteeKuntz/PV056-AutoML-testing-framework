@@ -317,7 +317,9 @@ class DataLoader:
     def _load_arff_file(file_path: str) -> DataFrameArff:
         with open(file_path) as arff_file:
             data = arff.load(arff_file)
+            arff_file.close()
             return DataFrameArff(arff_data=data)
+
 
     def load_files(self):
         if not self.file_paths:

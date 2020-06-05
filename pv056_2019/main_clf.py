@@ -46,7 +46,10 @@ def weka_worker(queue,
         if not (clf, dataset) in blacklist:
             try:
                 time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-                result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                result = subprocess.run(args,
+                                        #stdout=subprocess.PIPE,
+                                        #stderr=subprocess.PIPE,
+                                        timeout=timeout)
                 # print(" ".join(args))
                 # print(result.stdout)
                 # print(result.stderr)
