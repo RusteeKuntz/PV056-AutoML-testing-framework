@@ -238,7 +238,8 @@ class DataFrameArff(pd.DataFrame):
                 selected_feature_indexes_set.add(code)
             # here we actually add the "classes" column back into the list of selected features
             selected_feature_indexes_list.append(len(self.columns) - 1)
-
+            # also, we need to sort the indexes list, bcs the order is significant when determining which column has which values
+            selected_feature_indexes_list.sort()
             # print(selected_feature_indexes_list)
             final_df = self.iloc[:, selected_feature_indexes_list]
 
