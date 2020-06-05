@@ -136,11 +136,15 @@ class ClassifierManager:
                 ) + ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
                     OD_VALUE_NAME
                 )
-
+                print("7.1-", end="")
                 train_df = DataLoader._load_arff_file(train_path)
+                print("7.2-", end="")
                 test_df = DataLoader._load_arff_file(test_path)
+                print("7.3-", end="")
                 all_features_set = set(test_df.columns)
+                print("7.4-", end="")
                 new_features_set = set(train_df.columns)
+                print("7.5-", end="")
                 missing_features: [str] = list(all_features_set.difference(new_features_set))
                 print("FEATURES COMPARISON")
                 print(train_path)
