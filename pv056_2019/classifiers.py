@@ -70,9 +70,11 @@ class ClassifierManager:
         # we write to the output CSV here so we do not have to handle concurrent file writing
         with open(out_csv_path, "w", encoding="UTF-8") as out_csv:
             _count = len(csv_rows)*len(classifiers)
-            print("There is", str(_count), "of combinations.")
+            print("There is", str(_count), "of combinations for", str(len(csv_rows)), "csv rows and", str(len(classifiers)), "classifiers.")
             _c = 0
-            for csv_row, classifier in product(csv_rows, classifiers):
+            _prod = product(csv_rows, classifiers)
+            print(_prod)
+            for csv_row, classifier in _prod:
                 print("["+str(_c)+"-1", end="")
                 # first two elements the datase_tuple are train file and test file
                 train_path, test_path = csv_row[:2]

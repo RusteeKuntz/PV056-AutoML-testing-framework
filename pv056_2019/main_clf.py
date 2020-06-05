@@ -161,7 +161,9 @@ def main():
                 blacklist.append(i.replace("\n", "").split(','))
 
         queue = Queue()
+        print("FILLING THE QUEUE")
         clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets, args.datasets_csv_out)
+        print("BACK IN MAIN")
 
         # TODO xbajger: previously, here as an arg to weka_worker a "backup_ts" file was supplied. It shan't be needed
         pool = [Process(target=weka_worker, args=(queue, blacklist, conf.timeout, conf.times_output, backup_ts)) for _ in range(conf.n_jobs)]
