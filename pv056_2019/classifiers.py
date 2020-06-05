@@ -58,6 +58,7 @@ class ClassifierManager:
     def _save_model_config(config_file_path, config_data):
         with open(config_file_path, "w") as f:
             f.write(config_data)
+            f.flush()
 
     def fill_queue_and_create_configs(
         self,
@@ -68,20 +69,25 @@ class ClassifierManager:
     ):
         # we write to the output CSV here so we do not have to handle concurrent file writing
         with open(out_csv_path, "w", encoding="UTF-8") as out_csv:
+            _count = len(csv_rows)*len(classifiers)
+            print("There is", str(_count), "of combinations.")
             for csv_row, classifier in product(csv_rows, classifiers):
+                print("[-1", end="")
                 # first two elements the datase_tuple are train file and test file
                 train_path, test_path = csv_row[:2]
                 conf_paths = csv_row[2:]
                 #print(conf_paths)
-
+                print("-2-", end="")
                 if not os.path.exists(train_path):
+                    print("ERROR")
                     raise IOError("Input dataset '{0}' does not exist.".format(train_path))
-
+                print("3-", end="")
                 # Get the string with final configuration of the whole workflow
                 final_config_str = self._create_final_config_file(conf_paths, classifier)
+                print("4-", end="")
                 # get identifying hash
                 hash_md5 = hashlib.md5(final_config_str.encode()).hexdigest()
-
+                print("5-", end="")
                 basename: str = os.path.basename(train_path)
                 basename_split: [str] = basename.split("_")
                 dataset_name = basename_split[0]
@@ -93,7 +99,7 @@ class ClassifierManager:
                 #     removed_str = removed_arr[0]
                 # else:
                 #     removed_str = ""
-
+                print("6-", end="")
                 #this is the filepath for the prediction output from trained WEKA classifier
                 predict_file_path = os.path.join(
                     self.output_folder,
@@ -122,7 +128,7 @@ class ClassifierManager:
                         predict_file_path
                     ),
                 ]
-
+                print("7-", end="")
                 # Add Weka filters
                 # here we filter out OD column and INDEX column
                 str_filters = '-F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(  # noqa
@@ -138,9 +144,9 @@ class ClassifierManager:
                 missing_features: [str] = list(all_features_set.difference(new_features_set))
                 print("FEATURES COMPARISON")
                 print(train_path)
-                print(all_features_set)
-                print(new_features_set)
-                print(missing_features)
+                #print(all_features_set)
+                #print(new_features_set)
+                #print(missing_features)
 
                 for feature_name in missing_features:
                     str_filters += ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
@@ -167,16 +173,18 @@ class ClassifierManager:
                     self.weka_jar_path,
                     "weka.classifiers.meta.FilteredClassifier",
                 ] + run_args
-
+                print("8-", end="")
                 command = CLFCommandWithInfo(args=run_args, dataset_name=dataset_name, train_path=train_path, clf=classifier.class_name, fold=dataset_fold, settings=final_config_str)
-
+                print("9-", end="")
                 queue.put(command)
-
+                print("10-", end="")
                 # TODO: we write to the output CSV here so we do not have to handle concurrent file writing
                 out_csv.write(",".join([predict_file_path, test_path] +
                                        #conf_paths +
                                        [config_file_path])+"\n")
+                print("11-]", end="")
                 self._save_model_config(config_file_path, final_config_str)
+                print("Reached the end")
             print("QUEUE FILLED")
 
 
