@@ -136,6 +136,11 @@ class ClassifierManager:
                 all_features_set = set(test_df.columns)
                 new_features_set = set(train_df.columns)
                 missing_features: [str] = list(all_features_set.difference(new_features_set))
+                print("FEATURES COMPARISON")
+                print(train_path)
+                print(all_features_set)
+                print(new_features_set)
+                print(missing_features)
 
                 for feature_name in missing_features:
                     str_filters += ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
@@ -167,11 +172,12 @@ class ClassifierManager:
 
                 queue.put(command)
 
-                # we write to the output CSV here so we do not have to handle concurrent file writing
+                # TODO: we write to the output CSV here so we do not have to handle concurrent file writing
                 out_csv.write(",".join([predict_file_path, test_path] +
                                        #conf_paths +
                                        [config_file_path])+"\n")
                 self._save_model_config(config_file_path, final_config_str)
+            print("QUEUE FILLED :)")
 
 
 class CLFCommandWithInfo:

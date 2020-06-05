@@ -101,6 +101,7 @@ def main():
         required=True,
     )
     args = parser.parse_args()
+    print("starting CLF step")
 
     with open(args.config_clf, "r") as config_file:
         conf = RunClassifiersCongfigSchema(**json.load(config_file))
@@ -111,6 +112,12 @@ def main():
         # here we get an array of datasets.csv lines arranged by the size of the file in first column of each row
         # paths are checked before usage. If they do not exist, 0 is used as size for comparison
         unsorted_dataset_rows = [row for row in reader]
+        for x in unsorted_dataset_rows:
+            print(x)
+            if os.path.exists(x[0]):
+                print(x[0] + " exists")
+            else:
+                print(x[0] + " DOES NOT exists")
         datasets = sorted(unsorted_dataset_rows,
                           key=lambda x: os.path.getsize(x[0]) if os.path.exists(x[0]) else 0)
 
@@ -122,6 +129,7 @@ def main():
     #blacklist_file = conf.blacklist_file
     #timeout = conf.timeout
     if len(datasets) == 0:
+        print("NO datasets available, returning 0.")
         return 0
 
     # count the number of path to config jsons (the number of steps applied)
