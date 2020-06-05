@@ -25,6 +25,7 @@ warnings.simplefilter(action="ignore", category=UserWarning)
 
 class DataFrameArff(pd.DataFrame):
     def __init__(self, *args, **kwargs):
+        print("INIT DAtaFrameArff")
         arff_data: Optional[dict or ArffData] = kwargs.pop("arff_data", None)
         if isinstance(arff_data, ArffData):
             arff_data = arff_data.__dict__
@@ -40,6 +41,7 @@ class DataFrameArff(pd.DataFrame):
                 if key.lower() != "data":
                     self._arff_data.update({key: item})
             self._arff_data["relation"] = self._arff_data["relation"].replace("_", "-")
+        print("INIT DONE")
 
     def arff_data(self) -> ArffData:
         data = self._arff_data
@@ -315,9 +317,13 @@ class DataLoader:
 
     @staticmethod
     def _load_arff_file(file_path: str) -> DataFrameArff:
+        print("trying to open ", end="")
         with open(file_path) as arff_file:
+            print("and load and arff ", end="")
             data = arff.load(arff_file)
+            print("and then close it ", end="")
             arff_file.close()
+            print("and return", end="")
             return DataFrameArff(arff_data=data)
 
 
