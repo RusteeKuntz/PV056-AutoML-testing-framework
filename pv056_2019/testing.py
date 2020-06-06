@@ -144,10 +144,10 @@ def main():
     # ], columns=["a", "b", "c", "d", "class"])
 
     df: DataFrameArff = DataLoader._load_arff_file("data/datasets/anneal.arff")
-    print(df)
+    print(df.columns)
 
     bin_df = df._binarize_categorical_values()
-    print(bin_df)
+    print(bin_df.columns)
     exit()
 
 
