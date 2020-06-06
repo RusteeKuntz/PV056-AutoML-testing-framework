@@ -32,7 +32,6 @@ def weka_worker(queue,
                 backup_ts
 ):
     counter = 0
-    print("Queue has " + str(len(queue)) + " elements.")
     while not queue.empty():
         print("Popping command " + str(counter) + " from queue")
         command_with_info: CLFCommandWithInfo = queue.get()
@@ -78,7 +77,7 @@ def weka_worker(queue,
 
         # args[16] is actually equal to full clf classname
         # args[6] is actually a path to a train file
-        print("Job " + str(counter) + "/" + str(len(queue)) + " done.", flush=True)
+        print("Job " + str(counter) + " done.", flush=True)
         counter += 1
 
 
