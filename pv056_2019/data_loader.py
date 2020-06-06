@@ -276,7 +276,6 @@ class DataFrameArff(pd.DataFrame):
             # adding the "arff_data" keyword bypasses the super.__init__() method in DataFrameArff, so we need to overwrite
             # the vlaues inside the arff_data themselves.
             arff_data.data = final_df.values
-            print("FOCKING HERE MATE")
             new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
         else:
@@ -288,6 +287,8 @@ class DataFrameArff(pd.DataFrame):
             #     "attributes": [(name, 'NUMERIC') for name in new_columns],
             #     "data": trans_df.values
             # }
+            print("FOCKING HERE MATE")
+            print(bin_df)
             trans_df.insert(value=self[self.columns[-1]], column=self.columns[-1], loc=len(trans_df.columns))
             new_frame_arff: DataFrameArff = add_arff_metadata_to_pandas_dataframe(trans_df, ArffData(**self._arff_data))
 
