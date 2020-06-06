@@ -134,12 +134,12 @@ class DataFrameArff(pd.DataFrame):
             _relation += "with-class"
             _attributes.append(self._arff_data["attributes"][-1])
             bin_df.insert(loc=len(self.columns), column=self.columns[-1], value=self[self.columns[-1]])
-            #print("KEEP")
+            print("KEEP")
         else:
-            #print("DO NOT KEEP")
+            print("DO NOT KEEP")
             _relation += "-class-removed"
-        #print(_attributes)
-        #print(bin_df.columns)
+        print("ATTRIBUTES", _attributes)
+        #print(bin_df)
         arff_data = ArffData(relation=_relation,
                              description="", #self._arff_data["description"],  # TODO: description is truncated here
                              attributes=_attributes,

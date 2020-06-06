@@ -65,8 +65,8 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
 
                         # here we create new filepath and dump the binarized test dataframe to a that path
                         test_file_path_dotsplit = test_file_path.split(".")
-                        bin_test_file_path = ".".join(
-                            [*test_file_path_dotsplit[0:-1], "_bin", test_file_path_dotsplit[-1]])
+                        bin_test_file_path = ".".join(test_file_path_dotsplit[0:-2])\
+                                             + "_bin." + test_file_path_dotsplit[-1]
                         bin_test_df.arff_dump(bin_test_file_path)
                         # here we overwrite the old test path for this particular file
                         # (old path is still used in non-binarized datasets)
