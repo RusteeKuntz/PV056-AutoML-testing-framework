@@ -276,6 +276,7 @@ class DataFrameArff(pd.DataFrame):
             # adding the "arff_data" keyword bypasses the super.__init__() method in DataFrameArff, so we need to overwrite
             # the vlaues inside the arff_data themselves.
             arff_data.data = final_df.values
+            print("FOCKING HERE MATE")
             new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
         else:
