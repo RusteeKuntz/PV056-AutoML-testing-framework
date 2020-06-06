@@ -126,12 +126,18 @@ class DataFrameArff(pd.DataFrame):
         _attributes = [(name, 'NUMERIC') for name in new_columns]
         # if we want to keep the class column among the binarized data, we have to add it back,
         # because it is not retained during binarisation
+        print("DEBUG")
         if keep_class:
+
             _relation += "with-class"
             _attributes += self._arff_data["attributes"][-1]
             bin_df.insert(loc=len(self.columns), column=self.columns[-1], value=self[self.columns[-1]])
+            print("KEEP")
         else:
+            print("DO NOT KEEP")
             _relation += "-class-removed"
+        print(_attributes)
+        print(bin_df.columns)
         arff_data = ArffData(relation=_relation,
                              description="", #self._arff_data["description"],  # TODO: description is truncated here
                              attributes=_attributes,
