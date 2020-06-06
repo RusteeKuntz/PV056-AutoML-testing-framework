@@ -289,6 +289,7 @@ class DataFrameArff(pd.DataFrame):
             # }
             print("FOCKING HERE MATE")
             print(bin_df)
+            print(self.columns)
             trans_df.insert(value=self[self.columns[-1]], column=self.columns[-1], loc=len(trans_df.columns))
             new_frame_arff: DataFrameArff = add_arff_metadata_to_pandas_dataframe(trans_df, ArffData(**self._arff_data))
 
@@ -368,6 +369,7 @@ class DataLoader:
 def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
     # setup dictionary that will contain column names of column created by binarisation in lists under keys by their
     # original columns names before binarisation
+    print(mi)
     columns = {}
     for i in range(len(mi)):
         original_colname = mi.levels[0][mi.codes[0][i]]  # this extracts the original name of column
