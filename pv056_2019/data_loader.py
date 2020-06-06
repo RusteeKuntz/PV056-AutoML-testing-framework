@@ -25,7 +25,7 @@ warnings.simplefilter(action="ignore", category=UserWarning)
 
 class DataFrameArff(pd.DataFrame):
     def __init__(self, *args, **kwargs):
-        print("INIT DAtaFrameArff")
+        #print("INIT DAtaFrameArff")
         arff_data: Optional[dict or ArffData] = kwargs.pop("arff_data", None)
         if isinstance(arff_data, ArffData):
             arff_data = arff_data.__dict__
@@ -41,7 +41,7 @@ class DataFrameArff(pd.DataFrame):
                 if key.lower() != "data":
                     self._arff_data.update({key: item})
             self._arff_data["relation"] = self._arff_data["relation"].replace("_", "-")
-        print("INIT DONE")
+        #print("INIT DONE")
 
     def arff_data(self) -> ArffData:
         data = self._arff_data
@@ -142,7 +142,9 @@ class DataFrameArff(pd.DataFrame):
                              description="", #self._arff_data["description"],  # TODO: description is truncated here
                              attributes=_attributes,
                              data=bin_df.values)
-        return DataFrameArff(arff_data=arff_data)
+        _df = DataFrameArff(arff_data=arff_data)
+        print("DONE OK")
+        return _df
 
 
     def add_index_column(self):
@@ -223,8 +225,8 @@ class DataFrameArff(pd.DataFrame):
             self.drop(ID_NAME, 1, inplace=True)
             self._arff_data["attributes"] = [x for x in self._arff_data["attributes"] if x[0] != ID_NAME]
             #colnames = self.columns
-            print(ID_NAME, "deleted for dataset: ", self._arff_data["relation"])
-            print(self)
+            #print(ID_NAME, "deleted for dataset: ", self._arff_data["relation"])
+            #print(self)
         bin_df: pd.DataFrame = self._binarize_categorical_values()
 
         # split data and classes. We rely on the fact that classes are in the last column
@@ -236,8 +238,8 @@ class DataFrameArff(pd.DataFrame):
         time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
         # fit selector to the dataset (this basically looks at the dataset and identifies useful features)
-        print("TRAIN DATA", x, sep="\n")
-        print("TEST DATA", y, sep="\n")
+        #print("TRAIN DATA", x, sep="\n")
+        #print("TEST DATA", y, sep="\n")
         selector.fit(x, y)
 
         selected_features_indexes = selector.get_support()
