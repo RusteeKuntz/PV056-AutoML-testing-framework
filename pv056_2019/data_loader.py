@@ -124,7 +124,7 @@ class DataFrameArff(pd.DataFrame):
         new_columns = convert_multiindex_to_index(bin_df.columns)
         print("NEW COLUMNS:", new_columns)
         _relation = self._arff_data["relation"] + "-binarized-normalized"
-        _attributes = [(name, 'numeric') for name in new_columns]
+        _attributes = [(name, 'NUMERIC') for name in new_columns]
         # if we want to keep the class column among the binarized data, we have to add it back,
         # because it is not retained during binarisation
         print("DEBUG")
