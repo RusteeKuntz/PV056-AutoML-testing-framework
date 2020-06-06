@@ -127,6 +127,7 @@ class DataFrameArff(pd.DataFrame):
         # if we want to keep the class column among the binarized data, we have to add it back,
         # because it is not retained during binarisation
         print("DEBUG")
+        print(self.columns[-1])
         if keep_class:
 
             _relation += "with-class"
