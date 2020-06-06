@@ -143,7 +143,7 @@ def main():
     #
     # ], columns=["a", "b", "c", "d", "class"])
 
-    df: DataFrameArff = DataLoader._load_arff_file("data/datasets/abalone.arff")
+    df: DataFrameArff = DataLoader._load_arff_file("data/datasets/anneal.arff")
     print(df)
 
     bin_df = df._binarize_categorical_values()
