@@ -150,6 +150,7 @@ class ClassifierManager:
                 #print(new_features_set)
                 print(missing_features)
 
+                # add filter to make the feature match
                 for feature_name in missing_features:
                     str_filters += ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
                         feature_name

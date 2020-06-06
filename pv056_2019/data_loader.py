@@ -222,7 +222,7 @@ class DataFrameArff(pd.DataFrame):
         bin_df: pd.DataFrame = self._binarize_categorical_values()
 
         # split data and classes. We rely on the fact that classes are in the last column
-        x = bin_df.loc[:, self.columns[:-1]]
+        x = bin_df # Binarisation already gets rid of class #.loc[:, self.columns[:-1]]
         y = self.loc[:, self.columns[-1]]
         # another score functions are: f_classif, mutual_info_classif
 
@@ -238,10 +238,10 @@ class DataFrameArff(pd.DataFrame):
         # print(selected_features_indexes)
 
         # here we are indexing the binarized, filtered dataset by a list of bools.
-        transformed_df: pd.DataFrame = x.iloc[:, selected_features_indexes]
+        trans_df: pd.DataFrame = x.iloc[:, selected_features_indexes]
 
-        # print(transformed_df)
-        nmi: pd.MultiIndex = transformed_df.columns
+        #print(trans_df)
+        nmi: pd.MultiIndex = trans_df.columns
 
         if not leave_binarized:
             selected_feature_indexes_set = set()
@@ -252,7 +252,8 @@ class DataFrameArff(pd.DataFrame):
                 selected_feature_indexes_set.add(code)
             # here we actually add the "classes" column back into the list of selected features
             selected_feature_indexes_list.append(len(self.columns) - 1)
-            # also, we need to sort the indexes list, bcs the order is significant when determining which column has which values
+            # also, we need to sort the indexes list, bcs the order is significant when determining which column has
+            # which values
             selected_feature_indexes_list.sort()
             # print(selected_feature_indexes_list)
             final_df = self.iloc[:, selected_feature_indexes_list]
@@ -274,9 +275,10 @@ class DataFrameArff(pd.DataFrame):
             #     "relation": self._arff_data["relation"],
             #     "description": "", # self._arff_data["description"], # description takes space --> unnecessary
             #     "attributes": [(name, 'NUMERIC') for name in new_columns],
-            #     "data": transformed_df.values
+            #     "data": trans_df.values
             # }
-            new_frame_arff: DataFrameArff = add_arff_metadata_to_pandas_dataframe(transformed_df, ArffData(**self._arff_data))
+            trans_df.insert(value=self[self.columns[-1]], column=self.columns[-1], loc=len(trans_df.columns))
+            new_frame_arff: DataFrameArff = add_arff_metadata_to_pandas_dataframe(trans_df, ArffData(**self._arff_data))
 
         # conclude time (resource) consumption
         time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
