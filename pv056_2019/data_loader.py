@@ -57,6 +57,9 @@ class DataFrameArff(pd.DataFrame):
             data.update({"data": self.replace(np.nan, None).values.tolist()})
             arff.dump(data, output_file)
 
+    # this encodes nominal values through one-hot encoding.
+    # Also (to my surprise - xbajger) it removes the last attribute (usually the class, the framework depends on this)
+    # class attribute is removed before binarization, so that is is not binarized.
     def _binarize_categorical_values(self) -> pd.DataFrame:
         encoded_dataframe = pd.DataFrame()
         for attr, values in self._arff_data["attributes"][:-1]:
@@ -114,13 +117,24 @@ class DataFrameArff(pd.DataFrame):
 
         return encoded_dataframe # TODO: This was old return value
 
-    def binarize_cat_feats_and_normalize(self)->'DataFrameArff':
+    def binarize_cat_feats_and_normalize(self, keep_class: bool=False)->'DataFrameArff':
         bin_df: pd.DataFrame = self._binarize_categorical_values()
-        print("ARFF DATA", self._arff_data.keys())
+        #print("ARFF DATA", self._arff_data.keys())
+
         new_columns = convert_multiindex_to_index(bin_df.columns)
-        arff_data = ArffData(relation=self._arff_data["relation"],
+        _relation = self._arff_data["relation"] + "-binarized-normalized"
+        _attributes = [(name, 'NUMERIC') for name in new_columns]
+        # if we want to keep the class column among the binarized data, we have to add it back,
+        # because it is not retained during binarisation
+        if keep_class:
+            _relation += "with-class"
+            _attributes += self._arff_data["attributes"][-1]
+            bin_df[self.columns[-1]] = self[self.columns[-1]]
+        else:
+            _relation += "-class-removed"
+        arff_data = ArffData(relation=_relation,
                              description="", #self._arff_data["description"],  # TODO: description is truncated here
-                             attributes=[(name, 'NUMERIC') for name in new_columns],
+                             attributes=_attributes,
                              data=bin_df.values)
         return DataFrameArff(arff_data=arff_data)
 
