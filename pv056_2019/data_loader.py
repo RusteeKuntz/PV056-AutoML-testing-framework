@@ -290,8 +290,10 @@ class DataFrameArff(pd.DataFrame):
             print("FOCKING HERE MATE")
             print(bin_df)
             print(self.columns)
-            trans_df.insert(value=self[self.columns[-1]], column=self.columns[-1], loc=len(trans_df.columns))
+
             new_frame_arff: DataFrameArff = add_arff_metadata_to_pandas_dataframe(trans_df, ArffData(**self._arff_data))
+            new_frame_arff.insert(value=self[self.columns[-1]], column=self.columns[-1], loc=len(new_frame_arff.columns))
+            new_frame_arff._arff_data["attributes"].append(self._arff_data["attributes"][-1])
 
         # conclude time (resource) consumption
         time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
