@@ -129,7 +129,7 @@ class DataFrameArff(pd.DataFrame):
         if keep_class:
             _relation += "with-class"
             _attributes += self._arff_data["attributes"][-1]
-            bin_df[self.columns[-1]] = self[self.columns[-1]]
+            bin_df.insert(loc=len(self.columns), column=self.columns[-1], value=self[self.columns[-1]])
         else:
             _relation += "-class-removed"
         arff_data = ArffData(relation=_relation,
