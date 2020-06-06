@@ -72,25 +72,23 @@ class ClassifierManager:
             _count = len(csv_rows)*len(classifiers)
             print("There is", str(_count), "of combinations for", str(len(csv_rows)), "csv rows and", str(len(classifiers)), "classifiers.")
             _c = 0
-            _prod = product(csv_rows, classifiers)
-            print(_prod)
-            for csv_row, classifier in _prod:
-                print("["+str(_c)+"-1", end="")
+            for csv_row, classifier in product(csv_rows, classifiers):
+                #print("["+str(_c)+"-1", end="")
                 # first two elements the datase_tuple are train file and test file
                 train_path, test_path = csv_row[:2]
                 conf_paths = csv_row[2:]
                 #print(conf_paths)
-                print("-2-", end="")
+                #print("-2-", end="")
                 if not os.path.exists(train_path):
-                    print("ERROR")
+                    #print("ERROR")
                     raise IOError("Input dataset '{0}' does not exist.".format(train_path))
-                print("3-", end="")
+                #print("3-", end="")
                 # Get the string with final configuration of the whole workflow
                 final_config_str = self._create_final_config_file(conf_paths, classifier)
-                print("4-", end="")
+                #print("4-", end="")
                 # get identifying hash
                 hash_md5 = hashlib.md5(final_config_str.encode()).hexdigest()
-                print("5-", end="")
+                #print("5-", end="")
                 basename: str = os.path.basename(train_path)
                 basename_split: [str] = basename.split("_")
                 dataset_name = basename_split[0]
@@ -102,7 +100,7 @@ class ClassifierManager:
                 #     removed_str = removed_arr[0]
                 # else:
                 #     removed_str = ""
-                print("6-", end="")
+                #print("6-", end="")
                 #this is the filepath for the prediction output from trained WEKA classifier
                 predict_file_path = os.path.join(
                     self.output_folder,
@@ -131,7 +129,7 @@ class ClassifierManager:
                         predict_file_path
                     ),
                 ]
-                print("7-", end="")
+                #print("7-", end="")
                 # Add Weka filters
                 # here we filter out OD column and INDEX column
                 str_filters = '-F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(  # noqa
@@ -139,21 +137,18 @@ class ClassifierManager:
                 ) + ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
                     OD_VALUE_NAME
                 )
-                print("7.1-", end="")
+                #print("7.1-", end="")
                 train_df = DataLoader._load_arff_file(train_path)
-                print("7.2-", end="")
                 test_df = DataLoader._load_arff_file(test_path)
-                print("7.3-", end="")
                 all_features_set = set(test_df.columns)
-                print("7.4-", end="")
                 new_features_set = set(train_df.columns)
-                print("7.5-", end="")
+
                 missing_features: [str] = list(all_features_set.difference(new_features_set))
                 print("FEATURES COMPARISON")
                 print(train_path)
                 #print(all_features_set)
                 #print(new_features_set)
-                #print(missing_features)
+                print(missing_features)
 
                 for feature_name in missing_features:
                     str_filters += ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
@@ -180,18 +175,15 @@ class ClassifierManager:
                     self.weka_jar_path,
                     "weka.classifiers.meta.FilteredClassifier",
                 ] + run_args
-                print("8-", end="")
+                print(" ".join(run_args))
+
                 command = CLFCommandWithInfo(args=run_args, dataset_name=dataset_name, train_path=train_path, clf=classifier.class_name, fold=dataset_fold, settings=final_config_str)
-                print("9-", end="")
                 queue.put(command)
-                print("10-", end="")
                 # TODO: we write to the output CSV here so we do not have to handle concurrent file writing
                 out_csv.write(",".join([predict_file_path, test_path] +
                                        #conf_paths +
                                        [config_file_path])+"\n")
-                print("11-]", end="")
                 self._save_model_config(config_file_path, final_config_str)
-                print("Reached the end")
                 _c += 1
             print("QUEUE FILLED")
 
