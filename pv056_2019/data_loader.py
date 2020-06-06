@@ -25,10 +25,11 @@ warnings.simplefilter(action="ignore", category=UserWarning)
 
 class DataFrameArff(pd.DataFrame):
     def __init__(self, *args, **kwargs):
-        #print("INIT DAtaFrameArff")
+        print("INIT DAtaFrameArff")
         arff_data: Optional[dict or ArffData] = kwargs.pop("arff_data", None)
         if isinstance(arff_data, ArffData):
             arff_data = arff_data.__dict__
+        print(arff_data["attributes"])
         if arff_data is None:
             super().__init__(*args, **kwargs)
         else:
@@ -139,7 +140,6 @@ class DataFrameArff(pd.DataFrame):
             print("DO NOT KEEP")
             _relation += "-class-removed"
         print("ATTRIBUTES", _attributes)
-        #print(bin_df)
         arff_data = ArffData(relation=_relation,
                              description="", #self._arff_data["description"],  # TODO: description is truncated here
                              attributes=_attributes,
