@@ -119,26 +119,27 @@ class DataFrameArff(pd.DataFrame):
 
     def binarize_cat_feats_and_normalize(self, keep_class: bool=False)->'DataFrameArff':
         bin_df: pd.DataFrame = self._binarize_categorical_values()
-        #print("ARFF DATA", self._arff_data.keys())
+        print("BIN_DF:", bin_df.columns)
 
         new_columns = convert_multiindex_to_index(bin_df.columns)
+        print("NEW COLUMNS:", new_columns)
         _relation = self._arff_data["relation"] + "-binarized-normalized"
-        _attributes = [(name, 'NUMERIC') for name in new_columns]
+        _attributes = [(name, 'numeric') for name in new_columns]
         # if we want to keep the class column among the binarized data, we have to add it back,
         # because it is not retained during binarisation
         print("DEBUG")
-        print(self.columns[-1])
+        #print(self.columns[-1])
         if keep_class:
 
             _relation += "with-class"
             _attributes.append(self._arff_data["attributes"][-1])
             bin_df.insert(loc=len(self.columns), column=self.columns[-1], value=self[self.columns[-1]])
-            print("KEEP")
+            #print("KEEP")
         else:
-            print("DO NOT KEEP")
+            #print("DO NOT KEEP")
             _relation += "-class-removed"
-        print(_attributes)
-        print(bin_df.columns)
+        #print(_attributes)
+        #print(bin_df.columns)
         arff_data = ArffData(relation=_relation,
                              description="", #self._arff_data["description"],  # TODO: description is truncated here
                              attributes=_attributes,
@@ -343,13 +344,13 @@ class DataLoader:
 
     @staticmethod
     def _load_arff_file(file_path: str) -> DataFrameArff:
-        print("trying to open ", end="")
+        #print("trying to open ", end="")
         with open(file_path) as arff_file:
-            print("and load and arff", os.path.basename(file_path), end=" ")
+            #print("and load and arff", os.path.basename(file_path), end=" ")
             data = arff.load(arff_file)
-            print("and then close it ", end="")
+            #print("and then close it ", end="")
             arff_file.close()
-            print("and return", end="")
+            #print("and return", end="")
             return DataFrameArff(arff_data=data)
 
 
