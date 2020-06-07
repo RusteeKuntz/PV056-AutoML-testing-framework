@@ -29,10 +29,11 @@ class DataFrameArff(pd.DataFrame):
         arff_data: Optional[dict or ArffData] = kwargs.pop("arff_data", None)
         if isinstance(arff_data, ArffData):
             arff_data = arff_data.__dict__
-        print(arff_data["attributes"])
+
         if arff_data is None:
             super().__init__(*args, **kwargs)
         else:
+            print(arff_data["attributes"])
             columns = [x[0] for x in arff_data["attributes"]]
 
             super().__init__(arff_data["data"], columns=columns, **kwargs)
