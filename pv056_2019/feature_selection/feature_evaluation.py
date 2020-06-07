@@ -107,7 +107,7 @@ class FeatureSelectionManager:
             else:
                 conf_paths = []
 
-            # pre-compute output directory name (assert trailing slash) and extract base name of the dataset
+            # pre-compute output directory name and extract base name of the dataset
             #_output_directory = _assert_trailing_slash()
             _base_name = os.path.basename(train_path)
 
@@ -179,7 +179,6 @@ class FeatureSelectionManager:
                     yield FSJobWithInfo(is_cmd=True,
                                         args=_run_args,
                                         ds=train_path,
-                                        # fold=file_split[1],
                                         ev=fs_conf.eval_class.name,
                                         out=_output_file_path,
                                         csv_line=mapping_csv_file_line)

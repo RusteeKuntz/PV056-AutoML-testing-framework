@@ -36,12 +36,16 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                     time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                              timeout=timeout)
+                    # print("RESULTS OMFG")
                     # print(results.args)
+                    # print("OUT")
                     # print(results.stdout.decode(encoding="UTF-8"))
+                    # print("ERR")
                     # print(results.stderr.decode(encoding="UTF-8"))
                     time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     time_diff = time_end - time_start
                 except subprocess.TimeoutExpired:
+                    print(eval_method, dataset, "TIMED OUT!!!")
                     time_diff = timeout
                     blacklist.append((eval_method, dataset))
             else:
@@ -81,10 +85,10 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                 print(command.output_file_path)
                 fs_frame.arff_dump(command.output_file_path)
 
-                # We write the line into the datasets mapping CSV only if the preprocessing is actually done
-                print("The line printed is:", command.mapping_csv_line, sep="\n")
-                mapping_csv.write(command.mapping_csv_line)
-                mapping_csv.flush()
+            # We write the line into the datasets mapping CSV only if the preprocessing is actually done
+            print("The line printed is:", command.mapping_csv_line, sep="\n")
+            mapping_csv.write(command.mapping_csv_line)
+            mapping_csv.flush()
 
 
         else:
