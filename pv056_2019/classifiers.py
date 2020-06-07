@@ -4,8 +4,7 @@ import hashlib
 import re
 from multiprocessing import Queue
 
-from pv056_2019.data_loader import DataLoader
-from pv056_2019.utils import ID_NAME, OD_VALUE_NAME, _nest_double_quotes
+from pv056_2019.utils import ID_NAME, OD_VALUE_NAME
 
 from pv056_2019.schemas import ClassifierSchema
 from typing import List
@@ -169,7 +168,7 @@ class ClassifierManager:
                     str_filters += '-F "{0} {1}"'.format(
                         one_filter.name, " ".join(one_filter.args)
                     )
-                run_args += ["-F", "weka.filters.MultiFilter {0}".format(_nest_double_quotes(str_filters))]
+                run_args += ["-F", "weka.filters.MultiFilter {0}".format(str_filters)]
 
                 run_args += ["-S", "1"]  # Seed
 
