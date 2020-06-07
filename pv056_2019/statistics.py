@@ -221,7 +221,9 @@ def main():
                 *headers_steps
             ]
         ).mean()
+        print("PLS")
         print(group_fold_df)
+        print(dataframe.columns != "fold")
         dataframe = group_fold_df.loc[:, dataframe.columns != "fold"]
 
     dataframe = dataframe.round(5)
