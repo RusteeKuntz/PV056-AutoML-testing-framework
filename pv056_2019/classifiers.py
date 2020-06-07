@@ -137,7 +137,7 @@ class ClassifierManager:
                 ) + ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
                     OD_VALUE_NAME
                 )
-                #print("7.1-", end="")
+                print(test_path)
                 train_df = DataLoader._load_arff_file(train_path)
                 test_df = DataLoader._load_arff_file(test_path)
                 all_features_set = set(test_df.columns)
