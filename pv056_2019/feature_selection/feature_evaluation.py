@@ -90,12 +90,12 @@ class FeatureSelectionManager:
             fs_settings.append((fs_conf_dict, hash_md5, fs_config_json_basename))
 
         # TODO: remove limitation to 20 datasets later
-        limit_counter = 0
+        #limit_counter = 0
         for line in datasets_mapping_csv:
-            if limit_counter > 30:
-                break
-            else:
-                limit_counter += 1
+            # if limit_counter > 30:
+            #     break
+            # else:
+            #     limit_counter += 1
             # split datasets csv line by commas, strip trailing EOL
             line_split = line.strip().split(",")
             # first two elements on any line contain train and test split paths.
@@ -108,9 +108,11 @@ class FeatureSelectionManager:
                 conf_paths = []
 
             # pre-compute output directory name (assert trailing slash) and extract base name of the dataset
-            _output_directory = _assert_trailing_slash(self.config.output_folder_path)
+            #_output_directory = _assert_trailing_slash()
             _base_name = os.path.basename(train_path)
 
+            print("FS SETTINGS:")
+            print(fs_settings)
             for fs_conf_dict, hash_md5, fs_config_json_basename in fs_settings:
                 fs_conf: FSStepSchema = FSStepSchema(**fs_conf_dict)
                 _fs_identifier = '_FS' + hash_md5
@@ -118,17 +120,21 @@ class FeatureSelectionManager:
                 # TODO xbajger: Remove this "_train" gymnastic, it should be obsolete to keep that string in filenames
                 # this part checks if train file contains _train substring and places FS identifier string before of it
                 if '_train' in _base_name:
-                    _output_file_path = _output_directory + _base_name.replace('_train', _fs_identifier + '_train')
+                    _output_file_path = os.path.join(
+                        self.config.output_folder_path,
+                        _base_name.replace('_train', _fs_identifier + '_train')
+                    )
                 else:
                     dot_split: [str] = _base_name.split('.')
-                    _output_file_path = os.path.join(_output_directory, '.'.join(dot_split[:-1]) + _fs_identifier + '.'
+                    _output_file_path = os.path.join(self.config.output_folder_path, '.'.join(dot_split[:-1]) + _fs_identifier + '.'
                                                      + dot_split[-1])
 
                 # here we write mapping of train and test files along with a history of pre-processing configurations
+
                 mapping_csv_file_line = ",".join(
                     [_output_file_path, test_path,
                      *conf_paths,
-                     os.path.join(_output_directory, fs_config_json_basename)]
+                     os.path.join(self.config.output_folder_path, fs_config_json_basename)]
                 ) + "\n"
 
                 # generate command with info appropriately for used library
