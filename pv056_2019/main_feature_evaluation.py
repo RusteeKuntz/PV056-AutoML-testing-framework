@@ -10,8 +10,7 @@ from pv056_2019.data_loader import DataLoader
 from pv056_2019.feature_selection import setup_sklearn_fs_class
 from pv056_2019.main_clf import _valid_config_path
 from pv056_2019.schemas import FeatureSelectionStepSchema, ScikitFSSchema
-from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionManager, _assert_trailing_slash, \
-    FSJobWithInfo
+from pv056_2019.feature_selection.feature_evaluation import FeatureSelectionManager, FSJobWithInfo
 from pv056_2019.utils import valid_path, CUSTOM, SCIKIT
 
 debugging = False

@@ -88,3 +88,22 @@ def valid_path(path, message):
 
 # df = pd.DataFrame([[1, 2, 2, 3, 4], [2, 1, 0, 0, 4], [0, 4, 15, 20, 9], [2, 3, 3, 11, 20]], columns=["a", "b", "c", "d", "e"])
 
+def _nest_quotes(string, which_quotes="\""):
+    # TODO: escaping escape slashes themselves might not be necessary, check it later
+    # string = re.sub(r"\\", r"\\\\", string)
+    return re.sub(which_quotes, "\\" + which_quotes, string)
+
+
+def _nest_double_quotes(string):
+    return _nest_quotes(string, "\"")
+
+
+def _nest_single_quotes(string):
+    return _nest_quotes(string, "'")
+
+
+def _assert_trailing_slash(string):
+    if string[-1] != "/":
+        return string + "/"
+    else:
+        return string

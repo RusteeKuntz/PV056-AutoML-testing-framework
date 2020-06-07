@@ -5,7 +5,7 @@ import re
 from multiprocessing import Queue
 
 from pv056_2019.data_loader import DataLoader
-from pv056_2019.utils import ID_NAME, OD_VALUE_NAME
+from pv056_2019.utils import ID_NAME, OD_VALUE_NAME, _nest_double_quotes
 
 from pv056_2019.schemas import ClassifierSchema
 from typing import List
@@ -120,7 +120,13 @@ class ClassifierManager:
                 )
 
                 # Prepare arguments for classifier
-                run_args: List[str] = []
+                run_args: List[str] = [
+                    "java",
+                    "-Xmx4096m",
+                    "-cp",
+                    self.weka_jar_path,
+                    "weka.classifiers.misc.InputMappedClassifier",
+                ]
                 run_args += ["-t", train_path]  # input dataset
                 run_args += ["-T", test_path]  # input dataset
                 run_args += [
@@ -129,6 +135,7 @@ class ClassifierManager:
                         predict_file_path
                     ),
                 ]
+                run_args += ["-W", "weka.classifiers.meta.FilteredClassifier", "--"]
                 #print("7-", end="")
                 # Add Weka filters
                 # here we filter out OD column and INDEX column
@@ -137,46 +144,44 @@ class ClassifierManager:
                 ) + ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
                     OD_VALUE_NAME
                 )
-                train_df = DataLoader._load_arff_file(train_path)
-                print("TEST PATH HERE:")
-                print(test_path)
-                test_df = DataLoader._load_arff_file(test_path)
-                all_features_set = set(test_df.columns)
-                new_features_set = set(train_df.columns)
-
-                missing_features: [str] = list(all_features_set.difference(new_features_set))
-                print("FEATURES COMPARISON")
-                print(train_path)
-                #print(all_features_set)
-                #print(new_features_set)
-                print(missing_features)
-
-                # add filter to make the feature match
-                for feature_name in missing_features:
-                    str_filters += ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
-                        feature_name
-                    )
+                # train_df = DataLoader._load_arff_file(train_path)
+                # print("TEST PATH HERE:")
+                # print(test_path)
+                # test_df = DataLoader._load_arff_file(test_path)
+                # all_features_set = set(test_df.columns)
+                # new_features_set = set(train_df.columns)
+                #
+                # missing_features: [str] = list(all_features_set.difference(new_features_set))
+                # print("FEATURES COMPARISON")
+                # print(train_path)
+                # #print(all_features_set)
+                # #print(new_features_set)
+                # print(missing_features)
+                #
+                # # add filter to make the feature match
+                # for feature_name in missing_features:
+                #     str_filters += ' -F "weka.filters.unsupervised.attribute.RemoveByName -E ^{}$"'.format(
+                #         feature_name
+                #     )
 
                 # adding optional more filters before classification
                 for one_filter in classifier.filters:
                     str_filters += '-F "{0} {1}"'.format(
                         one_filter.name, " ".join(one_filter.args)
                     )
-                run_args += ["-F", "weka.filters.MultiFilter {0}".format(str_filters)]
+                run_args += ["-F", "weka.filters.MultiFilter {0}".format(_nest_double_quotes(str_filters))]
 
                 run_args += ["-S", "1"]  # Seed
+
+                # we need to setup InputMappedClassifier, to make up for filtered attributes
+
+
                 run_args += ["-W", classifier.class_name]
                 if classifier.args:
                     run_args += ["--"]
                     run_args += classifier.args
 
-                run_args = [
-                    "java",
-                    "-Xmx4096m",
-                    "-cp",
-                    self.weka_jar_path,
-                    "weka.classifiers.meta.FilteredClassifier",
-                ] + run_args
+
                 print(" ".join(run_args))
 
                 command = CLFCommandWithInfo(args=run_args, dataset_name=dataset_name, train_path=train_path, clf=classifier.class_name, fold=dataset_fold, settings=final_config_str)

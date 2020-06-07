@@ -1,13 +1,9 @@
-import argparse
 import hashlib
-import re, os, json
-
-import arff
+import os, json
 
 from pv056_2019.schemas import CommandSchema, FeatureSelectionStepSchema, \
     WekaFSFilterConfigurationSchema, CustomFSSchema, ScikitFSSchema, FSStepSchema
-from pv056_2019.data_loader import DataLoader, DataFrameArff
-from pv056_2019.utils import OD_VALUE_NAME, ID_NAME, CUSTOM, WEKA, SCIKIT
+from pv056_2019.utils import OD_VALUE_NAME, ID_NAME, CUSTOM, WEKA, SCIKIT, _nest_double_quotes, _assert_trailing_slash
 
 
 class FSJobWithInfo:
@@ -37,27 +33,6 @@ class FSJobWithInfo:
 
     def __str__(self) -> str:
         return " ".join(self.args)
-
-
-def _nest_quotes(string, which_quotes="\""):
-    # TODO: escaping escape slashes themselves might not be necessary, check it later
-    # string = re.sub(r"\\", r"\\\\", string)
-    return re.sub(which_quotes, "\\" + which_quotes, string)
-
-
-def _nest_double_quotes(string):
-    return _nest_quotes(string, "\"")
-
-
-def _nest_single_quotes(string):
-    return _nest_quotes(string, "'")
-
-
-def _assert_trailing_slash(string):
-    if string[-1] != "/":
-        return string + "/"
-    else:
-        return string
 
 
 def get_weka_command_from_config(config: CommandSchema) -> str:
