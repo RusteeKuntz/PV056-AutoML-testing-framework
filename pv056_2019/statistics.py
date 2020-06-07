@@ -139,6 +139,8 @@ def main():
 
         # ====================================
     headers_steps = ["step_{}".format(x) for x in range(greatest_steps_count)]
+    _str_accuracy = "accuracy"
+    _str_base = "_base"
     headers_proccessed = [
         "dataset",
         "fold",
@@ -154,12 +156,12 @@ def main():
         "clf",
         "clf_family",
         "clf_params",
-        "accuracy",
+        _str_accuracy,
     ]
 
     print("DATA from classifier prediction")
-    print(headers_proccessed)
-    print(*data, sep="\n")
+    # print(headers_proccessed)
+    # print(*data, sep="\n")
     dataframe = pd.DataFrame(data, columns=headers_proccessed)
 
     if baseline_supplied:
@@ -187,13 +189,12 @@ def main():
             baseline_data.append([datest, split, classifier, classifier_family, classifier_args, accuracy])
 
         dataframe_baseline = pd.DataFrame(baseline_data, columns=headers_baseline)
-        print("DATAFRAME")
-        print(dataframe.dtypes)
-        print("DATAFRAME_BASELINE")
-        print(dataframe_baseline.dtypes)
+        # print("DATAFRAME")
+        # print(dataframe.dtypes)
+        # print("DATAFRAME_BASELINE")
+        # print(dataframe_baseline.dtypes)
 
-
-        dataframe = dataframe.merge(dataframe_baseline, on=headers_baseline[:-1], how="right", suffixes=("", "_base"))
+        dataframe = dataframe.merge(dataframe_baseline, on=headers_baseline[:-1], how="right", suffixes=("", _str_base))
 
     # od_times = pd.read_csv(conf.od_times_path)
     # clf_times = pd.read_csv(conf.clf_times_path)
@@ -212,7 +213,7 @@ def main():
     print("DATA BEFORE AGGREGATION")
     print(dataframe)
     if statistic_conf.aggregate:
-        group_fold_df = dataframe.groupby(
+        dataframe = dataframe.groupby(
             by=[
                 "dataset",
                 "clf",
@@ -220,13 +221,15 @@ def main():
                 "clf_params",
                 *headers_steps
             ]
-        ).mean()
+        ).mean().reset_index()
         print("PLS")
-        print(group_fold_df)
-        print(dataframe.columns != "fold")
-        dataframe = group_fold_df.loc[:, dataframe.columns != "fold"]
+        #print(group_fold_df)
+        #print(dataframe.columns != "fold")
+        #dataframe = group_fold_df.loc[:, dataframe.columns != "fold"]
 
     dataframe = dataframe.round(5)
+    if baseline_supplied:
+        dataframe["gain"] = dataframe[_str_accuracy+_str_base] - dataframe[_str_accuracy]
     print("FINAL DATA:")
     print(dataframe.to_csv())
     with open(statistic_conf.output_table, "w") as ot:
