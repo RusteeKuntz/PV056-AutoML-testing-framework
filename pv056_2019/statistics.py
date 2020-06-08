@@ -233,7 +233,7 @@ def main():
     print("FINAL DATA:")
     print(dataframe.to_csv())
     with open(statistic_conf.output_table, "w") as ot:
-        dataframe.to_csv(ot)
+        dataframe.to_csv(ot, index=False)
         #print(dataframe.to_csv(), file=ot)
     backup_ts = "backups/" + statistic_conf.output_table.split("/")[-1].replace(".csv", datetime.now()
                                                                       .strftime("_backup_%d-%m-%Y_%H-%M.csv"))
