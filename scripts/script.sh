@@ -4,6 +4,7 @@ FILE_DATASET_OD="datasets-od-exp.csv"
 FILE_DATASET_RM="datasets-rm-exp.csv"
 FILE_DATASET_FS="datasets-fs-exp.csv"
 FILE_DATASET_CLF="datasets-clf-exp.csv"
+FILE_DATASET_BASE="datasets-base-exp.csv"
 
 NOW=""
 NOWF=""
@@ -40,7 +41,7 @@ printf "%s - RM done.\n\n" "$NOW"
 nowf
 TIMESTAMP_FS="$NOWF"
 printf "%s - Evaluating features...\n" "$NOW"
-#pv056-evaluate-features -c configs/rm/default.json -di "$FILE_DATASET_RM"  -do "$FILE_DATASET_FS" > "logs/log-rm-$TIMESTAMP_FS.log"
+pv056-evaluate-features -c configs/fs/default.json -di "$FILE_DATASET_RM"  -do "$FILE_DATASET_FS" > "logs/log-fs-$TIMESTAMP_FS.log"
 now
 printf "%s - FS done.\n\n" "$NOW"
 
@@ -52,9 +53,16 @@ now
 printf "%s - CLF done.\n\n" "$NOW"
 
 nowf
+TIMESTAMP_BASE="$NOWF"
+printf "%s - Running baseline classification...\n" "$NOW"
+pv056-run-clf -c configs/clf/default.json -di "$FILE_DATASET_SPLIT" -do "$FILE_DATASET_BASE" > "logs/log-base-$TIMESTAMP_BASE.log"
+now
+printf "%s - BASE done.\n\n" "$NOW"
+
+nowf
 TIMESTAMP_ACC="$NOWF"
 printf "%s - Counting accuracy...\n" "$NOW"
-#pv056-statistics -c configs/stats/default.json > "logs/log-acc-$TIMESTAMP_ACC.csv"
+pv056-statistics -c configs/stats/default.json -di "$FILE_DATASET_CLF" -db "$FILE_DATASET_BASE" > "logs/log-acc-$TIMESTAMP_ACC.csv"
 now
 printf "%s - ACC done.\n\n" "$NOW"
 
