@@ -1,6 +1,6 @@
 {
-    "train_removed_dir": "/var/tmp/xbajger/BAKPR/data_exp/train_removed/",
+    "train_removed_dir": "data/train_removed/",
     "percentage": [
-        5, -5
+        1, 2, 5, -1, -2, -5
     ]
 }

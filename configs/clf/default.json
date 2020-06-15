@@ -1,13 +1,64 @@
 {
-  "output_folder": "/var/tmp/xbajger/BAKPR/data_exp/clf_outputs/",
+  "output_folder": "data/clf_outputs/",
   "weka_jar_path": "data/java/weka.jar",
   "n_jobs": 10,
-  "times_output": "outputs/clf_times.csv",
+  "times_output": "data/clf_times.csv",
   "blacklist_file": "blacklist.csv",
   "timeout": 1800,
   "classifiers": [
     {
+      "class_name": "weka.classifiers.rules.ZeroR"
+    },
+    {
+      "class_name": "weka.classifiers.trees.RandomTree"
+    },
+    {
+      "class_name": "weka.classifiers.rules.OneR"
+    },
+    {
+      "class_name": "weka.classifiers.bayes.NaiveBayes"
+    },
+    {
+      "class_name": "weka.classifiers.trees.REPTree"
+    },
+    {
+      "class_name": "weka.classifiers.trees.J48"
+    },
+    {
+      "class_name": "weka.classifiers.functions.SGD"
+    },
+    {
+      "class_name": "weka.classifiers.meta.AdaBoostM1"
+    },
+    {
+      "class_name": "weka.classifiers.rules.PART"
+    },
+    {
+      "class_name": "weka.classifiers.trees.RandomForest"
+    },
+    {
+      "class_name": "weka.classifiers.bayes.BayesNet"
+    },
+    {
       "class_name": "weka.classifiers.rules.DecisionTable"
+    },
+    {
+      "class_name": "weka.classifiers.functions.SMO"
+    },
+    {
+      "class_name": "weka.classifiers.functions.SimpleLogistic"
+    },
+    {
+      "class_name": "weka.classifiers.rules.JRip"
+    },
+    {
+      "class_name": "weka.classifiers.lazy.IBk"
+    },
+    {
+      "class_name": "weka.classifiers.trees.LMT"
+    },
+    {
+      "class_name": "weka.classifiers.functions.Logistic"
     }
   ]
 }

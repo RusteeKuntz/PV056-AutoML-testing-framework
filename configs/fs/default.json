@@ -1,20 +1,20 @@
 {
-  "output_folder_path": "/var/tmp/xbajger/BAKPR/data_exp/fs_outputs/",
+  "output_folder_path": "data/fs_outputs/",
   "weka_jar_path": "data/java/weka.jar",
-  "blacklist_file_path": "/var/tmp/xbajger/BAKPR/data_exp/fs_blacklist.csv",
+  "blacklist_file_path": "data/fs_blacklist.csv",
   "selection_methods": [
     {
       "source_library": "SCIKIT",
       "leave_attributes_binarized": true,
       "fs_method": {
         "name": "SelectFpr",
-        "parameters":{
+        "parameters": {
           "alpha": 0.2
         }
       },
       "score_func": {
         "name": "chi2",
-        "parameters":{}
+        "parameters": {}
       }
     },
     {
@@ -22,32 +22,45 @@
       "leave_attributes_binarized": false,
       "fs_method": {
         "name": "SelectFpr",
-        "parameters":{
+        "parameters": {
           "alpha": 0.2
         }
       },
       "score_func": {
         "name": "chi2",
-        "parameters":{}
+        "parameters": {}
       }
     },
     {
       "source_library": "WEKA",
       "eval_class": {
         "name": "weka.attributeSelection.CfsSubsetEval",
-        "parameters":{
-	  "M": true,
-	  "L": true,
-	  "Z": true,
-	  "P": 3,
-	  "E": 4  
-	}
+        "parameters": {
+          "M": true,
+          "L": true,
+          "Z": true,
+          "P": 3,
+          "E": 4
+        }
       },
       "search_class": {
         "name": "weka.attributeSelection.BestFirst",
-        "parameters":{
-          "N": 5,
-	  "S": 3 
+        "parameters": {
+          "N": 5
+        }
+      }
+    },
+    {
+      "source_library": "WEKA",
+      "eval_class": {
+        "name": "weka.attributeSelection.InfoGainAttributeEval",
+        "parameters": {}
+      },
+      "search_class": {
+        "name": "weka.attributeSelection.Ranker",
+        "parameters": {
+          "T": 5E-3,
+          "N": -1
         }
       }
     }

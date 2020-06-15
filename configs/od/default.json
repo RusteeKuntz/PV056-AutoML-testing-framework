@@ -1,7 +1,7 @@
 {
-  "train_od_dir": "/var/tmp/xbajger/BAKPR/data_exp/train_od/",
-  "n_jobs": 3,
-  "times_output": "/var/tmp/xbajger/BAKPR/data_exp/od_times.csv",
+  "train_od_dir": "data/train_od/",
+  "n_jobs": 5,
+  "times_output": "data/od_times.csv",
   "od_methods": [
     {
       "name": "IsolationForest",
@@ -12,9 +12,58 @@
       }
     },
     {
+      "name": "LOF",
+      "parameters": {
+        "contamination": "auto"
+      }
+    },
+    {
       "name": "CODB",
       "parameters": {
         "jar_path": "data/java/WEKA-CODB.jar"
+      }
+    },
+    {
+      "name": "ClassLikelihood",
+      "parameters": {}
+    },
+    {
+      "name": "NearestNeighbors",
+      "parameters": {}
+    },
+    {
+      "name": "ClassLikelihoodDifference",
+      "parameters": {}
+    },
+    {
+      "name": "KDN",
+      "parameters": {}
+    },
+    {
+      "name": "DS",
+      "parameters": {}
+    },
+    {
+      "name": "DCP",
+      "parameters": {}
+    },
+    {
+      "name": "TD",
+      "parameters": {}
+    },
+    {
+      "name": "TDWithPrunning",
+      "parameters": {}
+    },
+    {
+      "name": "OneClassSVM",
+      "parameters": {
+        "gamma": "scale"
+      }
+    },
+    {
+      "name": "EllipticEnvelope",
+      "parameters": {
       }
     }
   ]

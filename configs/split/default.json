@@ -1,7 +1,7 @@
 {
   "data_path": "data/datasets/",
-  "train_split_dir": "/var/tmp/xbajger/BAKPR/data_exp/train_split/",
-  "test_split_dir": "/var/tmp/xbajger/BAKPR/data_exp/test_split/",
-  "m_of_repeats": 2,
-  "k_of_folds": 2
+  "train_split_dir": "data/train_split/",
+  "test_split_dir": "data/test_split/",
+  "m_of_repeats": 3,
+  "k_of_folds": 5
 }
