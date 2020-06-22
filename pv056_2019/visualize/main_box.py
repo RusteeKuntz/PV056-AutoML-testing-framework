@@ -18,6 +18,7 @@ def print_boxplots(data: pd.DataFrame,
                    title: str,
                    x_title: str,
                    y_title: str,
+                   dpi: int,
                    sort_func=None,
                    min_y_val=None,
                    max_y_val=None,
@@ -101,7 +102,7 @@ def print_boxplots(data: pd.DataFrame,
     _ax.grid(True)
 
     # Save the figure
-    _fig.savefig(graph_filename+'.png', bbox_inches='tight', dpi=400)
+    _fig.savefig(graph_filename+'.png', bbox_inches='tight', dpi=dpi)
     plt.close(_fig)
 
 
@@ -128,6 +129,7 @@ def main():
                    title=conf.title,
                    x_title=conf.x_title,
                    y_title=conf.x_title,
+                       dpi=conf.dpi,
                    sort_func=SORT_FUNCTIONS[conf.sort_func_name],
                    min_y_val=conf.min_y_val,
                    max_y_val=conf.max_y_val,

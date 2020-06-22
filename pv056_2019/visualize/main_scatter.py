@@ -21,6 +21,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                            legend_title: str,
                            x_title: str,
                            y_title: str,
+                           dpi: int,
                            max_y_val=None,
                            min_y_val=None,
                            convert_col_related_from_json=True):
@@ -105,7 +106,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                         )
     legend.get_title().set_fontsize(22  # *scale
                                     )
-    _fig.savefig(graph_filename, bbox_inches="tight", dpi=400)
+    _fig.savefig(graph_filename, bbox_inches="tight", dpi=dpi)
     plt.close(_fig)
 
 
@@ -144,10 +145,12 @@ def main():
                                    title=conf.title,
                                    x_title=conf.x_title,
                                    y_title=conf.y_title,
+                                   dpi=conf.dpi,
                                    legend_title=conf.legend_title + legend_appendix,
                                    max_y_val=conf.max_y_val,
                                    min_y_val=conf.min_y_val,
-                                   convert_col_related_from_json=conf.convert_col_related_from_json)
+                                   convert_col_related_from_json=conf.convert_col_related_from_json,
+                                   )
 
             # print_nice_scatterplot(data=group_df,
             #                        graph_filename=grouped_by + '_od_params/' + od_method_name + '-scatter-od_params-' + group + '.png',

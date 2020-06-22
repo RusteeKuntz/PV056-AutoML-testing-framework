@@ -176,6 +176,7 @@ class FeatureSelectionStepSchema(BaseModel):
 class GraphStepSchema(BaseModel):
     sort_by_column: Union[str, List[str]] = None
     separate_graphs_for_different_values_in_column: Union[str, List[str]] = None
+    dpi: int = 400  # dots per inch, resolution
 
 
 class GraphScatterStepSchema(GraphStepSchema):
@@ -189,7 +190,7 @@ class GraphScatterStepSchema(GraphStepSchema):
     max_y_val: Union[float, int] = None
     min_y_val:Union[float, int] = None
     convert_col_related_from_json: bool = True
-    dpi: int = 600  # dots per inch, resolution
+
 
 
 class GraphBoxStepSchema(GraphStepSchema):
