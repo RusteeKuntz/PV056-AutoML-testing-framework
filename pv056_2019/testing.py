@@ -194,13 +194,13 @@ def main():
     # df[colnames[-1]] = pd.Series([8 for _ in range(8)])
     # print(df)
 
-    if FSStepSchema(**fs_schema2).source_library == SCIKIT:
-        conf = ScikitFSSchema(**fs_schema2)
-        new_frame, fs_time = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func),
-                                                          conf.leave_attributes_binarized)
-
-        print(new_frame)
-        new_frame.arff_dump("FUCKING_ARFF.arff")
+    # if FSStepSchema(**fs_schema2).source_library == SCIKIT:
+    #     conf = ScikitFSSchema(**fs_schema2)
+    #     new_frame, fs_time = select_features_with_sklearn(df, setup_sklearn_fs_class(conf.fs_method, conf.score_func),
+    #                                                       conf.leave_attributes_binarized)
+    #
+    #     print(new_frame)
+    #     new_frame.arff_dump("FUCKING_ARFF.arff")
 
 
 #
