@@ -128,11 +128,11 @@ def main():
             out_split = out_fp.split(".")
             if not isinstance(group, str):
                 group_out_fp = ".".join(out_split[:-1]) + "_" + \
-                               str(counter) + \
+                               str(counter) + "." + \
                                out_split[-1]
             else:
                 group_out_fp = ".".join(out_split[:-1]) + "_" +\
-                               str(counter) +\
+                               str(counter) + "." +\
                                out_split[-1]
             counter += 1
 
