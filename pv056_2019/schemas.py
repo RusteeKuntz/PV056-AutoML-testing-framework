@@ -174,33 +174,33 @@ class FeatureSelectionStepSchema(BaseModel):
 
 
 class GraphStepSchema(BaseModel):
-    sort_by_column: str or List[str] = None
-    separate_graphs_for_different_values_in_column: str or List[str] = None
+    sort_by_column: Union[str, List[str]] = None
+    separate_graphs_for_different_values_in_column: Union[str, List[str]] = None
 
 
 class GraphScatterStepSchema(GraphStepSchema):
     col_examined: str = "accuracy"
-    col_related: str or List[str]
-    col_grouped_by: str or List[str]
+    col_related: Union[str, List[str]]
+    col_grouped_by: Union[str, List[str]]
     legend_title: str
     title: str
     x_title: str
     y_title: str
-    max_y_val: float or int = None
-    min_y_val: float or int = None
+    max_y_val: Union[float, int] = None
+    min_y_val:Union[float, int] = None
     convert_col_related_from_json: bool = True
     dpi: int = 600  # dots per inch, resolution
 
 
 class GraphBoxStepSchema(GraphStepSchema):
     col_examined: str = "accuracy"
-    col_related: str or List[str]
+    col_related: Union[str, List[str]]
     title: str
     x_title: str
     y_title: str
     sort_func_name: str = None  # label, mean, inv_mean, median
-    min_y_val: float or int = None
-    max_y_val: float or int = None
+    min_y_val: Union[float, int] = None
+    max_y_val: Union[float, int] = None
     convert_col_related_from_json: bool = True
     show_fliers: bool = True
     dpi: int = 600  # dots per inch, resolution
