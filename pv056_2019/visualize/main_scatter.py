@@ -118,9 +118,9 @@ def main():
     if conf.separate_graphs_for_different_values_in_column is not None:
         gbc = df.groupby(conf.separate_graphs_for_different_values_in_column)
         for group, group_df in gbc:
-            legend_appendix = " Data are selected for value" + "s " if len(group) > 1 else " " + group + " in column"  + "s " if len(group) > 1 else " " + conf.separate_graphs_for_different_values_in_column + "."
+            legend_appendix = " Data are selected for value" + ("s " if not isinstance(group, str) else " ") + group + " in column"  + ("s " if not isinstance(group, str) else " ") + conf.separate_graphs_for_different_values_in_column + "."
 
-            if len(group) > 1:
+            if not isinstance(group, str):
                 group_out_fp = out_fp + "_" + re.sub('[^\w\-_\. ]', '_', ("_".join(group)))
             else:
                 group_out_fp = out_fp + "_" + re.sub('[^\w\-_\. ]', '_', (group))
