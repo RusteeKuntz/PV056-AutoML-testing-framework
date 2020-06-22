@@ -120,10 +120,11 @@ def main():
         for group, group_df in gbc:
             legend_appendix = " Data are selected for value" + ("s " if not isinstance(group, str) else " ") + group + " in column"  + ("s " if not isinstance(group, str) else " ") + conf.separate_graphs_for_different_values_in_column + "."
 
+            out_split = out_fp.split(".")
             if not isinstance(group, str):
-                group_out_fp = out_fp + "_" + re.sub('[^\w\-_\. ]', '_', ("_".join(group)))
+                group_out_fp = ".".join(out_split[:-1]) + "_" + re.sub('[^\w\-_\. ]', '_', ("_".join(group))) + out_split[-1]
             else:
-                group_out_fp = out_fp + "_" + re.sub('[^\w\-_\. ]', '_', (group))
+                group_out_fp = ".".join(out_split[:-1]) + "_" + re.sub('[^\w\-_\. ]', '_', (group)) + out_split[-1]
 
             print_nice_scatterplot(data=group_df,
                                    graph_filename=group_out_fp,
