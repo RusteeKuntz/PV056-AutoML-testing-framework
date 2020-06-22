@@ -55,9 +55,11 @@ def print_boxplots(data: pd.DataFrame,
         max_y_val = data[col_examined].max()
     if min_y_val is None:
         min_y_val = data[col_examined].min()
-    tick = (max_y_val - min_y_val) / 40
-    y_labels = np.concatenate([np.arange(0, min_y_val - tick, -tick)[::-1], np.arange(0, max_y_val + 6 * tick, tick)])
-
+    _y_tick = (max_y_val - min_y_val) / 40
+    if min_y_val < 0:
+        y_ticks = np.concatenate([np.arange(0, min_y_val - _y_tick, -_y_tick)[::-1], np.arange(0, max_y_val, _y_tick)])
+    else:
+        y_ticks = [np.arange(min_y_val, max_y_val, _y_tick)]
     # Create a figure instance
     _fig = plt.figure( figsize=figsize)
 
@@ -78,7 +80,7 @@ def print_boxplots(data: pd.DataFrame,
     _ax.set_xlabel(x_title, fontsize=25 * scale)
     _ax.set_ylabel(y_title, rotation=90, fontsize=25 * scale)
     _ax.set_xticklabels(labels, rotation=90)
-    _ax.set_yticks(y_labels)
+    _ax.set_yticks(y_ticks)
     _ax.tick_params(axis='x', labelsize=22*scale)
     _ax.tick_params(axis='y', labelsize=22*scale)
 

@@ -36,7 +36,11 @@ def print_nice_scatterplot(data: pd.DataFrame,
     if min_y_val is None:
         min_y_val = data[col_examined].min()
     _y_tick = (max_y_val - min_y_val) / (height / 2)
-    y_ticks = np.concatenate([np.arange(0, min_y_val - _y_tick, -_y_tick)[::-1], np.arange(0, max_y_val, _y_tick)])
+    if min_y_val < 0:
+        y_ticks = np.concatenate([np.arange(0, min_y_val - _y_tick, -_y_tick)[::-1], np.arange(0, max_y_val, _y_tick)])
+    else:
+        y_ticks = [np.arange(min_y_val, max_y_val, _y_tick)]
+
 
     # here we transform data from the column containing the parameter we are investigating (col_related)
     # and read it as json, then extracting parameters to more readable string
@@ -101,7 +105,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                         )
     legend.get_title().set_fontsize(22  # *scale
                                     )
-    _fig.savefig(graph_filename, bbox_inches="tight", dpi=600)
+    _fig.savefig(graph_filename, bbox_inches="tight", dpi=400)
     plt.close(_fig)
 
 
