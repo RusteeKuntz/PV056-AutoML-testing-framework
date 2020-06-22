@@ -121,10 +121,10 @@ def main():
 
             out_split = out_fp.split(".")
             if not isinstance(group, str):
-                group_out_fp = ".".join(out_split[:-1]) + "_" + re.sub(r'[^\w-_. ]', '_', ("_".join(group))) + out_split[
+                group_out_fp = ".".join(out_split[:-1]) + "_" + re.sub(r'[^\w\-_. ]', '_', ("_".join(group))) + out_split[
                     -1]
             else:
-                group_out_fp = ".".join(out_split[:-1]) + "_" + re.sub(r'[^\w-_. ]', '_', (group)) + out_split[-1]
+                group_out_fp = ".".join(out_split[:-1]) + "_" + re.sub(r'[^\w\-_. ]', '_', (group)) + out_split[-1]
 
             print_nice_scatterplot(data=group_df,
                                    graph_filename=group_out_fp,
