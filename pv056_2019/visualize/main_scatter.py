@@ -1,4 +1,5 @@
 import json
+import re
 
 import numpy as np
 import pandas as pd
@@ -118,8 +119,14 @@ def main():
         gbc = df.groupby(conf.separate_graphs_for_different_values_in_column)
         for group, group_df in gbc:
             legend_appendix = " Data are selected for value" + "s " if len(group) > 1 else " " + group + " in column"  + "s " if len(group) > 1 else " " + conf.separate_graphs_for_different_values_in_column + "."
+
+            if len(group) > 1:
+                group_out_fp = out_fp + "_" + re.sub('[^\w\-_\. ]', '_', ("_".join(group)))
+            else:
+                group_out_fp = out_fp + "_" + re.sub('[^\w\-_\. ]', '_', (group))
+
             print_nice_scatterplot(data=group_df,
-                                   graph_filename=out_fp + "_" + "_".join(group),
+                                   graph_filename=group_out_fp,
                                    col_examined=conf.col_examined,
                                    col_grouped_by=conf.col_grouped_by,
                                    col_related=conf.col_related,
