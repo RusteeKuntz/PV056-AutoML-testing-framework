@@ -20,6 +20,8 @@ setup(
             "pv056-run-clf=pv056_2019.main_clf:main",
             "pv056-statistics=pv056_2019.statistics:main",
             "pv056-test=pv056_2019.testing:main",
+            "pv056-graph-box=pv056_2019.visualize.main_box:main",
+            "pv056-graph-scatter=pv056_2019.visualize.main_scatter:main",
         ]
     },
     zip_safe=False,

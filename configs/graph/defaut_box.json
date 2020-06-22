@@ -1,0 +1,16 @@
+{
+  "sort_by_column": "dataset",
+  "separate_graphs_for_different_values_in_column": "step_2",
+  "col_examined": "accuracy",
+  "col_related": [
+    "step_1",
+    "step_3"
+  ],
+  "title": "Testing graph that proves functionality",
+  "x_title": "This is a title for X axis",
+  "y_title": "This is a title for Y axis",
+  "sort_func_name": "mean",
+  "convert_col_related_from_json": true,
+  "show_fliers": true,
+  "dpi": 600
+}

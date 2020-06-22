@@ -175,7 +175,7 @@ class FeatureSelectionStepSchema(BaseModel):
 
 class GraphStepSchema(BaseModel):
     sort_by_column: str or List[str] = None
-    group_graphs_by_columns: str or List[str] = None
+    separate_graphs_for_different_values_in_column: str or List[str] = None
 
 
 class GraphScatterStepSchema(GraphStepSchema):

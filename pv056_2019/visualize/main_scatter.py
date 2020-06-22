@@ -114,21 +114,19 @@ def main():
     df, out_fp = prepare_data(args, conf)
 
 
-    if conf.group_graphs_by_columns is not None:
-        # extract data
-
-        gbc = df.groupby(conf.group_graphs_by_columns)
-        #title = 'of classifier' if grouped_by == "clf" else "for dataset"
+    if conf.separate_graphs_for_different_values_in_column is not None:
+        gbc = df.groupby(conf.separate_graphs_for_different_values_in_column)
         for group, group_df in gbc:
-            print_nice_scatterplot(data=group_df + "_" + "_".join(group),
-                                   graph_filename=out_fp,
+            legend_appendix = " Data are selected for value" + "s " if len(group) > 1 else " " + group + " in column"  + "s " if len(group) > 1 else " " + conf.separate_graphs_for_different_values_in_column + "."
+            print_nice_scatterplot(data=group_df,
+                                   graph_filename=out_fp + "_" + "_".join(group),
                                    col_examined=conf.col_examined,
                                    col_grouped_by=conf.col_grouped_by,
                                    col_related=conf.col_related,
                                    title=conf.title,
                                    x_title=conf.x_title,
                                    y_title=conf.y_title,
-                                   legend_title=conf.legend_title + " Data are selected for value " + group + " in column " + conf.group_graphs_by_columns,
+                                   legend_title=conf.legend_title + legend_appendix,
                                    max_y_val=conf.max_y_val,
                                    min_y_val=conf.min_y_val,
                                    convert_col_related_from_json=conf.convert_col_related_from_json)
