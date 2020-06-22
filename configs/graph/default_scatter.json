@@ -1,5 +1,5 @@
 {
-  "sort_by_column": "split",
+  "sort_by_column": "clf",
   "separate_graphs_for_different_values_in_column": "step_3",
   "col_examined": "accuracy",
   "col_related": "step_2",
