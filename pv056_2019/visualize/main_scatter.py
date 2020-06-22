@@ -1,4 +1,4 @@
-import argparse
+import json
 
 import numpy as np
 import pandas as pd
@@ -109,7 +109,7 @@ def main():
     parser = setup_arguments()
     args = parser.parse_args()
 
-    conf = GraphScatterStepSchema(**args.config_graph)
+    conf = GraphScatterStepSchema(**json.load(args.config_graph))
 
     df, out_fp = prepare_data(args, conf)
 
