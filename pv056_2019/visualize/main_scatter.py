@@ -26,6 +26,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                            convert_col_related_from_json=True):
     # preset configuration
     # scale=2
+    height = 40
     max_marker_size = 1000  # *scale
     min_marker_size = 1  # *scale
 
@@ -34,7 +35,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
         max_y_val = data[col_examined].max()
     if min_y_val is None:
         min_y_val = data[col_examined].min()
-    _y_tick = (max_y_val - min_y_val) / 40
+    _y_tick = (max_y_val - min_y_val) / (height / 2)
     y_ticks = np.concatenate([np.arange(0, min_y_val - _y_tick, -_y_tick)[::-1], np.arange(0, max_y_val, _y_tick)])
 
     # here we transform data from the column containing the parameter we are investigating (col_related)
@@ -47,7 +48,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
 
     # Scatterplot create figure
     # _fig = plt.figure( figsize=(8*scale,40*scale))
-    _fig = plt.figure(figsize=(8, 40))
+    _fig = plt.figure(figsize=(8, height))
 
     # Create an axes instance
     ax1 = _fig.add_subplot(111)
@@ -59,7 +60,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                    )
     ax1.set_ylabel(y_title,
                    rotation=90,
-                   fontsize=25  # *scale
+                   fontsize=20  # *scale
                    )
     # this sorts times and labels for display in the boxplot by the parameters of the boxplots
     # data_to_plot_arr, labels = zip(*sorted(zip(data_to_plot_arr,labels), key=lambda e: e[1] ))
@@ -87,7 +88,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                     labelsize=22  # *scale
                     )
     ax1.tick_params(axis='y',
-                    labelsize=42  # *scale
+                    labelsize=32  # *scale
                     )
     # ax1.grid(True)
     legend = plt.legend(loc="upper right",
