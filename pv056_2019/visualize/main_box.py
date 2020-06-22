@@ -101,7 +101,7 @@ def print_boxplots(data: pd.DataFrame,
     _ax.grid(True)
 
     # Save the figure
-    _fig.savefig(graph_filename+'.png', bbox_inches='tight')
+    _fig.savefig(graph_filename+'.png', bbox_inches='tight', dpi=400)
     plt.close(_fig)
 
 

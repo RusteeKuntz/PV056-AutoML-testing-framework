@@ -39,7 +39,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
     if min_y_val < 0:
         y_ticks = np.concatenate([np.arange(0, min_y_val - _y_tick, -_y_tick)[::-1], np.arange(0, max_y_val, _y_tick)])
     else:
-        y_ticks = [np.arange(min_y_val, max_y_val, _y_tick)]
+        y_ticks = np.arange(min_y_val, max_y_val, _y_tick)
 
 
     # here we transform data from the column containing the parameter we are investigating (col_related)
