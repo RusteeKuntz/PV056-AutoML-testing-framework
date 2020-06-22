@@ -108,8 +108,8 @@ def print_nice_scatterplot(data: pd.DataFrame,
 def main():
     parser = setup_arguments()
     args = parser.parse_args()
-
-    conf = GraphScatterStepSchema(**json.load(args.config_graph))
+    with open(args.config_graph, "r") as conf_file:
+        conf = GraphScatterStepSchema(**json.load(conf_file))
 
     df, out_fp = prepare_data(args, conf)
 

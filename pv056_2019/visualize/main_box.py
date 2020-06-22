@@ -106,8 +106,8 @@ def print_boxplots(data: pd.DataFrame,
 def main():
     parser = setup_arguments()
     args = parser.parse_args()
-
-    conf = GraphBoxStepSchema(**json.load(args.config_graph))
+    with open(args.config_graph, "r") as conf_file:
+        conf = GraphBoxStepSchema(**json.load(conf_file))
 
     df, out_fp = prepare_data(args, conf)
 
