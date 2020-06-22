@@ -172,6 +172,41 @@ class FeatureSelectionStepSchema(BaseModel):
     timeout: int = 1800
     selection_methods: List[dict]
 
+
+class GraphStepSchema(BaseModel):
+    sort_by_column: str or List[str] = None
+    group_graphs_by_columns: str or List[str] = None
+
+
+class GraphScatterStepSchema(GraphStepSchema):
+    col_examined: str = "accuracy"
+    col_related: str or List[str]
+    col_grouped_by: str or List[str]
+    legend_title: str
+    title: str
+    x_title: str
+    y_title: str
+    max_y_val: bool = None
+    min_y_val: bool = None
+    convert_col_related_from_json = True
+    dpi: int = 600  # dots per inch, resolution
+
+
+class GraphBoxStepSchema(GraphStepSchema):
+    col_examined: str = "accuracy"
+    col_related: str or List[str]
+    title: str
+    x_title: str
+    y_title: str
+    sort_func_name: str = None  # label, mean, inv_mean, median
+    min_y_val = None
+    max_y_val = None
+    convert_col_related_from_json = True
+    show_fliers: bool = True
+    dpi: int = 600  # dots per inch, resolution
+
+
+
 # importing stuff from feature_selection to avoid circular dependency error
 from pv056_2019.feature_selection import F_SELECTORS
 from pv056_2019.outlier_detection import DETECTORS

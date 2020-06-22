@@ -131,23 +131,27 @@ from pv056_2019.utils import SCIKIT, ID_NAME, WEKA_DATA_TYPES
 
 
 def main():
-    # df = pd.DataFrame([
-    #     [1, 1, 2, 4, 8],
-    #     [0, 1, 1, 3, 5],
-    #     [1, 2, 3, 6, 13],
-    #     [53, 0, 3, 7, 15],
-    #     [1, 2, 1, 2, 3],
-    #     [0, 1, 1, 3, 7],
-    #     [53, 2, 4, 7, 15],
-    #     [4, 0, 3, 6, 12]
-    #
-    # ], columns=["a", "b", "c", "d", "class"])
+    df = pd.DataFrame([
+        [1, 1, 2, 4, 8],
+        [0, 1, 1, 3, 5],
+        [1, 2, 3, 6, 13],
+        [53, 0, 3, 7, 15],
+        [1, 2, 1, 2, 3],
+        [0, 1, 1, 3, 7],
+        [53, 2, 4, 7, 15],
+        [4, 0, 3, 6, 12]
 
-    df: DataFrameArff = DataLoader._load_arff_file("data/datasets/anneal.arff")
+    ], columns=["a", "b", "c", "d", "class"])
+
+    #df: DataFrameArff = DataLoader._load_arff_file("data/datasets/anneal.arff")
     print(df.columns)
 
-    bin_df = df._binarize_categorical_values()
-    print(bin_df.columns)
+    for group, group_df in df.groupby(["a", "b"]):
+        print(group, ":", type(group), " -> ", len(group))
+
+
+    #bin_df = df._binarize_categorical_values()
+    #print(bin_df.columns)
     exit()
 
 
