@@ -47,11 +47,11 @@ def setup_arguments()->argparse.ArgumentParser:
     )
     return parser
 
-def prepare_data(args, conf: GraphStepSchema):
+def prepare_data(args, conf: GraphStepSchema) -> (pd.DataFrame, str):
 
     df = pd.read_csv(args.datasets_csv_in)
 
     if conf.sort_by_column is not None:
         sorted_df = df.sort_values(by=conf.sort_by_column)
 
-    
+    return df, args.output_png
