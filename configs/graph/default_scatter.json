@@ -1,7 +1,7 @@
 {
   "sort_by_column": "clf",
   "col_examined": "accuracy",
-  "col_related": ["step_2", "step_3"],
+  "col_related": "step_2",
   "col_grouped_by": "step_1",
   "legend_title": "Testing legend title",
   "title": "This is a testing graph",
