@@ -170,6 +170,7 @@ def main():
                                title=conf.title,
                                x_title=conf.x_title,
                                y_title=conf.y_title,
+                               dpi=conf.dpi,
                                legend_title=conf.legend_title,
                                max_y_val=conf.max_y_val,
                                min_y_val=conf.min_y_val,
