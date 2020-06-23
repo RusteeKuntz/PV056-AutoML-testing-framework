@@ -73,14 +73,14 @@ def print_nice_scatterplot(data: pd.DataFrame,
     # Create an axes instance
     ax1 = _fig.add_subplot(111)
     ax1.set_title(title,
-                  fontsize=25  # *scale
+                  fontsize=30  # *scale
                   )
     ax1.set_xlabel(x_title,
-                   fontsize=28  # *scale
+                   fontsize=30  # *scale
                    )
     ax1.set_ylabel(y_title,
                    rotation=90,
-                   fontsize=28  # *scale
+                   fontsize=30  # *scale
                    )
     # this sorts times and labels for display in the boxplot by the parameters of the boxplots
     # data_to_plot_arr, labels = zip(*sorted(zip(data_to_plot_arr,labels), key=lambda e: e[1] ))
@@ -116,7 +116,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                         title=legend_title,
                         ncol=2,
                         prop={
-                            'size': 16  # *scale
+                            'size': 20  # *scale
                         }
                         )
     legend.get_title().set_fontsize(22  # *scale
