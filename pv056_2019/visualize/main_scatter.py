@@ -56,6 +56,16 @@ def print_nice_scatterplot(data: pd.DataFrame,
         except TypeError:
             print("Data are not interpretable as JSON.")
 
+    if isinstance(col_related, List):
+        new_col_related = "_".join(col_related)
+        data[new_col_related] = data[col_related[0]].astype(str)
+        for col in col_related[1:]:
+            data[new_col_related] = data[new_col_related] +"_"+ data[col]
+
+        #data[].astype(str) + '_' + big['foo'] + '_' + big['new']
+    else:
+        new_col_related = col_related
+
     # Scatterplot create figure
     # _fig = plt.figure( figsize=(8*scale,40*scale))
     _fig = plt.figure(figsize=(8, height))
@@ -87,7 +97,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
     colors = sns.color_palette(sns.dark_palette('cyan', n_colors=len(groups)), n_colors=len(groups))
     for group, group_df in groups:
         # Create the scatterplot
-        ax1.scatter(x=group_df[col_related], y=group_df[col_examined], label=str(group) + ' % ', color=colors.pop(),
+        ax1.scatter(x=group_df[new_col_related], y=group_df[col_examined], label=str(group) + ' % ', color=colors.pop(),
                     s=current_size)
         current_size -= (max_marker_size - min_marker_size) / len(groups)
 
