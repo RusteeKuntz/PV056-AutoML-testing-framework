@@ -1,5 +1,6 @@
 import json
 import re
+from typing import Union, List
 
 import numpy as np
 import pandas as pd
@@ -16,7 +17,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                            graph_filename: str,
                            col_examined: str,
                            col_grouped_by: str,
-                           col_related: str,
+                           col_related: Union[str, List[str]],
                            title: str,
                            legend_title: str,
                            x_title: str,
@@ -47,7 +48,11 @@ def print_nice_scatterplot(data: pd.DataFrame,
     # and read it as json, then extracting parameters to more readable string
     if convert_col_related_from_json:
         try:
-            data[col_related] = data[col_related].map(convert_dict_to_parameter_pairs)
+            if isinstance(col_related, List):
+                for col in col_related:
+                    data[col] = data[col].map(convert_dict_to_parameter_pairs)
+            else:
+                data[col_related] = data[col_related].map(convert_dict_to_parameter_pairs)
         except TypeError:
             print("Data are not interpretable as JSON.")
 
