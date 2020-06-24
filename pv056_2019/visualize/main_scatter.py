@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 from pv056_2019.visualize.main_box import print_boxplots
 from pv056_2019.schemas import GraphBoxStepSchema, GraphScatterStepSchema
-from pv056_2019.utils import valid_path, convert_dict_to_parameter_pairs
+from pv056_2019.utils import valid_path, convert_dict_to_parameter_pairs, extract_parameter_value_as_int
 from pv056_2019.visualize import SORT_FUNCTIONS, setup_arguments, prepare_data
 
 
@@ -25,7 +25,10 @@ def print_nice_scatterplot(data: pd.DataFrame,
                            dpi: int,
                            max_y_val=None,
                            min_y_val=None,
-                           convert_col_related_from_json=True):
+                           convert_col_related_from_json=True,
+                           extract_col_related=None,
+                           extract_col_grouped_by=None
+                           ):
     # preset configuration
     # scale=2
     height = 40
@@ -46,7 +49,8 @@ def print_nice_scatterplot(data: pd.DataFrame,
 
     # here we transform data from the column containing the parameter we are investigating (col_related)
     # and read it as json, then extracting parameters to more readable string
-    if convert_col_related_from_json:
+
+    if convert_col_related_from_json and extract_col_related is None:
         try:
             if isinstance(col_related, List):
                 for col in col_related:
@@ -60,11 +64,14 @@ def print_nice_scatterplot(data: pd.DataFrame,
         new_col_related = "_".join(col_related)
         data[new_col_related] = data[col_related[0]].astype(str)
         for col in col_related[1:]:
-            data[new_col_related] = data[new_col_related] +"_"+ data[col]
+            data[new_col_related] = data[new_col_related] + "_" + data[col]
 
         #data[].astype(str) + '_' + big['foo'] + '_' + big['new']
     else:
         new_col_related = col_related
+
+    # now, after the related columns are joined into one, we can extract parameters
+    data[new_col_related] = data[new_col_related].map(lambda str: extract_parameter_value_as_int(str, extract_col_related))
 
     # Scatterplot create figure
     # _fig = plt.figure( figsize=(8*scale,40*scale))
@@ -165,6 +172,8 @@ def main():
                                    max_y_val=conf.max_y_val,
                                    min_y_val=conf.min_y_val,
                                    convert_col_related_from_json=conf.convert_col_related_from_json,
+                                   extract_col_grouped_by=conf.extract_col_grouped_by,
+                                   extract_col_related=conf.extract_col_related
                                    )
 
             # print_nice_scatterplot(data=group_df,

@@ -25,12 +25,31 @@ def locate_string_in_arr(arr: [], string: str):
     return index
 
 
-def extract_parameter_value_as_int(json_string: str, parameter: str):
-    extracted_value = re.search(parameter + r': (.*|\d*)(\s|,|})', json_string).group(1)
-    try:
-        return int(extracted_value)
-    except ValueError:
-        return extracted_value
+def extract_parameter_value_as_int(json_string: str, parameter: str or [str]):
+    if isinstance(parameter, str):
+        pattern = r"\s*\"?" + parameter + r"\"?\s*"
+        group = 1
+    else:
+        pattern = "\"?(" + parameter[0]
+        for par in parameter[1:]:
+            pattern += r'|' + par
+        pattern += ")\"?"
+        group = 2
+
+    print(pattern)
+    extracted_value = re.findall(pattern + r':\s*"?(\d*|\w*)"?[\s,}]', json_string)
+
+    if len(extracted_value) == 0:
+        return json_string
+    elif len(extracted_value) == 1:
+
+        try:
+            return int(extracted_value[0])
+        except ValueError:
+            return extracted_value
+    else:
+        return ",".join(extracted_value)
+
 
 def convert_dict_to_parameter_pairs(json_string: str):
     _dct = json.loads(json_string)

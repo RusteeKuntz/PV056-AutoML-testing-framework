@@ -190,6 +190,8 @@ class GraphScatterStepSchema(GraphStepSchema):
     max_y_val: Union[float, int] = None
     min_y_val:Union[float, int] = None
     convert_col_related_from_json: bool = True
+    extract_col_grouped_by: str = None
+    extract_col_related: str = None
 
 
 

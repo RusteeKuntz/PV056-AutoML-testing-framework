@@ -8,5 +8,7 @@
   "x_title": "This is a title for X axis",
   "y_title": "This is a title for Y axis",
   "convert_col_related_from_json": false,
+  "extract_col_grouped_by": "name",
+  "extract_col_related": "name",
   "dpi": 400
 }
