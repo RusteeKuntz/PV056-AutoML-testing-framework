@@ -29,7 +29,7 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or [str]):
     if isinstance(parameter, str):
         pattern = r"\s*\"?" + parameter + r"\"?\s*"
         group = 1
-    else:
+    elif isinstance(parameter, list):
         pattern = "\"?(" + parameter[0]
         for par in parameter[1:]:
             pattern += r'|' + par

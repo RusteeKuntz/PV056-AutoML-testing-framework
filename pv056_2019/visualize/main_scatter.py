@@ -71,7 +71,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
         new_col_related = col_related
 
     # now, after the related columns are joined into one, we can extract parameters
-    data[new_col_related] = data[new_col_related].map(lambda str: extract_parameter_value_as_int(str, extract_col_related))
+    data[new_col_related] = data[new_col_related].map(lambda x: extract_parameter_value_as_int(x, extract_col_related))
 
     # Scatterplot create figure
     # _fig = plt.figure( figsize=(8*scale,40*scale))
