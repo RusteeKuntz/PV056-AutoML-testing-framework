@@ -3,6 +3,7 @@
 # *********************************************************
 import json
 import re
+from typing import List
 
 ID_NAME = "ID"
 OD_VALUE_NAME = "OD_VALUE"
@@ -28,15 +29,19 @@ def locate_string_in_arr(arr: [], string: str):
 def extract_parameter_value_as_int(json_string: str, parameter: str or [str]):
     if isinstance(parameter, str):
         pattern = r"\s*\"?" + parameter + r"\"?\s*"
-        group = 1
-    elif isinstance(parameter, list):
+    elif isinstance(parameter, List) and len(parameter) > 1:
         pattern = "\"?(" + parameter[0]
         for par in parameter[1:]:
             pattern += r'|' + par
         pattern += ")\"?"
-        group = 2
+    elif isinstance(parameter, List) and len(parameter) == 1:
+        pattern = r"\s*\"?" + parameter[0] + r"\"?\s*"
+    else:
+        print("Invalid parameter supplied. Only string or a list of strings is allowed. You supplied:",
+              parameter, "of type", type(parameter))
+        return json_string
 
-    print(pattern)
+    #print(pattern)
     extracted_value = re.findall(pattern + r':\s*"?(\d*|\w*)"?[\s,}]', json_string)
 
     if len(extracted_value) == 0:
