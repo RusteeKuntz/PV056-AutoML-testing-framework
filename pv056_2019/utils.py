@@ -26,7 +26,7 @@ def locate_string_in_arr(arr: [], string: str):
     return index
 
 
-def extract_parameter_value_as_int(json_string: str, parameter: str or [str]):
+def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]):
     if isinstance(parameter, str):
         pattern = r"\s*\"?" + parameter + r"\"?\s*"
     elif isinstance(parameter, List) and len(parameter) > 1:

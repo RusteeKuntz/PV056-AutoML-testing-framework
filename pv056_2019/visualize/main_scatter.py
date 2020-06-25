@@ -198,4 +198,6 @@ def main():
                                legend_title=conf.legend_title,
                                max_y_val=conf.max_y_val,
                                min_y_val=conf.min_y_val,
-                               convert_col_related_from_json=conf.convert_col_related_from_json)
+                               convert_col_related_from_json=conf.convert_col_related_from_json,
+                               extract_col_related=conf.extract_col_related,
+                               extract_col_grouped_by=conf.extract_col_grouped_by)
