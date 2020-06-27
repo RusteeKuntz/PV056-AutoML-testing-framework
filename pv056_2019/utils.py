@@ -56,7 +56,7 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
             return extracted_value[0]
     else:
         print(extracted_value, type(extracted_value))
-        return ",".join([e[1] for e in extracted_value])
+        return ",".join([e[-1] for e in extracted_value])
 
 def convert_dict_to_parameter_pairs(json_string: str):
     _dct = json.loads(json_string)
