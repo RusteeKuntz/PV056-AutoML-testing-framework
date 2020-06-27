@@ -45,13 +45,14 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
     extracted_value = re.findall(pattern + r':\s*"?(\d*|\w*)"?[\s,}]', json_string)
 
     if len(extracted_value) == 0:
+        print("Did not find any matches for:", pattern + r':\s*"?(\d*|\w*)"?[\s,}]', "in string:", json_string)
         return json_string
     elif len(extracted_value) == 1:
-
+        print("found one value")
         try:
             return int(extracted_value[0])
         except ValueError:
-            return extracted_value
+            return extracted_value[0]
     else:
         return ",".join(extracted_value)
 
