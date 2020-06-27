@@ -73,14 +73,16 @@ def print_nice_scatterplot(data: pd.DataFrame,
     # now, after the related columns are joined into one, we can extract parameters
     if extract_col_related is not None:
         data[new_col_related] = data[new_col_related].map(lambda x: extract_parameter_value_as_int(x, extract_col_related))
-
+    print("Checking if we will extract anything")
     if extract_col_grouped_by is not None:
+        print("Exttracting will happen.")
         if isinstance(col_grouped_by, List):
+            print("Extracting multiple keywords")
             for group in col_grouped_by:
                 data[group] = data[group].map(
                     lambda x: extract_parameter_value_as_int(x, extract_col_grouped_by))
         else:
-            print("Extracting column b which we group data")
+            print("Extracting one keyword")
             data[col_grouped_by] = data[col_grouped_by].map(
                 lambda x: extract_parameter_value_as_int(x, extract_col_grouped_by))
 
