@@ -43,7 +43,7 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
         return json_string
 
     #print(pattern)
-    extracted_value = re.findall(pattern + r':\s*[\'"]?(\d*|\w*)["\']?[\s,}]', json_string)
+    extracted_value = re.findall(pattern + r':\s*[\'"]?(\d*|[\w.]*)["\']?[\s,}]', json_string)
 
     if len(extracted_value) == 0:
         #print("Did not find any matches for:", pattern + r':\s*["\']?([\d ]*|[\w\s]*)["\']?[\s,}]', "in string:", json_string)
@@ -56,7 +56,7 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
             return extracted_value[0]
     else:
         print(json_string, extracted_value, type(extracted_value))
-        return ",".join([e[-1] for e in extracted_value])
+        return ",".join([(e[-1] if len(e) > 0 else "UNMATCHED or EMPTY!") for e in extracted_value ])
 
 def convert_dict_to_parameter_pairs(json_string: str):
     _dct = json.loads(json_string)
