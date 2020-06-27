@@ -27,35 +27,36 @@ def locate_string_in_arr(arr: [], string: str):
 
 
 def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]):
+    #print("I do fucnikg run, stop bothering me.")
     if isinstance(parameter, str):
-        pattern = r"\s*\"?" + parameter + r"\"?\s*"
+        pattern = r"\s*[\"']?" + parameter + r"[\"']?\s*"
     elif isinstance(parameter, List) and len(parameter) > 1:
-        pattern = "\"?(" + parameter[0]
+        pattern = "[\"']?(" + parameter[0]
         for par in parameter[1:]:
             pattern += r'|' + par
-        pattern += ")\"?"
+        pattern += ")[\"']?"
     elif isinstance(parameter, List) and len(parameter) == 1:
-        pattern = r"\s*\"?" + parameter[0] + r"\"?\s*"
+        pattern = r"\s*[\"']?" + parameter[0] + r"[\"']?\s*"
     else:
         print("Invalid parameter supplied. Only string or a list of strings is allowed. You supplied:",
               parameter, "of type", type(parameter))
         return json_string
 
     #print(pattern)
-    extracted_value = re.findall(pattern + r':\s*"?(\d*|\w*)"?[\s,}]', json_string)
+    extracted_value = re.findall(pattern + r':\s*[\'"]?(\d*|\w*)["\']?[\s,}]', json_string)
 
     if len(extracted_value) == 0:
-        print("Did not find any matches for:", pattern + r':\s*"?(\d*|\w*)"?[\s,}]', "in string:", json_string)
+        #print("Did not find any matches for:", pattern + r':\s*["\']?([\d ]*|[\w\s]*)["\']?[\s,}]', "in string:", json_string)
         return json_string
     elif len(extracted_value) == 1:
-        print("found one value")
+        #print("found one value")
         try:
             return int(extracted_value[0])
         except ValueError:
             return extracted_value[0]
     else:
-        return ",".join(extracted_value)
-
+        print(extracted_value, type(extracted_value))
+        return ",".join([e[1] for e in extracted_value])
 
 def convert_dict_to_parameter_pairs(json_string: str):
     _dct = json.loads(json_string)
