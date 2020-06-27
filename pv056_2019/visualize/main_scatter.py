@@ -85,6 +85,8 @@ def print_nice_scatterplot(data: pd.DataFrame,
             print("Extracting one column")
             data[col_grouped_by] = data[col_grouped_by].map(
                 lambda x: extract_parameter_value_as_int(x, extract_col_grouped_by))
+    print(data[col_grouped_by])
+    print(data[col_related])
 
     # Scatterplot create figure
     # _fig = plt.figure( figsize=(8*scale,40*scale))
