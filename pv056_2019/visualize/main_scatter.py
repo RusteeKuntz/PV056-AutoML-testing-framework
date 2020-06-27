@@ -80,6 +80,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                 data[group] = data[group].map(
                     lambda x: extract_parameter_value_as_int(x, extract_col_grouped_by))
         else:
+            print("Extracting column b which we group data")
             data[col_grouped_by] = data[col_grouped_by].map(
                 lambda x: extract_parameter_value_as_int(x, extract_col_grouped_by))
 
