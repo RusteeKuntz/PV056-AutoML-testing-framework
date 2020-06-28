@@ -73,20 +73,14 @@ def print_nice_scatterplot(data: pd.DataFrame,
     # now, after the related columns are joined into one, we can extract parameters
     if extract_col_related is not None:
         data[new_col_related] = data[new_col_related].map(lambda x: extract_parameter_value_as_int(x, extract_col_related))
-    print("Checking if we will extract anything")
     if extract_col_grouped_by is not None:
-        print("Exttracting will happen.")
         if isinstance(col_grouped_by, List):
-            print("Extracting multiple columns")
             for group in col_grouped_by:
                 data.loc[:, group] = data[group].map(
                     lambda x: extract_parameter_value_as_int(x, extract_col_grouped_by))
         else:
-            print("Extracting one column")
             data[col_grouped_by] = data[col_grouped_by].map(
                 lambda x: extract_parameter_value_as_int(x, extract_col_grouped_by))
-    print(data[col_grouped_by])
-    print(data[col_related])
 
     # Scatterplot create figure
     # _fig = plt.figure( figsize=(8*scale,40*scale))
@@ -119,7 +113,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
     colors = sns.color_palette(sns.dark_palette('cyan', n_colors=len(groups)), n_colors=len(groups))
     for group, group_df in groups:
         # Create the scatterplot
-        ax1.scatter(x=group_df[new_col_related], y=group_df[col_examined], label=str(group) + ' % ', color=colors.pop(),
+        ax1.scatter(x=group_df[new_col_related], y=group_df[col_examined], label=str(group), color=colors.pop(),
                     s=current_size)
         current_size -= (max_marker_size - min_marker_size) / len(groups)
 
