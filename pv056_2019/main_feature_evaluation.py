@@ -147,9 +147,10 @@ def main():
     with Manager() as manager:
         # here we create a list, that will be synchronize across threads, so we can modify it in between processes
         blacklist = manager.list()
-        with open(conf.blacklist_file_path, "r") as bf:
-            for i in bf:
-                blacklist.append(i.replace("\n", "").split(','))
+        if conf.blacklist_file_path is not None:
+            with open(conf.blacklist_file_path, "r") as bf:
+                for i in bf:
+                    blacklist.append(i.replace("\n", "").split(','))
 
         queue = Queue()
         with open(args.datasets_csv_in, "r") as datasets_mapping_csv:

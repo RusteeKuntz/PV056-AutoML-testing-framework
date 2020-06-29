@@ -167,7 +167,7 @@ class WekaFSFilterConfigurationSchema(FSStepSchema):
 class FeatureSelectionStepSchema(BaseModel):
     weka_jar_path: str
     output_folder_path: str
-    blacklist_file_path: str
+    blacklist_file_path: str = None
     n_jobs: int = 5
     timeout: int = 1800
     selection_methods: List[dict]
