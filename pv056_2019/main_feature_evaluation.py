@@ -34,8 +34,10 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
             if command.is_cmd:
                 try:
                     time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+                    print("WEKA: ", command.input_path)
                     results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                              timeout=timeout)
+                    print("DONE?")
                     # print("RESULTS OMFG")
                     # print(results.args)
                     # print("OUT")
@@ -86,7 +88,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                 fs_frame.arff_dump(command.output_file_path)
 
             # We write the line into the datasets mapping CSV only if the preprocessing is actually done
-            print("The line printed is:", command.mapping_csv_line, sep="\n")
+            #print("The line printed is:", command.mapping_csv_line, sep="\n")
             mapping_csv.write(command.mapping_csv_line)
             mapping_csv.flush()
 
@@ -131,7 +133,7 @@ def main():
     )
     args = parser.parse_args()
 
-    print("Staring feature selection step")
+    print("Starting feature selection step")
 
     # load config file
     with open(args.config_fs, "r") as config_file:
@@ -167,8 +169,10 @@ def main():
         pool = [Process(target=fs_worker, args=(queue, fs_mapping_csv, blacklist, conf.timeout)) for _ in
                 range(conf.n_jobs)]
 
+        print("Starting processes")
         try:
             [process.start() for process in pool]
+            print("Processes started, joining them...")
             # join below will result in waiting for all above processes to finish before continuing
             [process.join() for process in pool]
         except KeyboardInterrupt:

@@ -69,7 +69,7 @@ class ClassifierManager:
         # we write to the output CSV here so we do not have to handle concurrent file writing
         with open(out_csv_path, "w", encoding="UTF-8") as out_csv:
             _count = len(csv_rows)*len(classifiers)
-            print("There is", str(_count), "of combinations for", str(len(csv_rows)), "csv rows and", str(len(classifiers)), "classifiers.")
+            #print("There is", str(_count), "of combinations for", str(len(csv_rows)), "csv rows and", str(len(classifiers)), "classifiers.")
             _c = 0
             for csv_row, classifier in product(csv_rows, classifiers):
                 #print("["+str(_c)+"-1", end="")
@@ -121,7 +121,7 @@ class ClassifierManager:
                 # Prepare arguments for classifier
                 run_args: List[str] = [
                     "java",
-                    "-Xmx4096m",
+                    "-Xmx8192m",
                     "-cp",
                     self.weka_jar_path,
                     "weka.classifiers.misc.InputMappedClassifier",
@@ -181,7 +181,7 @@ class ClassifierManager:
                     run_args += classifier.args
 
 
-                print(" ".join(run_args))
+                #print(" ".join(run_args))
 
                 command = CLFCommandWithInfo(args=run_args, dataset_name=dataset_name, train_path=train_path, clf=classifier.class_name, fold=dataset_fold, settings=final_config_str)
                 queue.put(command)

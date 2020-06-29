@@ -77,7 +77,7 @@ def weka_worker(queue,
 
         # args[16] is actually equal to full clf classname
         # args[6] is actually a path to a train file
-        print("Job " + str(counter) + " done.", flush=True)
+        print(str(counter) + ". job done.", flush=True)
         counter += 1
 
 
@@ -115,12 +115,12 @@ def main():
         # here we get an array of datasets.csv lines arranged by the size of the file in first column of each row
         # paths are checked before usage. If they do not exist, 0 is used as size for comparison
         unsorted_dataset_rows = [row for row in reader]
-        for x in unsorted_dataset_rows:
-            print(x)
-            if os.path.exists(x[0]):
-                print(x[0] + " exists")
-            else:
-                print(x[0] + " DOES NOT exists")
+        # for x in unsorted_dataset_rows:
+        #     print(x)
+        #     if os.path.exists(x[0]):
+        #         print(x[0] + " exists")
+        #     else:
+        #         print(x[0] + " DOES NOT exists")
         datasets = sorted(unsorted_dataset_rows,
                           key=lambda x: os.path.getsize(x[0]) if os.path.exists(x[0]) else 0)
 

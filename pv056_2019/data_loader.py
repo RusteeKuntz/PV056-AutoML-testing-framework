@@ -25,7 +25,6 @@ warnings.simplefilter(action="ignore", category=UserWarning)
 
 class DataFrameArff(pd.DataFrame):
     def __init__(self, *args, **kwargs):
-        print("INIT DAtaFrameArff")
         arff_data: Optional[dict or ArffData] = kwargs.pop("arff_data", None)
         if isinstance(arff_data, ArffData):
             arff_data = arff_data.__dict__
@@ -33,7 +32,6 @@ class DataFrameArff(pd.DataFrame):
         if arff_data is None:
             super().__init__(*args, **kwargs)
         else:
-            print(arff_data["attributes"])
             columns = [x[0] for x in arff_data["attributes"]]
 
             super().__init__(arff_data["data"], columns=columns, **kwargs)
@@ -43,7 +41,6 @@ class DataFrameArff(pd.DataFrame):
                 if key.lower() != "data":
                     self._arff_data.update({key: item})
             self._arff_data["relation"] = self._arff_data["relation"].replace("_", "-")
-        #print("INIT DONE")
 
     def arff_data(self) -> ArffData:
         data = self._arff_data
