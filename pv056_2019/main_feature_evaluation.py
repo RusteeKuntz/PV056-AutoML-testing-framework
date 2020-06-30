@@ -28,7 +28,7 @@ def run_scikit_stuff(args: ScikitFSSchema, df: DataFrameArff, output_file_path: 
     print("Dump done.")
 
 
-def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout):
+def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binarized_test_files, timeout):
     while not queue.empty():
         command: FSJobWithInfo = queue.get()
         time_diff: float
@@ -80,7 +80,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
 
                     # if we are leaving the categorical attributes binarized, we need to binarize the test split too
                     if args.leave_attributes_binarized:
-                        print("Binarizing test data for", eval_method, dataset)
+
                         # here we extract the test filepath of the test split
                         csv_line_split = command.mapping_csv_line.split(",")
                         test_file_path = csv_line_split[1]
@@ -89,12 +89,16 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                         test_file_path_dotsplit = test_file_path.split(".")
                         bin_test_file_path = ".".join(test_file_path_dotsplit[0:-1]) \
                                              + "_bin." + test_file_path_dotsplit[-1]
+                        if bin_test_file_path not in binarized_test_files:
+                            print("Binarizing test data for", eval_method, dataset)
+                            test_df = DataLoader._load_arff_file(test_file_path)
+                            bin_test_df = test_df.binarize_cat_feats_and_normalize(keep_class=True)
 
-                        test_df = DataLoader._load_arff_file(test_file_path)
-                        bin_test_df = test_df.binarize_cat_feats_and_normalize(keep_class=True)
-
-                        # Here we dump the binarized test dataframe to a that path
-                        bin_test_df.arff_dump(bin_test_file_path)
+                            # Here we dump the binarized test dataframe to a that path
+                            bin_test_df.arff_dump(bin_test_file_path)
+                            binarized_test_files[bin_test_file_path] = True
+                        else:
+                            print("Test files already binarized for", eval_method, dataset)
                         # here we overwrite the old test path for this particular file
                         # (old path is still used in non-binarized datasets)
                         command.mapping_csv_line = ",".join(
@@ -221,6 +225,7 @@ def main():
     with Manager() as manager:
         # here we create a list, that will be synchronize across threads, so we can modify it in between processes
         blacklist = manager.list()
+        binarized_test_files = manager.dict()
         if conf.blacklist_file_path is not None:
             with open(conf.blacklist_file_path, "r") as bf:
                 for i in bf:
@@ -241,7 +246,7 @@ def main():
         # get a file handle to write preprocessed datasets and their configuration histories to. File gets closed later
         fs_mapping_csv = open(fs_mapping_csv_path, "w", encoding="UTF-8")
         # create a pool of processes that will work in parallel
-        pool = [Process(target=fs_worker, args=(queue, fs_mapping_csv, blacklist, conf.timeout)) for _ in
+        pool = [Process(target=fs_worker, args=(queue, fs_mapping_csv, blacklist, binarized_test_files, conf.timeout)) for _ in
                 range(conf.n_jobs)]
 
         print("Starting processes")
