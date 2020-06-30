@@ -6,7 +6,7 @@ import sys, resource
 from multiprocessing import Queue, Manager, Process
 from typing import TextIO
 
-from pv056_2019.data_loader import DataLoader
+from pv056_2019.data_loader import DataLoader, DataFrameArff
 from pv056_2019.feature_selection import setup_sklearn_fs_class
 from pv056_2019.main_clf import _valid_config_path
 from pv056_2019.schemas import FeatureSelectionStepSchema, ScikitFSSchema
@@ -16,9 +16,16 @@ from pv056_2019.utils import valid_path, CUSTOM, SCIKIT
 debugging = False
 
 
-def extract_and_save_ranking_from_fs_output(fs_output: str, fs_output_filepath: str):
-    # with open(fs_output_filepath, mode="w") as output_file:
-    print(fs_output)
+def run_scikit_stuff(args: ScikitFSSchema, df: DataFrameArff, output_file_path: str):
+
+    print("Selection began for", df.arff_data().relation)
+    fs_frame = df.select_features_with_sklearn(
+        setup_sklearn_fs_class(args.fs_method, args.score_func),
+        args.leave_attributes_binarized
+    )
+
+    fs_frame.arff_dump(output_file_path)
+    print("Dump done.")
 
 
 def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout):
@@ -37,8 +44,8 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                     print("WEKA: ", command.input_path)
                     results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                              timeout=timeout)
-                    print(results)
-                    print("DONE?")
+                    #print(results)
+                    #print("DONE?")
                     # print("RESULTS OMFG")
                     # print(results.args)
                     # print("OUT")
@@ -48,9 +55,10 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                     time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     time_diff = time_end - time_start
                 except subprocess.TimeoutExpired:
-                    print(eval_method, dataset, "TIMED OUT!!!")
+                    print(eval_method, dataset, "reached the timeout. TERMINATED on TIMEOUT")
                     time_diff = timeout
                     blacklist.append((eval_method, dataset))
+                    continue  # continue on timeout
             else:
                 #print("We are in a correct conditional branch, loading file on path: " + command.input_path)
                 df = DataLoader._load_arff_file(command.input_path)
@@ -58,7 +66,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                     #print("We are in a wrong conditional branch")
                     fs_frame, time_diff = df.apply_custom_feature_selector(command.args)
                 elif command.args.source_library == SCIKIT:
-                    #print("We are in a correct conditional branch 2")
+                    # print("We are in a correct conditional branch 2")
                     args: ScikitFSSchema = command.args
 
                     # if we are leaving the categorical attributes binarized, we need to binarize the test split too
@@ -71,7 +79,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
 
                         # here we create new filepath and dump the binarized test dataframe to a that path
                         test_file_path_dotsplit = test_file_path.split(".")
-                        bin_test_file_path = ".".join(test_file_path_dotsplit[0:-1])\
+                        bin_test_file_path = ".".join(test_file_path_dotsplit[0:-1]) \
                                              + "_bin." + test_file_path_dotsplit[-1]
                         bin_test_df.arff_dump(bin_test_file_path)
                         # here we overwrite the old test path for this particular file
@@ -79,14 +87,62 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                         command.mapping_csv_line = ",".join(
                             [csv_line_split[0], bin_test_file_path, *csv_line_split[2:]])
 
-                    fs_frame, time_diff = df.select_features_with_sklearn(
-                        setup_sklearn_fs_class(args.fs_method, args.score_func),
-                        args.leave_attributes_binarized
-                    )
+                    time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
+                    time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+
+                    # Start bar as a process
+                    p = Process(target=run_scikit_stuff, args=(args, df, command.output_file_path))
+                    p.start()
+
+                    # Wait for "timeout" seconds or until process finishes
+                    p.join(timeout=timeout)
+
+                    # If thread is still active
+                    if p.is_alive():
+                        print(eval_method, dataset, "reached the timeout, killing it...")
+
+                        # Terminate
+                        p.terminate()
+                        p.join()
+                        fs_time = timeout
+                        print("TERMINATED on TIMEOUT")
+                        continue  # if timeout,
+
+                    # conclude time (resource) consumption if proccess finished properly
+                    time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
+                    time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+                    fs_time = (time_end - time_start) + (time_end_children - time_start_children)
+                    # #print("We are in a correct conditional branch 2")
+                    # args: ScikitFSSchema = command.args
+                    #
+                    # # if we are leaving the categorical attributes binarized, we need to binarize the test split too
+                    # if args.leave_attributes_binarized:
+                    #     # here we extract the test filepath of the test split
+                    #     csv_line_split = command.mapping_csv_line.split(",")
+                    #     test_file_path = csv_line_split[1]
+                    #     test_df = DataLoader._load_arff_file(test_file_path)
+                    #     bin_test_df = test_df.binarize_cat_feats_and_normalize(keep_class=True)
+                    #
+                    #     # here we create new filepath and dump the binarized test dataframe to a that path
+                    #     test_file_path_dotsplit = test_file_path.split(".")
+                    #     bin_test_file_path = ".".join(test_file_path_dotsplit[0:-1])\
+                    #                          + "_bin." + test_file_path_dotsplit[-1]
+                    #     bin_test_df.arff_dump(bin_test_file_path)
+                    #     # here we overwrite the old test path for this particular file
+                    #     # (old path is still used in non-binarized datasets)
+                    #     command.mapping_csv_line = ",".join(
+                    #         [csv_line_split[0], bin_test_file_path, *csv_line_split[2:]])
+                    #
+                    # fs_frame, time_diff = df.select_features_with_sklearn(
+                    #     setup_sklearn_fs_class(args.fs_method, args.score_func),
+                    #     args.leave_attributes_binarized
+                    # )
                 else:
                     raise NotImplementedError()
-                print(command.output_file_path)
-                fs_frame.arff_dump(command.output_file_path)
+                continue
+            # log the finish of specific command
+            print("DONE: ", command.output_file_path, command.eval_method_name)
+            #fs_frame.arff_dump(command.output_file_path)
 
             # We write the line into the datasets mapping CSV only if the preprocessing is actually done
             #print("The line printed is:", command.mapping_csv_line, sep="\n")

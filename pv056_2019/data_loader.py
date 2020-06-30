@@ -217,7 +217,7 @@ class DataFrameArff(pd.DataFrame):
 
         return new_frame_arff, fs_time
 
-    def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool):
+    def select_features_with_sklearn(self, selector: _BaseFilter, leave_binarized: bool) -> 'DataFrameArff':
         #colnames = self.columns
 
         # make sure that ID column does not compromise the feature selection
@@ -234,8 +234,8 @@ class DataFrameArff(pd.DataFrame):
         y = self.loc[:, self.columns[-1]]
         # another score functions are: f_classif, mutual_info_classif
 
-        time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
-        time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+        # time_start = resource.getrusage(resource.RUSAGE_SELF)[0]
+        # time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
         # fit selector to the dataset (this basically looks at the dataset and identifies useful features)
         #print("TRAIN DATA", x, sep="\n")
@@ -293,12 +293,12 @@ class DataFrameArff(pd.DataFrame):
             new_frame_arff.insert(value=self[self.columns[-1]], column=self.columns[-1], loc=len(new_frame_arff.columns))
             new_frame_arff._arff_data["attributes"].append(self._arff_data["attributes"][-1])
 
-        # conclude time (resource) consumption
-        time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
-        time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-        fs_time = (time_end - time_start) + (time_end_children - time_start_children)
+        # # conclude time (resource) consumption
+        # time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
+        # time_end_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
+        # fs_time = (time_end - time_start) + (time_end_children - time_start_children)
 
-        return new_frame_arff, fs_time
+        return new_frame_arff  #, fs_time
 
     def select_by_index(self, index: np.array):
         dataframe = self.iloc[index]
