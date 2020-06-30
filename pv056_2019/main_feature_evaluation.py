@@ -37,6 +37,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                     print("WEKA: ", command.input_path)
                     results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                              timeout=timeout)
+                    print(results)
                     print("DONE?")
                     # print("RESULTS OMFG")
                     # print(results.args)
