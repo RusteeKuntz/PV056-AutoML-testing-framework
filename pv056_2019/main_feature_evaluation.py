@@ -33,7 +33,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
         command: FSJobWithInfo = queue.get()
         time_diff: float
 
-        dataset = command.input_path.split("_")[0]
+        dataset = os.path.basename(command.input_path).split("_")[0]
         eval_method = command.eval_method_name
 
         print("Popped command for", eval_method, "-->", dataset, "from queue.")
