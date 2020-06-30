@@ -111,8 +111,7 @@ class FeatureSelectionManager:
             #_output_directory = _assert_trailing_slash()
             _base_name = os.path.basename(train_path)
 
-            print("FS SETTINGS:")
-            print(fs_settings)
+            print("FS SETTINGS:", hash_md5)
             for fs_conf_dict, hash_md5, fs_config_json_basename in fs_settings:
                 fs_conf: FSStepSchema = FSStepSchema(**fs_conf_dict)
                 _fs_identifier = '_FS' + hash_md5
