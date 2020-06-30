@@ -36,14 +36,23 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
         dataset = command.input_path.split("_")[0]
         eval_method = command.eval_method_name
 
+        print("Popped command for", eval_method, "-->", dataset, "from queue.")
+
         # I believe it does not make sense to blacklist search methods.
         if not (eval_method, dataset) in blacklist:
             if command.is_cmd:
                 try:
                     time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
-                    print("WEKA: ", command.input_path)
-                    results = subprocess.run(command.args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    results = subprocess.run(command.args,
+                                             capture_output=True,
+                                             #stdout=subprocess.PIPE,
+                                             #stderr=subprocess.PIPE,
                                              timeout=timeout)
+
+                    # This is POSIX dependent piece of code
+                    if results.returncode < 0:
+                        print(eval_method, dataset, "TERMINATED externally. Skipping")
+                        continue
                     #print(results)
                     #print("DONE?")
                     # print("RESULTS OMFG")
@@ -71,16 +80,20 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
 
                     # if we are leaving the categorical attributes binarized, we need to binarize the test split too
                     if args.leave_attributes_binarized:
+                        print("Binarizing test data for", eval_method, dataset)
                         # here we extract the test filepath of the test split
                         csv_line_split = command.mapping_csv_line.split(",")
                         test_file_path = csv_line_split[1]
-                        test_df = DataLoader._load_arff_file(test_file_path)
-                        bin_test_df = test_df.binarize_cat_feats_and_normalize(keep_class=True)
 
-                        # here we create new filepath and dump the binarized test dataframe to a that path
+                        # here we create new filepath
                         test_file_path_dotsplit = test_file_path.split(".")
                         bin_test_file_path = ".".join(test_file_path_dotsplit[0:-1]) \
                                              + "_bin." + test_file_path_dotsplit[-1]
+
+                        test_df = DataLoader._load_arff_file(test_file_path)
+                        bin_test_df = test_df.binarize_cat_feats_and_normalize(keep_class=True)
+
+                        # Here we dump the binarized test dataframe to a that path
                         bin_test_df.arff_dump(bin_test_file_path)
                         # here we overwrite the old test path for this particular file
                         # (old path is still used in non-binarized datasets)
@@ -105,8 +118,12 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                         p.terminate()
                         p.join()
                         fs_time = timeout
-                        print("TERMINATED on TIMEOUT")
+                        print(eval_method, dataset, "TERMINATED on TIMEOUT")
                         continue  # if timeout,
+                    elif p.exitcode < 0:
+                        print(eval_method, dataset, "TERMINATED externally with exitcode", p.exitcode, "Skipping")
+                        continue
+
 
                     # conclude time (resource) consumption if proccess finished properly
                     time_end = resource.getrusage(resource.RUSAGE_SELF)[0]
@@ -141,7 +158,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
                     raise NotImplementedError()
                 continue
             # log the finish of specific command
-            print("DONE: ", command.output_file_path, command.eval_method_name)
+            print("DONE: ", eval_method, dataset)
             #fs_frame.arff_dump(command.output_file_path)
 
             # We write the line into the datasets mapping CSV only if the preprocessing is actually done
@@ -149,8 +166,8 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: (str, str), timeout)
             mapping_csv.write(command.mapping_csv_line)
             mapping_csv.flush()
 
-
         else:
+            # previously timed out combination is skipped right away
             time_diff = timeout
 
         # TODO: Add times output for feature selection
@@ -230,7 +247,7 @@ def main():
         print("Starting processes")
         try:
             [process.start() for process in pool]
-            print("Processes started, joining them...")
+            print("Processes started, joining them...", flush=True)
             # join below will result in waiting for all above processes to finish before continuing
             [process.join() for process in pool]
         except KeyboardInterrupt:
