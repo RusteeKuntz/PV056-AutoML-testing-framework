@@ -44,9 +44,9 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
                 try:
                     time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     results = subprocess.run(command.args,
-                                             capture_output=True,
-                                             #stdout=subprocess.PIPE,
-                                             #stderr=subprocess.PIPE,
+                                             #capture_output=True,  # this is not supported in current version
+                                             stdout=subprocess.PIPE,
+                                             stderr=subprocess.PIPE,
                                              timeout=timeout)
 
                     # This is POSIX dependent piece of code
