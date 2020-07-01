@@ -53,7 +53,10 @@ def weka_worker(queue,
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         timeout=timeout)
-                print("ERR:", clf, dataset, result.stderr)
+                print("RESULT:", clf, dataset,
+                      "\nERR:", result.stderr,
+                      "\nOUT:", result.stdout,
+                      "\nRC:", result.returncode)
                 # print(" ".join(args))
                 # print(result.stdout)
                 # print(result.stderr)

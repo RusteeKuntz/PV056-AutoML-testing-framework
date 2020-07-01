@@ -25,7 +25,7 @@ def run_scikit_stuff(args: ScikitFSSchema, df: DataFrameArff, output_file_path: 
     )
 
     fs_frame.arff_dump(output_file_path)
-    print("Dump done.")
+    print("Dump completed.")
 
 
 def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binarized_test_files, timeout):
@@ -162,7 +162,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
                     raise NotImplementedError()
 
             # log the finish of specific command
-            print("DONE: ", eval_method, dataset)
+            print("Completed: ", eval_method, dataset)
             #fs_frame.arff_dump(command.output_file_path)
 
             # We write the line into the datasets mapping CSV only if the preprocessing is actually done
