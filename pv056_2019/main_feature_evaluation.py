@@ -160,7 +160,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
                     # )
                 else:
                     raise NotImplementedError()
-                continue
+
             # log the finish of specific command
             print("DONE: ", eval_method, dataset)
             #fs_frame.arff_dump(command.output_file_path)
