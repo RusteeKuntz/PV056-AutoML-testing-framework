@@ -53,7 +53,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
                     if results.returncode < 0:
                         print(eval_method, dataset, "TERMINATED externally. Skipping")
                         continue
-                    print("ERR:", eval_method, dataset, results.stderr)
+                    #print("ERR:", eval_method, dataset, results.stderr)
                     #print("DONE?")
                     # print("RESULTS OMFG")
                     # print(results.args)
