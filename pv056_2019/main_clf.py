@@ -3,6 +3,8 @@ import csv
 from datetime import datetime
 import json
 import os
+from multiprocessing.managers import SyncManager
+
 import resource
 import subprocess
 import sys
@@ -29,11 +31,13 @@ def weka_worker(queue,
                 blacklist,
                 timeout,
                 times_file,
-                backup_ts
+                backup_ts,
+                counter
 ):
-    counter = 0
     while not queue.empty():
-        print("Popping command " + str(counter) + " from queue")
+        this_counter = counter.get()
+        counter.set(counter.get() + 1)
+        print("Popping command " + str(this_counter) + " from queue")
         command_with_info: CLFCommandWithInfo = queue.get()
         args = command_with_info.args
         time_diff: float
@@ -78,8 +82,8 @@ def weka_worker(queue,
 
         # args[16] is actually equal to full clf classname
         # args[6] is actually a path to a train file
-        print(str(counter) + ". job done.", flush=True)
-        counter += 1
+        print(str(this_counter) + ". job done.", flush=True)
+
 
 
 def main():
@@ -155,6 +159,7 @@ def main():
     with Manager() as manager:
         # create concurrency safe list for sharing between threads/processes
         blacklist = manager.list()
+        counter = manager.Value('i', 0)
         with open(conf.blacklist_file, "r") as bf:
             # read files from blacklist file and put them into the actual list
             for i in bf:
@@ -166,7 +171,7 @@ def main():
         print("BACK IN MAIN")
 
         # TODO xbajger: previously, here as an arg to weka_worker a "backup_ts" file was supplied. It shan't be needed
-        pool = [Process(target=weka_worker, args=(queue, blacklist, conf.timeout, conf.times_output, backup_ts)) for _ in range(conf.n_jobs)]
+        pool = [Process(target=weka_worker, args=(queue, blacklist, conf.timeout, conf.times_output, backup_ts, counter)) for _ in range(conf.n_jobs)]
 
         try:
             [process.start() for process in pool]
