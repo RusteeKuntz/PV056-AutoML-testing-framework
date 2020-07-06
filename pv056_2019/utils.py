@@ -27,7 +27,6 @@ def locate_string_in_arr(arr: [], string: str):
 
 
 def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]):
-    #print("I do fucnikg run, stop bothering me.")
     if isinstance(parameter, str):
         pattern = r"\s*[\"']?" + parameter + r"[\"']?\s*"
     elif isinstance(parameter, List) and len(parameter) > 1:
@@ -45,10 +44,10 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
     #print(pattern)
     extracted_value = re.findall(pattern + r':\s*[\'"]?(\d*|[\w.]*)["\']?[\s,}]', json_string)
 
-    if len(extracted_value) == 0:
+    if isinstance(extracted_value, list) and len(extracted_value) == 0:
         #print("Did not find any matches for:", pattern + r':\s*["\']?([\d ]*|[\w\s]*)["\']?[\s,}]', "in string:", json_string)
         return json_string
-    elif len(extracted_value) == 1:
+    elif (isinstance(extracted_value, list) and len(extracted_value) == 1) or isinstance(extracted_value, str):
         #print("found one value")
         try:
             return int(extracted_value[0])
@@ -56,7 +55,7 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
             return extracted_value[0]
     else:
         print(json_string, extracted_value, type(extracted_value))
-        return ",".join([(e[-1] if len(e) > 0 else "UNMATCHED or EMPTY!") for e in extracted_value ])
+        return ",".join([(e.split(".")[-1] if len(e) > 0 else "UNMATCHED or EMPTY!") for e in extracted_value ])
 
 def convert_dict_to_parameter_pairs(json_string: str):
     _dct = json.loads(json_string)
