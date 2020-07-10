@@ -1,6 +1,7 @@
 import hashlib
 import os, json
 
+from pv056_2019.data_loader import DataLoader
 from pv056_2019.schemas import CommandSchema, FeatureSelectionStepSchema, \
     WekaFSFilterConfigurationSchema, CustomFSSchema, ScikitFSSchema, FSStepSchema
 from pv056_2019.utils import OD_VALUE_NAME, ID_NAME, CUSTOM, WEKA, SCIKIT, _nest_double_quotes, _assert_trailing_slash
@@ -89,13 +90,8 @@ class FeatureSelectionManager:
 
             fs_settings.append((fs_conf_dict, hash_md5, fs_config_json_basename))
 
-        # TODO: remove limitation to 20 datasets later
-        #limit_counter = 0
+
         for line in datasets_mapping_csv:
-            # if limit_counter > 30:
-            #     break
-            # else:
-            #     limit_counter += 1
             # split datasets csv line by commas, strip trailing EOL
             line_split = line.strip().split(",")
             # first two elements on any line contain train and test split paths.
@@ -129,7 +125,7 @@ class FeatureSelectionManager:
                     _output_file_path = os.path.join(self.config.output_folder_path, '.'.join(dot_split[:-1]) + _fs_identifier + '.'
                                                      + dot_split[-1])
 
-                # here we write mapping of train and test files along with a history of pre-processing configurations
+                # here we create mapping of train and test files along with a history of pre-processing configurations
 
                 mapping_csv_file_line = ",".join(
                     [_output_file_path, test_path,
@@ -139,7 +135,18 @@ class FeatureSelectionManager:
 
                 # generate command with info appropriately for used library
                 if fs_conf.source_library == WEKA:
-                    fs_conf: WekaFSFilterConfigurationSchema = WekaFSFilterConfigurationSchema(**fs_conf_dict)
+                    wfs_conf: WekaFSFilterConfigurationSchema = WekaFSFilterConfigurationSchema(**fs_conf_dict)
+                    if wfs_conf.search_class.name == "weka.attributeSelection.Ranker" and\
+                        isinstance(wfs_conf.search_class.parameters["N"], str) and\
+                        "%" in wfs_conf.search_class.parameters["N"]:
+                            percent = float(wfs_conf.search_class.parameters["N"].replace("%", "").strip())
+                            _in_df = DataLoader._load_arff_file(train_path)
+                            f_count = _in_df.shape[1] - 1
+                            # here we modify the original "-N" parameter for Ranker, so that it contains valid integer
+                            n_param = round(percent*f_count)
+                            wfs_conf.search_class.parameters["N"] = n_param
+
+
                     # here we prepare filters for currently useless columns that should not be considered for FS
                     filters = ['-F', 'weka.filters.unsupervised.attribute.RemoveByName -E ^{}$'.format(  # noqa
                         ID_NAME
@@ -152,10 +159,10 @@ class FeatureSelectionManager:
 
                     # specify search method and its arguments
                     fs_filter_args += ' -S ' + '"' + _nest_double_quotes(
-                        get_weka_command_from_config(fs_conf.search_class)) + '"'
+                        get_weka_command_from_config(wfs_conf.search_class)) + '"'
                     # specify evaluation method and its arguments
                     fs_filter_args += ' -E ' + '"' + _nest_double_quotes(get_weka_command_from_config(
-                        fs_conf.eval_class)) + '"'
+                        wfs_conf.eval_class)) + '"'
 
                     filters += ['-F', 'weka.filters.supervised.attribute.AttributeSelection {}'.format(
                         fs_filter_args
@@ -179,24 +186,24 @@ class FeatureSelectionManager:
                     yield FSJobWithInfo(is_cmd=True,
                                         args=_run_args,
                                         ds=train_path,
-                                        ev=fs_conf.eval_class.name,
+                                        ev=wfs_conf.eval_class.name,
                                         out=_output_file_path,
                                         csv_line=mapping_csv_file_line)
                 elif fs_conf.source_library == CUSTOM:
                     # here we load config into pydantic Schema to apply validation before running the experiment
-                    fs_conf: CustomFSSchema = CustomFSSchema(**fs_conf_dict)
+                    cfs_conf: CustomFSSchema = CustomFSSchema(**fs_conf_dict)
                     yield FSJobWithInfo(is_cmd=False,
-                                        args=fs_conf,
+                                        args=cfs_conf,
                                         ds=train_path,
-                                        ev=fs_conf.name,
+                                        ev=cfs_conf.name,
                                         out=_output_file_path,
                                         csv_line=mapping_csv_file_line)
                 elif fs_conf.source_library == SCIKIT:
                     # here we load config into pydantic Schema to apply validation before running the experiment
-                    fs_conf: ScikitFSSchema = ScikitFSSchema(**fs_conf_dict)
+                    sfs_conf: ScikitFSSchema = ScikitFSSchema(**fs_conf_dict)
                     yield FSJobWithInfo(is_cmd=False,
-                                        args=fs_conf,
+                                        args=sfs_conf,
                                         ds=train_path,
-                                        ev=fs_conf.fs_method.name,
+                                        ev=sfs_conf.fs_method.name,
                                         out=_output_file_path,
                                         csv_line=mapping_csv_file_line)

@@ -70,6 +70,8 @@ class RemoveOutliersConfigSchema(BaseModel):
     def percentage_validator(cls, value):
         if abs(value) >= 100:
             raise ValueError("Percentage of removed outliers must be between -100 and 100.")
+        if value == 0:
+            raise ValueError("Don't use zero for creating baseline. If you want to remove no outliers, use the original files.")
 
         return value
 

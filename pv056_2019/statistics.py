@@ -110,7 +110,7 @@ def main():
 
         datest, split, *_ = file_split
 
-        # we still do care about json filenames (practical reasons) Here we extract a hash fro that filename
+        # we still do care about json filenames (practical reasons) Here we extract a hash from that filename
         conf_hash = conf_path.split(".")[0]
         if conf_hash not in config_dict:
             with open(conf_path) as config_file:
