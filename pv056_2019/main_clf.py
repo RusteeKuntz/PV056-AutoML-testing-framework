@@ -54,10 +54,10 @@ def weka_worker(queue,
                                         stderr=subprocess.PIPE,
                                         timeout=timeout)
                 # these are mostly debugging outputs. Turn them on if you want to know what goes wrong.
-                print("RESULT:", clf, dataset,
+                #print("RESULT:", clf, dataset,
                       #"\nERR:", result.stderr,
                       #"\nOUT:", result.stdout,
-                      "\nRC:", result.returncode)
+                      #"\nRC:", result.returncode)
                 # print(" ".join(args))
                 # print(result.stdout)
                 # print(result.stderr)
