@@ -53,9 +53,10 @@ def weka_worker(queue,
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         timeout=timeout)
+                # these are mostly debugging outputs. Turn them on if you want to know what goes wrong.
                 print("RESULT:", clf, dataset,
-                      "\nERR:", result.stderr,
-                      "\nOUT:", result.stdout,
+                      #"\nERR:", result.stderr,
+                      #"\nOUT:", result.stdout,
                       "\nRC:", result.returncode)
                 # print(" ".join(args))
                 # print(result.stdout)
@@ -66,6 +67,7 @@ def weka_worker(queue,
             except subprocess.TimeoutExpired:
                 time_diff = timeout
                 blacklist.append((clf, dataset))
+                print(clf, dataset, "TIMED OUT! Appending combination to a temporary blacklist. Continuing.")
         else:
             time_diff = timeout
 
