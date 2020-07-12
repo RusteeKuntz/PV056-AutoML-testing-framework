@@ -50,13 +50,13 @@ def main():
         # csv_reader = csv.reader(csv_in, delimiter=",")
         list_of_rows = []
         for row in csv.reader(csv_in, delimiter=","):
-            print("ROW:", row)
-            print("FILE:", row[0])
+            #print("ROW:", row)
+            #print("FILE:", row[0])
             if os.path.exists(row[0]):
-                print("EXISTS")
+                #print("EXISTS")
                 list_of_rows.append(row)
             else:
-                print("DOES NOT EXISTS")
+                print("FILE:", row[0], "DOES NOT EXISTS")
 
         #csv_rows = sorted([row for row in csv.reader(csv_in, delimiter=",") if os.path.exists(row[0])], key=lambda x: os.path.getsize(x[0]))
         csv_rows = sorted(list_of_rows,
@@ -159,7 +159,7 @@ def main():
         _str_accuracy,
     ]
 
-    print("DATA from classifier prediction")
+    #print("DATA from classifier prediction")
     # print(headers_proccessed)
     # print(*data, sep="\n")
     dataframe = pd.DataFrame(data, columns=headers_proccessed)
@@ -210,8 +210,8 @@ def main():
     #                           for ax in dataframe['clf_hex']]
     # dataframe['od_params'] = [str(config_dict[ax]["ad_config"].get("parameters")).replace(",", ";").replace("'", "")
     #                          for ax in dataframe['clf_hex']]
-    print("DATA BEFORE AGGREGATION")
-    print(dataframe)
+    #print("DATA BEFORE AGGREGATION")
+    #print(dataframe)
     if statistic_conf.aggregate:
         dataframe = dataframe.groupby(
             by=[
@@ -222,7 +222,6 @@ def main():
                 *headers_steps
             ]
         ).mean().reset_index()
-        print("PLS")
         #print(group_fold_df)
         #print(dataframe.columns != "fold")
         #dataframe = group_fold_df.loc[:, dataframe.columns != "fold"]
@@ -230,8 +229,8 @@ def main():
     dataframe = dataframe.round(5)
     if baseline_supplied:
         dataframe["gain"] = dataframe[_str_accuracy+_str_base] - dataframe[_str_accuracy]
-    print("FINAL DATA:")
-    print(dataframe.to_csv())
+    #print("FINAL DATA:")
+    #print(dataframe.to_csv())
     with open(statistic_conf.output_table, "w") as ot:
         dataframe.to_csv(ot, index=False)
         #print(dataframe.to_csv(), file=ot)

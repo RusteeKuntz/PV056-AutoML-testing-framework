@@ -23,6 +23,8 @@ def print_nice_scatterplot(data: pd.DataFrame,
                            x_title: str,
                            y_title: str,
                            dpi: int,
+                           height_multiplier: float = 1,
+                           width_multiplier: float = 1,
                            max_y_val=None,
                            min_y_val=None,
                            convert_col_related_from_json=True,
@@ -31,7 +33,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                            ):
     # preset configuration
     # scale=2
-    height = 40
+    height = 30
     max_marker_size = 1000  # *scale
     min_marker_size = 1  # *scale
 
@@ -84,7 +86,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
 
     # Scatterplot create figure
     # _fig = plt.figure( figsize=(8*scale,40*scale))
-    _fig = plt.figure(figsize=(8, height))
+    _fig = plt.figure(figsize=(10*width_multiplier, height*height_multiplier))
 
     # Create an axes instance
     ax1 = _fig.add_subplot(111)

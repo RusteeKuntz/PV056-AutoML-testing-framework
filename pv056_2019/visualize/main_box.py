@@ -22,6 +22,8 @@ def print_boxplots(data: pd.DataFrame,
                    x_title: str,
                    y_title: str,
                    dpi: int,
+                   height_multiplier: float = 1,
+                   width_multiplier: float = 1,
                    sort_func=None,
                    min_y_val=None,
                    max_y_val=None,
@@ -71,7 +73,7 @@ def print_boxplots(data: pd.DataFrame,
 
     # dynamically set parameters of the graphs so that they are uniform across all graphs, but are minimalised
     # figsize = ((len(g)) * scale, 25 * scale)  # originally (60, 30)
-    figsize = ((len(g)), 25)  # originally (60, 30)
+    figsize = ((len(g)*width_multiplier), 30*height_multiplier)  # originally (60, 30)
     if max_y_val is None:
         max_y_val = data[col_examined].max()
     if min_y_val is None:

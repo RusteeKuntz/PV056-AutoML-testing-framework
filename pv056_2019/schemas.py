@@ -179,6 +179,8 @@ class GraphStepSchema(BaseModel):
     sort_by_column: Union[str, List[str]] = None
     separate_graphs_for_different_values_in_column: Union[str, List[str]] = None
     dpi: int = 400  # dots per inch, resolution
+    height_multiplier: float
+    width_multiplier: float
 
 
 class GraphScatterStepSchema(GraphStepSchema):
