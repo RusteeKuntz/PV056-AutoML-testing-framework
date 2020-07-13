@@ -48,11 +48,12 @@ def print_nice_scatterplot(data: pd.DataFrame,
     else:
         y_ticks = np.arange(min_y_val, max_y_val, _y_tick)
 
-
+    print("Ticks ok")
     # here we transform data from the column containing the parameter we are investigating (col_related)
     # and read it as json, then extracting parameters to more readable string
 
     if convert_col_related_from_json and extract_col_related is None:
+        print("Converting from json")
         try:
             if isinstance(col_related, List):
                 for col in col_related:
@@ -74,8 +75,10 @@ def print_nice_scatterplot(data: pd.DataFrame,
 
     # now, after the related columns are joined into one, we can extract parameters
     if extract_col_related is not None:
+        print("Extracting col_related")
         data[new_col_related] = data[new_col_related].map(lambda x: extract_parameter_value_as_int(x, extract_col_related))
     if extract_col_grouped_by is not None:
+        print("Extracting col_grouped_by")
         if isinstance(col_grouped_by, List):
             for group in col_grouped_by:
                 data.loc[:, group] = data[group].map(
@@ -103,16 +106,20 @@ def print_nice_scatterplot(data: pd.DataFrame,
     # this sorts times and labels for display in the boxplot by the parameters of the boxplots
     # data_to_plot_arr, labels = zip(*sorted(zip(data_to_plot_arr,labels), key=lambda e: e[1] ))
 
+    print("Plot prepared, preparing groups")
+
     groups = []
     # get the dataframes with their group names into list
     for group, group_df in data.groupby(col_grouped_by):
         groups.append((group, group_df))
 
     # sort the list by the parameter so we can apply reasonable coloring
+    print("Sorting groups")
     groups = sorted(groups, key=lambda x: x[0])
     current_size = max_marker_size
     # use seaborn to generate list of enough colors from a color pallete - it is graded
     colors = sns.color_palette(sns.dark_palette('cyan', n_colors=len(groups)), n_colors=len(groups))
+    print("Adding scatter subplots")
     for group, group_df in groups:
         # Create the scatterplot
         ax1.scatter(x=group_df[new_col_related], y=group_df[col_examined], label=str(group), color=colors.pop(),
@@ -120,6 +127,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
         current_size -= (max_marker_size - min_marker_size) / len(groups)
 
     # ax1.set_xticklabels(['1', '2', '5', '10', '50', '100', '500', '200'])
+    print("Adding ticks, legend and labels")
     ax1.set_yticks(y_ticks)
     ax1.tick_params(axis='x',
                     rotation=90,
@@ -139,18 +147,22 @@ def print_nice_scatterplot(data: pd.DataFrame,
                         )
     legend.get_title().set_fontsize(22  # *scale
                                     )
+    print("Saving figures")
     _fig.savefig(graph_filename, bbox_inches="tight", dpi=dpi)
     plt.close(_fig)
+    print("DONE")
 
 
 def main():
+    print("Starting graph creation, parsing arguments.")
     parser = setup_arguments()
     args = parser.parse_args()
+    print("args parsed")
     with open(args.config_graph, "r") as conf_file:
         conf = GraphScatterStepSchema(**json.load(conf_file))
 
     df, out_fp = prepare_data(args, conf)
-
+    print("data prepared")
     if conf.separate_graphs_for_different_values_in_column is not None:
         gbc = df.groupby(conf.separate_graphs_for_different_values_in_column)
         counter = 0
@@ -199,6 +211,7 @@ def main():
             #                        title="Changes in accuracy " + title + " " + group + "\nbased on parameter n_neighbors \n of OD method " + od_method_name + " for different % of removed outliers\n",
             #                        legend_title="% of removed outliers")
     else:
+        print("Printing scatterplot")
         print_nice_scatterplot(data=df,
                                graph_filename=out_fp,
                                col_examined=conf.col_examined,
