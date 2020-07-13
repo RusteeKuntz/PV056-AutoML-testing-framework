@@ -164,6 +164,8 @@ def main():
                        x_title=conf.x_title,
                        y_title=conf.x_title,
                        dpi=conf.dpi,
+                       height_multiplier=conf.height_multiplier,
+                       width_multiplier=conf.width_multiplier,
                        sort_func=SORT_FUNCTIONS[conf.sort_func_name],
                        min_y_val=conf.min_y_val,
                        max_y_val=conf.max_y_val,
