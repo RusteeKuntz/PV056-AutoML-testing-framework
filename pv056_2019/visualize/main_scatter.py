@@ -53,7 +53,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
     # and read it as json, then extracting parameters to more readable string
 
     if convert_col_related_from_json and extract_col_related is None:
-        print("Converting from json")
+        print("Converting from json", flush=True)
         try:
             if isinstance(col_related, List):
                 for col in col_related:
@@ -75,10 +75,10 @@ def print_nice_scatterplot(data: pd.DataFrame,
 
     # now, after the related columns are joined into one, we can extract parameters
     if extract_col_related is not None:
-        print("Extracting col_related")
+        print("Extracting col_related", flush=True)
         data[new_col_related] = data[new_col_related].map(lambda x: extract_parameter_value_as_int(x, extract_col_related))
     if extract_col_grouped_by is not None:
-        print("Extracting col_grouped_by")
+        print("Extracting col_grouped_by", flush=True)
         if isinstance(col_grouped_by, List):
             for group in col_grouped_by:
                 data.loc[:, group] = data[group].map(
@@ -164,6 +164,7 @@ def main():
     df, out_fp = prepare_data(args, conf)
     print("data prepared")
     if conf.separate_graphs_for_different_values_in_column is not None:
+        raise NotImplementedError("This functionality is not ready.")
         gbc = df.groupby(conf.separate_graphs_for_different_values_in_column)
         counter = 0
         for group, group_df in gbc:
@@ -211,7 +212,7 @@ def main():
             #                        title="Changes in accuracy " + title + " " + group + "\nbased on parameter n_neighbors \n of OD method " + od_method_name + " for different % of removed outliers\n",
             #                        legend_title="% of removed outliers")
     else:
-        print("Printing scatterplot to: ", out_fp)
+        print("Printing scatterplot to: ", out_fp, flush=True)
         print_nice_scatterplot(data=df,
                                graph_filename=out_fp,
                                col_examined=conf.col_examined,
