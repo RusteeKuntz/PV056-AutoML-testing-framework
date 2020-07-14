@@ -48,9 +48,9 @@ def setup_arguments()->argparse.ArgumentParser:
     return parser
 
 def prepare_data(args, conf: GraphStepSchema) -> (pd.DataFrame, str):
-
+    print("Reading results")
     df = pd.read_csv(args.datasets_csv_in)
-
+    print("Sorting dataset.")
     if conf.sort_by_column is not None:
         sorted_df = df.sort_values(by=conf.sort_by_column)
 
