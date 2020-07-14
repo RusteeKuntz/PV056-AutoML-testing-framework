@@ -147,7 +147,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
                         )
     legend.get_title().set_fontsize(22  # *scale
                                     )
-    print("Saving figures")
+    print("Saving figures to", graph_filename)
     _fig.savefig(graph_filename, bbox_inches="tight", dpi=dpi)
     plt.close(_fig)
     print("DONE")
@@ -211,7 +211,7 @@ def main():
             #                        title="Changes in accuracy " + title + " " + group + "\nbased on parameter n_neighbors \n of OD method " + od_method_name + " for different % of removed outliers\n",
             #                        legend_title="% of removed outliers")
     else:
-        print("Printing scatterplot")
+        print("Printing scatterplot to: ", out_fp)
         print_nice_scatterplot(data=df,
                                graph_filename=out_fp,
                                col_examined=conf.col_examined,
