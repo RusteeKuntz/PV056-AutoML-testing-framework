@@ -13,11 +13,20 @@ OD_VALUE_NAME = "OD_VALUE"
 # *********************************************************
 
 
-
-
 # *********************************************************
 # Utils for graph creation
 # *********************************************************
+
+
+def try_to_parse_number(n: str):
+    try:
+        return int(n)
+    except ValueError:
+        try:
+            return float(n)
+        except ValueError:
+            return n
+
 
 def locate_string_in_arr(arr: [], string: str):
     index = 0
@@ -54,27 +63,21 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
                 val = ""
                 if isinstance(e, tuple):
                     # print("found one value")
-                    try:
-                        val = int(e[1])
-                    except ValueError:
-                        val = e[1]
+                    val = e[1]
                 else:
-                    try:
-                        val = int(e)
-                    except ValueError:
-                        val = e
+                    val = e
                 if len(val) == 0:
                     values.append("UNMATCHED")
                 else:
                     values.append(val)
-            return ",".join(values)
+            if len(values) == 1:
+                return try_to_parse_number(values[0])
+            else:
+                return ",".join(values)
 
     elif isinstance(extracted_value, str):
         #print("found one value")
-        try:
-            return int(extracted_value[0])
-        except ValueError:
-            return extracted_value[0]
+        return try_to_parse_number(extracted_value)
     else:
         print(json_string, extracted_value, type(extracted_value))
         raise Exception("FATAL")
