@@ -135,7 +135,11 @@ def print_nice_scatterplot(data: pd.DataFrame,
     groups = []
     # get the dataframes with their group names into list
     for group, group_df in data.groupby(col_grouped_by):
-        groups.append((", ".join(group), group_df))
+        # if the group is a tuple, trasform it to a nice string
+        if isinstance(group, tuple):
+            groups.append((", ".join([str(g) for g in group]), group_df))
+        else:
+            groups.append((group, group_df))
 
     # sort the list by the parameter so we can apply reasonable coloring
     print("Sorting groups")
