@@ -9,14 +9,15 @@ from matplotlib import pyplot as plt
 
 from pv056_2019.visualize.main_box import print_boxplots
 from pv056_2019.schemas import GraphBoxStepSchema, GraphScatterStepSchema
-from pv056_2019.utils import valid_path, convert_dict_to_parameter_pairs, extract_parameter_value_as_int
+from pv056_2019.utils import valid_path, convert_dict_to_parameter_pairs, extract_parameter_value_as_int, \
+    comp_str_as_num
 from pv056_2019.visualize import SORT_FUNCTIONS, setup_arguments, prepare_data
 
 
 def print_nice_scatterplot(data: pd.DataFrame,
                            graph_filename: str,
                            col_examined: str,
-                           col_grouped_by: str,
+                           col_grouped_by: Union[str, List[str]],
                            col_related: Union[str, List[str]],
                            title: str,
                            legend_title: str,
@@ -27,7 +28,8 @@ def print_nice_scatterplot(data: pd.DataFrame,
                            width_multiplier: float = 1,
                            max_y_val=None,
                            min_y_val=None,
-                           convert_col_related_from_json=True,
+                           convert_col_related_from_json=False,
+                           convert_col_grouped_by_from_json=False,
                            extract_col_related=None,
                            extract_col_grouped_by=None
                            ):
@@ -54,20 +56,40 @@ def print_nice_scatterplot(data: pd.DataFrame,
 
     if convert_col_related_from_json and extract_col_related is None:
         print("Converting from json", flush=True)
-        try:
-            if isinstance(col_related, List):
-                for col in col_related:
+
+        if isinstance(col_related, List):
+            for col in col_related:
+                try:
                     data[col] = data[col].map(convert_dict_to_parameter_pairs)
-            else:
+                except:
+                    print("Data are not interpretable as JSON.")
+        else:
+            try:
                 data[col_related] = data[col_related].map(convert_dict_to_parameter_pairs)
-        except TypeError:
-            print("Data are not interpretable as JSON.")
+            except:
+                print("Data are not interpretable as JSON.")
+
+    if convert_col_grouped_by_from_json and extract_col_grouped_by is None:
+        print("Converting from json", flush=True)
+
+        if isinstance(col_grouped_by, List):
+            for col in col_grouped_by:
+                try:
+                    data[col] = data[col].map(convert_dict_to_parameter_pairs)
+                except:
+                    print("Data are not interpretable as JSON.")
+        else:
+            try:
+                data[col_grouped_by] = data[col_grouped_by].map(convert_dict_to_parameter_pairs)
+            except:
+                print("Data are not interpretable as JSON.")
+
 
     if isinstance(col_related, List):
         new_col_related = "_".join(col_related)
         data[new_col_related] = data[col_related[0]].astype(str)
         for col in col_related[1:]:
-            data[new_col_related] = data[new_col_related] + "_" + data[col]
+            data[new_col_related] = data[new_col_related] + ", " + data[col]
 
         #data[].astype(str) + '_' + big['foo'] + '_' + big['new']
     else:
@@ -86,6 +108,8 @@ def print_nice_scatterplot(data: pd.DataFrame,
         else:
             data[col_grouped_by] = data[col_grouped_by].map(
                 lambda x: extract_parameter_value_as_int(x, extract_col_grouped_by))
+
+    #data[new_col_related].astype(str)
 
     # Scatterplot create figure
     # _fig = plt.figure( figsize=(8*scale,40*scale))
@@ -111,7 +135,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
     groups = []
     # get the dataframes with their group names into list
     for group, group_df in data.groupby(col_grouped_by):
-        groups.append((group, group_df))
+        groups.append((", ".join(group), group_df))
 
     # sort the list by the parameter so we can apply reasonable coloring
     print("Sorting groups")
@@ -120,15 +144,27 @@ def print_nice_scatterplot(data: pd.DataFrame,
     # use seaborn to generate list of enough colors from a color pallete - it is graded
     colors = sns.color_palette(sns.dark_palette('cyan', n_colors=len(groups)), n_colors=len(groups))
     print("Adding scatter subplots")
+
+    first = True
     for group, group_df in groups:
+        if first:
+            group_df.sort_values(by=col_related, inplace=True)
+            first = False
         # Create the scatterplot
-        ax1.scatter(x=group_df[new_col_related], y=group_df[col_examined], label=str(group), color=colors.pop(),
+        ax1.scatter(x=group_df[new_col_related].astype(str), y=group_df[col_examined], label=str(group), color=colors.pop(),
                     s=current_size)
         current_size -= (max_marker_size - min_marker_size) / len(groups)
 
+    xlabels = [str(x[0]) for x in data.groupby(col_related)]
+
     # ax1.set_xticklabels(['1', '2', '5', '10', '50', '100', '500', '200'])
     print("Adding ticks, legend and labels")
-    ax1.set_yticks(y_ticks)
+    #print(xlabels)
+    print(data[col_examined].min())
+    print(data[col_examined].max())
+    #ax1.set_xticklabels(xlabels)
+    #ax1.set_xticks(xlabels)
+    #ax1.set_yticks(y_ticks)
     ax1.tick_params(axis='x',
                     rotation=90,
                     labelsize=22  # *scale
@@ -198,6 +234,7 @@ def main():
                                    max_y_val=conf.max_y_val,
                                    min_y_val=conf.min_y_val,
                                    convert_col_related_from_json=conf.convert_col_related_from_json,
+                                   convert_col_grouped_by_from_json=conf.convert_col_grouped_by_from_json,
                                    extract_col_grouped_by=conf.extract_col_grouped_by,
                                    extract_col_related=conf.extract_col_related
                                    )
@@ -228,5 +265,6 @@ def main():
                                max_y_val=conf.max_y_val,
                                min_y_val=conf.min_y_val,
                                convert_col_related_from_json=conf.convert_col_related_from_json,
+                               convert_col_grouped_by_from_json=conf.convert_col_grouped_by_from_json,
                                extract_col_related=conf.extract_col_related,
                                extract_col_grouped_by=conf.extract_col_grouped_by)

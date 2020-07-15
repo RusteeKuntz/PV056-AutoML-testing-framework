@@ -17,6 +17,12 @@ OD_VALUE_NAME = "OD_VALUE"
 # Utils for graph creation
 # *********************************************************
 
+def comp_str_as_num(n: str):
+    try:
+        return float(n)
+    except ValueError:
+        return 0
+
 
 def try_to_parse_number(n: str):
     try:
@@ -67,10 +73,13 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
                 else:
                     val = e
                 if len(val) == 0:
-                    values.append("UNMATCHED")
+                    pass
                 else:
                     values.append(val)
-            if len(values) == 1:
+            if len(values) == 0:
+                print("UNMATCHED value in json_string:\n", json_string, "\nSearched for parameter:\n", parameter)
+                "UNMATCHED"
+            elif len(values) == 1:
                 return try_to_parse_number(values[0])
             else:
                 return ",".join(values)
@@ -88,7 +97,7 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
         #     raise e
 
 def convert_dict_to_parameter_pairs(json_string: str):
-    _dct = json.loads(json_string)
+    _dct = json.loads(json_string.replace("'", '"'))
     res = ""
     first = True
     for key in _dct:

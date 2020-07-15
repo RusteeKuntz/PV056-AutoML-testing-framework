@@ -192,8 +192,9 @@ class GraphScatterStepSchema(GraphStepSchema):
     x_title: str
     y_title: str
     max_y_val: Union[float, int] = None
-    min_y_val:Union[float, int] = None
-    convert_col_related_from_json: bool = True
+    min_y_val: Union[float, int] = None
+    convert_col_related_from_json: bool = False
+    convert_col_grouped_by_from_json: bool = False
     extract_col_grouped_by: Union[str, List[str]] = None
     extract_col_related: Union[str, List[str]] = None
 
@@ -208,9 +209,9 @@ class GraphBoxStepSchema(GraphStepSchema):
     sort_func_name: str = None  # label, mean, inv_mean, median
     min_y_val: Union[float, int] = None
     max_y_val: Union[float, int] = None
-    convert_col_related_from_json: bool = True
+    convert_col_related_from_json: bool = False
     extract_col_related: str = None
-    show_fliers: bool = True
+    show_fliers: bool = False
     dpi: int = 600  # dots per inch, resolution
 
 
