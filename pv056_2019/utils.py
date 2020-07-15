@@ -44,21 +44,45 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
     #print(pattern)
     extracted_value = re.findall(pattern + r':\s*[\'"]?(\d*|[\w.]*)["\']?[\s,}]', json_string)
 
-    if isinstance(extracted_value, list) and len(extracted_value) == 0:
-        #print("Did not find any matches for:", pattern + r':\s*["\']?([\d ]*|[\w\s]*)["\']?[\s,}]', "in string:", json_string)
-        return json_string
-    elif (isinstance(extracted_value, list) and len(extracted_value) == 1) or isinstance(extracted_value, str):
+    if isinstance(extracted_value, list):
+        if len(extracted_value) == 0:
+            #print("Did not find any matches for:", pattern + r':\s*["\']?([\d ]*|[\w\s]*)["\']?[\s,}]', "in string:", json_string)
+            return json_string
+        else:
+            values = []
+            for e in extracted_value:
+                val = ""
+                if isinstance(e, tuple):
+                    # print("found one value")
+                    try:
+                        val = int(e[1])
+                    except ValueError:
+                        val = e[1]
+                else:
+                    try:
+                        val = int(e)
+                    except ValueError:
+                        val = e
+                if len(val) == 0:
+                    values.append("UNMATCHED")
+                else:
+                    values.append(val)
+            return ",".join(values)
+
+    elif isinstance(extracted_value, str):
         #print("found one value")
         try:
             return int(extracted_value[0])
         except ValueError:
             return extracted_value[0]
     else:
-        try:
-            return ",".join([(e.split(".")[-1] if len(e) > 0 else "UNMATCHED or EMPTY!") for e in extracted_value ])
-        except Exception as e:
-            print(json_string, extracted_value, type(extracted_value))
-            raise e
+        print(json_string, extracted_value, type(extracted_value))
+        raise Exception("FATAL")
+        # try:
+        #     return ",".join([(e[1].split(".")[-1] if isinstance(e, tuple) else e.split(".")[-1] if len(e) > 0 else "UNMATCHED or EMPTY!") for e in extracted_value ])
+        # except Exception as e:
+        #
+        #     raise e
 
 def convert_dict_to_parameter_pairs(json_string: str):
     _dct = json.loads(json_string)
