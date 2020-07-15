@@ -54,8 +54,11 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
         except ValueError:
             return extracted_value[0]
     else:
-        print(json_string, extracted_value, type(extracted_value))
-        return ",".join([(e.split(".")[-1] if len(e) > 0 else "UNMATCHED or EMPTY!") for e in extracted_value ])
+        try:
+            return ",".join([(e.split(".")[-1] if len(e) > 0 else "UNMATCHED or EMPTY!") for e in extracted_value ])
+        except Exception as e:
+            print(json_string, extracted_value, type(extracted_value))
+            raise e
 
 def convert_dict_to_parameter_pairs(json_string: str):
     _dct = json.loads(json_string)
