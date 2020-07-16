@@ -152,7 +152,11 @@ def print_nice_scatterplot(data: pd.DataFrame,
     first = True
     for group, group_df in groups:
         if first:
-            group_df = group_df.loc[group_df[col_related].map(comp_str_as_num).sort_values().index]
+            if isinstance(col_related, List):
+                for c in col_related:
+                    group_df = group_df.loc[group_df[c].map(comp_str_as_num).sort_values().index]
+            else:
+                group_df = group_df.loc[group_df[col_related].map(comp_str_as_num).sort_values().index]
             first = False
         # Create the scatterplot
         ax1.scatter(x=group_df[new_col_related].astype(str), y=group_df[col_examined], label=str(group), color=colors.pop(),
