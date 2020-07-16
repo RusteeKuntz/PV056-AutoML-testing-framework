@@ -55,16 +55,22 @@ def print_boxplots(data: pd.DataFrame,
                    show_fliers: bool = False
                    ):
     if convert_col_related_from_json and extract_col_related is None:
-        try:
-            if isinstance(col_related, List):
-                for col in col_related:
+        print("Converting col_related from JSON")
+
+        if isinstance(col_related, List):
+            for col in col_related:
+                try:
                     data[col] = data[col].map(convert_dict_to_parameter_pairs)
-            else:
+                except TypeError:
+                    print("Data in", col, "are not interpretable as JSON.")
+        else:
+            try:
                 data[col_related] = data[col_related].map(convert_dict_to_parameter_pairs)
-        except TypeError:
-            print("Data are not interpretable as JSON.")
+            except TypeError:
+                print("Data in", col_related, "are not interpretable as JSON.")
 
     if isinstance(col_related, List):
+        print("Joining related columns into one.")
         new_col_related = "_".join(col_related)
         data[new_col_related] = data[col_related[0]].astype(str)
         for col in col_related[1:]:
@@ -76,9 +82,11 @@ def print_boxplots(data: pd.DataFrame,
 
     # now, after the related columns are joined into one, we can extract parameters
     if extract_col_related is not None:
+        print("Extracting related column.")
         data[new_col_related] = data[new_col_related].map(
             lambda x: extract_parameter_value_as_int(x, extract_col_related))
 
+    print("Grouping data for boxplots")
     g = data.groupby([col_related])  # ["accuracy"].sum().reset_index()
 
     # graph parameters
@@ -96,6 +104,7 @@ def print_boxplots(data: pd.DataFrame,
 
     # dynamically set parameters of the graphs so that they are uniform across all graphs, but are minimalised
     # figsize = ((len(g)) * scale, 25 * scale)  # originally (60, 30)
+    print("Setting labels, figure size, ticks and other stuff...")
     figsize = ((len(g)*width_multiplier), 20*height_multiplier)  # originally (60, 30)
     if max_y_val is None:
         max_y_val = data[col_examined].max()
@@ -106,18 +115,21 @@ def print_boxplots(data: pd.DataFrame,
         y_ticks = np.concatenate([np.arange(0, min_y_val - _y_tick, -_y_tick)[::-1], np.arange(0, max_y_val, _y_tick)])
     else:
         y_ticks = [np.arange(min_y_val, max_y_val, _y_tick)]
+    print("Figure created.")
     # Create a figure instance
     _fig = plt.figure(figsize=figsize)
 
+    print("Axes created")
     # Create an axes instance
     _ax = _fig.add_subplot(111)
     _ax.set_xlabel(col_related, fontsize=20)  # *scale)
     if sort_func is not None:
-        # this sorts times and labels for display in the boxplot by the parameters of the boxplots
+        print("sorting boxplots")
+        # this sorts labels for display in the boxplot by the parameters of the boxplots
         data_to_plot_arr, labels = zip(*sorted(zip(data_to_plot_arr, labels), key=sort_func))
 
     # Create the boxplot
-
+    print("Creating the graph...")
     bp = _ax.boxplot(data_to_plot_arr, positions=[x for x in range(len(labels))], showfliers=show_fliers)
     # following function is described here: https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.plot
     _ax.plot([x for x in range(len(labels))], list(map(lambda x: x.mean(), list(data_to_plot_arr))), marker=mean_marker,
@@ -136,6 +148,7 @@ def print_boxplots(data: pd.DataFrame,
     _ax.tick_params(axis='y', labelsize=22  # *scale
                     )
 
+    print("Creating legend")
     # custom legend elements gymnastics (it is really awful, but I coudl not find better solution)
     colors = [mean_color]
     # sizes = [6*scale]
@@ -157,11 +170,14 @@ def print_boxplots(data: pd.DataFrame,
     _ax.grid(True)
 
     # Save the figure
+    print("Saving figure to", graph_filename, ".")
     _fig.savefig(graph_filename, bbox_inches='tight', dpi=dpi)
     plt.close(_fig)
+    print("DONE")
 
 
 def main():
+    print("Starting to create boxplot, parsing arguments...")
     parser = setup_arguments()
     args = parser.parse_args()
     with open(args.config_graph, "r") as conf_file:
@@ -171,14 +187,15 @@ def main():
 
     if conf.separate_graphs_for_different_values_in_column is not None:
         # extract data
-
+        raise NotImplementedError
         gbc = df.groupby(conf.separate_graphs_for_different_values_in_column)
         for group, group_df in gbc:
             legend_appendix = " Data are selected for value" + (
                 "s " if not isinstance(group, str) else " ") + group + " in column" + ("s " if not isinstance(group,
                                                                                                               str) else " ") + conf.separate_graphs_for_different_values_in_column + "."
-            raise NotImplementedError
+
     else:
+        print("Calling the print method..")
         print_boxplots(data=df,
                        graph_filename=out_fp,
                        col_examined=conf.col_examined,

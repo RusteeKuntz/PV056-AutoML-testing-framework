@@ -36,5 +36,6 @@ def prepare_data(args, conf: GraphStepSchema) -> (pd.DataFrame, str):
     print("Sorting dataset.")
     if conf.sort_by_column is not None:
         sorted_df = df.sort_values(by=conf.sort_by_column)
+        return sorted_df
 
     return df, args.output_png
