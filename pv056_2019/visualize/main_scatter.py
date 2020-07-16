@@ -7,11 +7,11 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 
-from pv056_2019.visualize.main_box import print_boxplots
+
 from pv056_2019.schemas import GraphBoxStepSchema, GraphScatterStepSchema
 from pv056_2019.utils import valid_path, convert_dict_to_parameter_pairs, extract_parameter_value_as_int, \
     comp_str_as_num
-from pv056_2019.visualize import SORT_FUNCTIONS, setup_arguments, prepare_data
+from pv056_2019.visualize import setup_arguments, prepare_data
 
 
 def print_nice_scatterplot(data: pd.DataFrame,
@@ -152,7 +152,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
     first = True
     for group, group_df in groups:
         if first:
-            group_df.sort_values(by=col_related, inplace=True)
+            group_df = group_df.loc[group_df[col_related].map(comp_str_as_num).sort_values().index]
             first = False
         # Create the scatterplot
         ax1.scatter(x=group_df[new_col_related].astype(str), y=group_df[col_examined], label=str(group), color=colors.pop(),

@@ -7,7 +7,30 @@ from matplotlib import pyplot as plt
 
 from pv056_2019.schemas import GraphBoxStepSchema
 from pv056_2019.utils import valid_path, convert_dict_to_parameter_pairs, extract_parameter_value_as_int
-from pv056_2019.visualize import SORT_FUNCTIONS, setup_arguments, prepare_data
+from pv056_2019.visualize import setup_arguments, prepare_data
+
+
+
+def sort_boxplots_on_mean(e: [pd.Series, str]):
+    return -e[0].mean()
+
+
+def sort_boxplots_on_mean_inverse(e: [pd.Series, str]):
+    return e[0].mean()
+
+
+def sort_boxplots_on_label(e: [pd.Series, str]):
+    return e[1]
+
+
+def sort_boxplots_on_median(e: [pd.Series, str]):
+    return e[0].median()
+
+
+SORT_FUNCTIONS = {"label": sort_boxplots_on_label,
+                  "mean": sort_boxplots_on_mean,
+                  "inv_mean": sort_boxplots_on_mean_inverse,
+                  "median": sort_boxplots_on_median}
 
 """
 argument sort_func is a comparator function applied to a tuple of two elements: (data series, name). It sorts data in the graph.
@@ -28,8 +51,8 @@ def print_boxplots(data: pd.DataFrame,
                    min_y_val=None,
                    max_y_val=None,
                    extract_col_related=None,
-                   convert_col_related_from_json=True,
-                   show_fliers: bool = True
+                   convert_col_related_from_json=False,
+                   show_fliers: bool = False
                    ):
     if convert_col_related_from_json and extract_col_related is None:
         try:
@@ -73,7 +96,7 @@ def print_boxplots(data: pd.DataFrame,
 
     # dynamically set parameters of the graphs so that they are uniform across all graphs, but are minimalised
     # figsize = ((len(g)) * scale, 25 * scale)  # originally (60, 30)
-    figsize = ((len(g)*width_multiplier), 30*height_multiplier)  # originally (60, 30)
+    figsize = ((len(g)*width_multiplier), 20*height_multiplier)  # originally (60, 30)
     if max_y_val is None:
         max_y_val = data[col_examined].max()
     if min_y_val is None:
@@ -124,7 +147,7 @@ def print_boxplots(data: pd.DataFrame,
     legend = plt.legend(handles=patches,
                         bbox_to_anchor=[0, 0],
                         loc='upper right',
-                        title="Boxplots show first and third quartile,\n with variability represented with whiskers",
+                        title="Boxes show median, first and third quartile,\nwith whiskers representing variability.",
                         ncol=2,
                         # prop={'size': 16 * scale})
                         prop={'size': 16})
@@ -134,7 +157,7 @@ def print_boxplots(data: pd.DataFrame,
     _ax.grid(True)
 
     # Save the figure
-    _fig.savefig(graph_filename + '.png', bbox_inches='tight', dpi=dpi)
+    _fig.savefig(graph_filename, bbox_inches='tight', dpi=dpi)
     plt.close(_fig)
 
 
@@ -173,3 +196,4 @@ def main():
                        convert_col_related_from_json=conf.convert_col_related_from_json,
                        show_fliers=conf.show_fliers
                        )
+

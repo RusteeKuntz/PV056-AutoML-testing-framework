@@ -19,6 +19,8 @@ OD_VALUE_NAME = "OD_VALUE"
 
 def comp_str_as_num(n: str):
     try:
+        if isinstance(n, str):
+            n = n.strip("%")
         return float(n)
     except ValueError:
         return 0

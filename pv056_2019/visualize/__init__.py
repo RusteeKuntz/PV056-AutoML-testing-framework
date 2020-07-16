@@ -6,23 +6,6 @@ from pv056_2019.schemas import GraphStepSchema
 from pv056_2019.utils import valid_path
 
 
-def sort_boxplots_on_mean(e: [pd.Series, str]):
-    return -e[0].mean()
-
-def sort_boxplots_on_mean_inverse(e: [pd.Series, str]):
-    return e[0].mean()
-
-def sort_boxplots_on_label(e: [pd.Series, str]):
-    return e[1]
-
-def sort_boxplots_on_median(e: [pd.Series, str]):
-    return e[0].median()
-
-SORT_FUNCTIONS = {"label": sort_boxplots_on_label,
-                  "mean": sort_boxplots_on_mean,
-                  "inv_mean": sort_boxplots_on_mean_inverse,
-                  "median": sort_boxplots_on_median}
-
 def setup_arguments()->argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="PV056-AutoML-testing-framework")
     parser.add_argument(
