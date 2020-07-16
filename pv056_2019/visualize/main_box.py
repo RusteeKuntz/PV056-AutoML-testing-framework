@@ -150,12 +150,16 @@ def print_boxplots(data: pd.DataFrame,
 
     print("Creating legend")
     # custom legend elements gymnastics (it is really awful, but I coudl not find better solution)
-    colors = [mean_color]
+    # TODO: This is wrong. Replace the arrays with markerstyle objects
+    markers = [mean_marker, "o"]
+    edgecolors = [mean_color, "black"]
+    facecolors = [mean_color, None]
     # sizes = [6*scale]
-    sizes = [6]
-    texts = ["Mean"]
-    patches = [plt.plot([], [], marker=mean_marker, ms=sizes[i], ls="", mec=None, color=colors[i],
-                        label="{:s}".format(texts[i]))[0] for i in range(len(texts))]
+    sizes = [7, 7]
+    texts = ["Mean", "Outlier"]
+    fill_styles = ["full", "none"]
+    patches = [plt.plot([], [], marker=markers[i], ms=sizes[i], ls="", mec=edgecolors[i], markerfacecolor=facecolors[i],
+                        fillstyle=fill_styles[i], label="{:s}".format(texts[i]))[0] for i in range(len(texts))]
 
     legend = plt.legend(handles=patches,
                         bbox_to_anchor=[0, 0],
