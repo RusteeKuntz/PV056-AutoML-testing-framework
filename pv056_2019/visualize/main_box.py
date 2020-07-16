@@ -202,7 +202,7 @@ def main():
                        col_related=conf.col_related,
                        title=conf.title,
                        x_title=conf.x_title,
-                       y_title=conf.x_title,
+                       y_title=conf.y_title,
                        dpi=conf.dpi,
                        height_multiplier=conf.height_multiplier,
                        width_multiplier=conf.width_multiplier,
