@@ -144,7 +144,7 @@ class FeatureSelectionManager:
                             f_count = _in_df.shape[1] - 1
 
                             # here we modify the original "-N" parameter for Ranker, so that it contains valid integer
-                            n_param = round(percent*f_count)
+                            n_param = round(percent*f_count*0.01)
 
                             #wfs_conf.search_class.parameters["N"] = n_param
                             sc: CommandSchema = CommandSchema(**{"name": wfs_conf.search_class.name, "parameters": {**wfs_conf.search_class.parameters}})
