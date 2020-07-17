@@ -135,7 +135,7 @@ class FeatureSelectionManager:
 
                 # generate command with info appropriately for used library
                 if fs_conf.source_library == WEKA:
-                    wfs_conf: WekaFSFilterConfigurationSchema = WekaFSFilterConfigurationSchema(**fs_conf_dict)
+                    wfs_conf: WekaFSFilterConfigurationSchema = WekaFSFilterConfigurationSchema(**fs_conf_dict.copy())
                     if wfs_conf.search_class.name == "weka.attributeSelection.Ranker" and\
                         isinstance(wfs_conf.search_class.parameters["N"], str) and\
                         "%" in wfs_conf.search_class.parameters["N"]:
