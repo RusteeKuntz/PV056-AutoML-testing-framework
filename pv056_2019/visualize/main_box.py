@@ -69,22 +69,30 @@ def print_boxplots(data: pd.DataFrame,
             except TypeError:
                 print("Data in", col_related, "are not interpretable as JSON.")
 
-    if isinstance(col_related, List):
-        print("Joining related columns into one.")
-        new_col_related = "_".join(col_related)
-        data[new_col_related] = data[col_related[0]].astype(str)
-        for col in col_related[1:]:
-            data[new_col_related] = data[new_col_related] + "_" + data[col]
 
-        # data[].astype(str) + '_' + big['foo'] + '_' + big['new']
-    else:
-        new_col_related = col_related
 
-    # now, after the related columns are joined into one, we can extract parameters
+    # extract parameters
     if extract_col_related is not None:
-        print("Extracting related column.")
-        data[new_col_related] = data[new_col_related].map(
-            lambda x: extract_parameter_value_as_int(x, extract_col_related))
+        if isinstance(extract_col_related, List):
+            print("Extracting related columns.")
+            for c in col_related:
+                data[c] = data[c].map(
+                    lambda x: extract_parameter_value_as_int(x, extract_col_related))
+        else:
+            print("Extracting related column.")
+            data[col_related] = data[col_related].map(
+                lambda x: extract_parameter_value_as_int(x, extract_col_related))
+
+    # if isinstance(col_related, List):
+    #     print("Joining related columns into one.")
+    #     new_col_related = "_".join(col_related)
+    #     data[new_col_related] = data[col_related[0]].astype(str)
+    #     for col in col_related[1:]:
+    #         data[new_col_related] = data[new_col_related] + "_" + data[col]
+    #
+    #     # data[].astype(str) + '_' + big['foo'] + '_' + big['new']
+    # else:
+    #     new_col_related = col_related
 
     print("Grouping data for boxplots")
     g = data.groupby(col_related)  # ["accuracy"].sum().reset_index()
