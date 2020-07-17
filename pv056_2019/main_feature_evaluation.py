@@ -249,7 +249,6 @@ def main():
         pool = [Process(target=fs_worker, args=(queue, fs_mapping_csv, blacklist, binarized_test_files, conf.timeout)) for _ in
                 range(conf.n_jobs)]
 
-        exit()
         print("Starting processes")
         try:
             [process.start() for process in pool]
