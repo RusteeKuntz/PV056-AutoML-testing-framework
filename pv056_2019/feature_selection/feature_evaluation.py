@@ -145,6 +145,7 @@ class FeatureSelectionManager:
                             # here we modify the original "-N" parameter for Ranker, so that it contains valid integer
                             n_param = round(percent*f_count)
                             wfs_conf.search_class.parameters["N"] = n_param
+                            print("Replaced %")
 
 
                     # here we prepare filters for currently useless columns that should not be considered for FS
@@ -181,7 +182,7 @@ class FeatureSelectionManager:
                     # if len(file_split) < 2:
                     #    file_split.append("0")
 
-                    # print(_run_args)
+                    print(_run_args)
 
                     yield FSJobWithInfo(is_cmd=True,
                                         args=_run_args,
