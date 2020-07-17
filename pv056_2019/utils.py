@@ -59,7 +59,7 @@ def extract_parameter_value_as_int(json_string: str, parameter: str or List[str]
         return json_string
 
     #print(pattern)
-    extracted_value = re.findall(pattern + r':\s*[\'"]?(\d*|[\w.]*)["\']?[\s,}]', json_string)
+    extracted_value = re.findall(pattern + r':\s*[\'"]?(\d*|[^"\'},]*)["\']?[\s,}]', json_string)
 
     if isinstance(extracted_value, list):
         if len(extracted_value) == 0:
