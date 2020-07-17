@@ -135,7 +135,7 @@ class FeatureSelectionManager:
 
                 # generate command with info appropriately for used library
                 if fs_conf.source_library == WEKA:
-                    wfs_conf: WekaFSFilterConfigurationSchema = WekaFSFilterConfigurationSchema(**fs_conf_dict.copy())
+                    wfs_conf: WekaFSFilterConfigurationSchema = WekaFSFilterConfigurationSchema(**fs_conf_dict)
                     if wfs_conf.search_class.name == "weka.attributeSelection.Ranker" and\
                         isinstance(wfs_conf.search_class.parameters["N"], str) and\
                         "%" in wfs_conf.search_class.parameters["N"]:
@@ -145,7 +145,12 @@ class FeatureSelectionManager:
 
                             # here we modify the original "-N" parameter for Ranker, so that it contains valid integer
                             n_param = round(percent*f_count)
-                            wfs_conf.search_class.parameters["N"] = n_param
+
+                            #wfs_conf.search_class.parameters["N"] = n_param
+                            sc: CommandSchema = CommandSchema(**{"name": wfs_conf.search_class.name, "parameters": {**wfs_conf.search_class.parameters}})
+                            sc.parameters["N"] = n_param
+                            wfs_conf.search_class = sc
+
                             print("Shape of dataset", train_path, f_count, n_param)
                             print("Replaced %")
 
