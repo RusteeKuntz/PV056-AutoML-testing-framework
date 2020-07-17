@@ -142,9 +142,11 @@ class FeatureSelectionManager:
                             percent = float(wfs_conf.search_class.parameters["N"].replace("%", "").strip())
                             _in_df = DataLoader._load_arff_file(train_path)
                             f_count = _in_df.shape[1] - 1
+
                             # here we modify the original "-N" parameter for Ranker, so that it contains valid integer
                             n_param = round(percent*f_count)
                             wfs_conf.search_class.parameters["N"] = n_param
+                            print("Shape of dataset", train_path, f_count, n_param)
                             print("Replaced %")
 
 
