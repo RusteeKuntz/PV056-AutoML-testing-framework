@@ -87,7 +87,7 @@ def print_boxplots(data: pd.DataFrame,
             lambda x: extract_parameter_value_as_int(x, extract_col_related))
 
     print("Grouping data for boxplots")
-    g = data.groupby([col_related])  # ["accuracy"].sum().reset_index()
+    g = data.groupby(col_related)  # ["accuracy"].sum().reset_index()
 
     # graph parameters
     # scale = 1
