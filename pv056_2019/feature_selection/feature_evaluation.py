@@ -3,7 +3,7 @@ import os, json
 
 from pv056_2019.data_loader import DataLoader
 from pv056_2019.schemas import CommandSchema, FeatureSelectionStepSchema, \
-    WekaFSFilterConfigurationSchema, CustomFSSchema, ScikitFSSchema, FSStepSchema
+    WekaFSFilterConfigurationSchema, CustomFSSchema, ScikitFSSchema, FSSchema
 from pv056_2019.utils import OD_VALUE_NAME, ID_NAME, CUSTOM, WEKA, SCIKIT, _nest_double_quotes, _assert_trailing_slash
 
 
@@ -110,7 +110,7 @@ class FeatureSelectionManager:
             #print("FS SETTINGS:", fs_settings)
             for fs_conf_dict, hash_md5, fs_config_json_basename in fs_settings:
 
-                fs_conf: FSStepSchema = FSStepSchema(**fs_conf_dict)
+                fs_conf: FSSchema = FSSchema(**fs_conf_dict)
                 _fs_identifier = '_FS' + hash_md5
 
                 # TODO xbajger: Remove this "_train" gymnastic, it should be obsolete to keep that string in filenames

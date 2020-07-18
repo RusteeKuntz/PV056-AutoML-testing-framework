@@ -117,7 +117,7 @@ class StatisticsSchema(BaseModel):
     pattern: str = ".*"
 
 
-class FSStepSchema(BaseModel):
+class FSSchema(BaseModel):
     source_library: str
 
 
@@ -128,14 +128,14 @@ class CommandSchema(BaseModel):
 
 
 # TODO: Create generic scikit method calling mechanism
-class ScikitFSSchema(FSStepSchema):
+class ScikitFSSchema(FSSchema):
     source_library = SCIKIT
     leave_attributes_binarized: bool
     fs_method: CommandSchema
     score_func: CommandSchema = None
 
 
-class CustomFSSchema(FSStepSchema, CommandSchema):
+class CustomFSSchema(FSSchema, CommandSchema):
     source_library = CUSTOM
     name: str
     parameters: dict = {}
@@ -151,7 +151,7 @@ class CustomFSSchema(FSStepSchema, CommandSchema):
 
         return value
 
-class WekaFSFilterConfigurationSchema(FSStepSchema):
+class WekaFSFilterConfigurationSchema(FSSchema):
     source_library = WEKA
     eval_class: CommandSchema
     search_class: CommandSchema

@@ -7,7 +7,7 @@ from sklearn.feature_selection.univariate_selection import _BaseFilter
 from sklearn.preprocessing import OneHotEncoder
 
 from pv056_2019.data_loader import DataLoader, DataFrameArff
-from pv056_2019.schemas import ScikitFSSchema, FSStepSchema, CommandSchema
+from pv056_2019.schemas import ScikitFSSchema, FSSchema, CommandSchema
 
 from pv056_2019.utils import SCIKIT, ID_NAME, WEKA_DATA_TYPES
 
