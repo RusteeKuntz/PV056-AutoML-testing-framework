@@ -182,35 +182,45 @@ class GraphStepSchema(BaseModel):
     height_multiplier: float
     width_multiplier: float
 
-
-class GraphScatterStepSchema(GraphStepSchema):
     col_examined: str = "accuracy"
     col_related: Union[str, List[str]]
-    col_grouped_by: Union[str, List[str]]
-    legend_title: str
     title: str
     x_title: str
     y_title: str
-    max_y_val: Union[float, int] = None
     min_y_val: Union[float, int] = None
+    max_y_val: Union[float, int] = None
     convert_col_related_from_json: bool = False
+    extract_col_related: Union[str, List[str]] = None
+
+
+class GraphScatterStepSchema(GraphStepSchema):
+    #col_examined: str = "accuracy"
+    #col_related: Union[str, List[str]]
+    col_grouped_by: Union[str, List[str]]
+    legend_title: str
+    # title: str
+    # x_title: str
+    # y_title: str
+    #max_y_val: Union[float, int] = None
+    # #min_y_val: Union[float, int] = None
+    # convert_col_related_from_json: bool = False
+    # extract_col_related: Union[str, List[str]] = None
     convert_col_grouped_by_from_json: bool = False
     extract_col_grouped_by: Union[str, List[str]] = None
-    extract_col_related: Union[str, List[str]] = None
 
 
 
 class GraphBoxStepSchema(GraphStepSchema):
-    col_examined: str = "accuracy"
-    col_related: Union[str, List[str]]
-    title: str
-    x_title: str
-    y_title: str
+   # col_examined: str = "accuracy"
+   # col_related: Union[str, List[str]]
+   #  title: str
+   #  x_title: str
+   #  y_title: str
     sort_func_name: str = None  # label, mean, inv_mean, median
-    min_y_val: Union[float, int] = None
-    max_y_val: Union[float, int] = None
-    convert_col_related_from_json: bool = False
-    extract_col_related: Union[str, List[str]] = None
+    #min_y_val: Union[float, int] = None
+    # #max_y_val: Union[float, int] = None
+    # convert_col_related_from_json: bool = False
+    # extract_col_related: Union[str, List[str]] = None
     show_fliers: bool = False
 
 

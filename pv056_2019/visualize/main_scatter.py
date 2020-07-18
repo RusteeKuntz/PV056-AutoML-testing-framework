@@ -172,7 +172,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
     print(data[col_examined].max())
     #ax1.set_xticklabels(xlabels)
     #ax1.set_xticks(xlabels)
-    #ax1.set_yticks(y_ticks)
+    ax1.set_yticks(y_ticks)
     ax1.tick_params(axis='x',
                     rotation=90,
                     labelsize=22  # *scale
