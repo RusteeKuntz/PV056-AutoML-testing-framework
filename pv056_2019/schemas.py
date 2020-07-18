@@ -212,7 +212,6 @@ class GraphBoxStepSchema(GraphStepSchema):
     convert_col_related_from_json: bool = False
     extract_col_related: Union[str, List[str]] = None
     show_fliers: bool = False
-    dpi: int = 600  # dots per inch, resolution
 
 
 
