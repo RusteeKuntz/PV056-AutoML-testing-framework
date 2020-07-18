@@ -38,7 +38,7 @@ def print_nice_scatterplot(data: pd.DataFrame,
     height = 30
     max_marker_size = 1000  # *scale
     min_marker_size = 1  # *scale
-
+    # TODO: Allow zooming
     # ticks are calculated in respect to max and min value of the Y axis
     if max_y_val is None:
         max_y_val = data[col_examined].max()
@@ -117,7 +117,6 @@ def print_nice_scatterplot(data: pd.DataFrame,
 
     # Create an axes instance
     ax1 = _fig.add_subplot(111)
-    ax1.set_yticks(y_ticks)
     ax1.set_title(title,
                   fontsize=30  # *scale
                   )

@@ -118,7 +118,7 @@ def print_boxplots(data: pd.DataFrame,
         max_y_val = data[col_examined].max()
     if min_y_val is None:
         min_y_val = data[col_examined].min()
-    _y_tick = (max_y_val - min_y_val) / 40
+    _y_tick = (max_y_val - min_y_val) / (40*height_multiplier)
     if min_y_val < 0:
         y_ticks = np.concatenate([np.arange(0, min_y_val - _y_tick, -_y_tick)[::-1], np.arange(0, max_y_val, _y_tick)])
     else:
