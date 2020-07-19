@@ -212,6 +212,6 @@ class FeatureSelectionManager:
                     yield FSJobWithInfo(is_cmd=False,
                                         args=sfs_conf,
                                         ds=train_path,
-                                        ev=sfs_conf.fs_method.name,
+                                        ev=sfs_conf.score_func.name,
                                         out=_output_file_path,
                                         csv_line=mapping_csv_file_line)
