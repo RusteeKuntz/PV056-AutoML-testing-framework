@@ -39,6 +39,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
         print("Popped command for", eval_method, "-->", dataset, "from queue.")
 
         # I believe it does not make sense to blacklist search methods.
+        print("FSBLACKLIST\n", blacklist)
         if not (eval_method, dataset) in blacklist:
             if command.is_cmd:
                 try:
