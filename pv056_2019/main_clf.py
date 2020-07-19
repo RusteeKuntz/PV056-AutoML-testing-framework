@@ -45,7 +45,7 @@ def weka_worker(queue,
         #file_split = args[6].split("/")[-1].split("_")
         dataset = command_with_info.dataset  # file_split[0]
         clf = command_with_info.clf_classname  # args[16].split(".")[-1]
-
+        print("BLACKLIST: ", blacklist, "\nTUPLE: ", (clf, dataset), (clf, dataset) in blacklist)
         if not (clf, dataset) in blacklist:
             try:
                 time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
