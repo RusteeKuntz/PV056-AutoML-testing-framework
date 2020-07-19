@@ -45,7 +45,7 @@ def weka_worker(queue,
         #file_split = args[6].split("/")[-1].split("_")
         dataset = command_with_info.dataset  # file_split[0]
         clf = command_with_info.clf_classname  # args[16].split(".")[-1]
-        print("BLACKLIST: ", blacklist, "\nTUPLE: ", (clf, dataset), (clf, dataset) in blacklist)
+        #print("BLACKLIST: ", blacklist, "\nTUPLE: ", (clf, dataset), (clf, dataset) in blacklist)
         if (clf, dataset) not in blacklist:
             try:
                 time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
@@ -70,6 +70,7 @@ def weka_worker(queue,
                 print(clf, dataset, "TIMED OUT! Appending combination to a temporary blacklist. Continuing.")
         else:
             time_diff = timeout
+            print("Combination", clf, "and", dataset, "is blacklisted.")
 
         clf_fam = ".".join(command_with_info.clf_classname.split(".")[2:-1])
         fold = command_with_info.fold  # file_split[1]
