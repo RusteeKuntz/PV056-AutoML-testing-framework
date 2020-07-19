@@ -39,7 +39,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
         print("Popped command for", eval_method, "-->", dataset, "from queue.")
 
         # I believe it does not make sense to blacklist search methods.
-        print("FSBLACKLIST\n", blacklist, "\nEVAL METHOD and DATASET: ", (eval_method, dataset))
+        #print("FSBLACKLIST\n", blacklist, "\nEVAL METHOD and DATASET: ", (eval_method, dataset))
         if not (eval_method, dataset) in blacklist:
             if command.is_cmd:
                 try:
@@ -174,6 +174,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
         else:
             # previously timed out combination is skipped right away
             time_diff = timeout
+            print("Combination", eval_method, "and", dataset, "is blacklisted.")
 
         # TODO: Add times output for feature selection
         # clf_fam = ".".join(args[16].split(".")[2:-1])
