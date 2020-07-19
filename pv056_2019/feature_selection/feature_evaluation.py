@@ -189,7 +189,7 @@ class FeatureSelectionManager:
                     # if len(file_split) < 2:
                     #    file_split.append("0")
 
-                    print(_run_args)
+                    #print(_run_args)
 
                     yield FSJobWithInfo(is_cmd=True,
                                         args=_run_args,
