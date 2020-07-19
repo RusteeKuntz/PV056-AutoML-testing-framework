@@ -230,7 +230,7 @@ def main():
         if conf.blacklist_file_path is not None:
             with open(conf.blacklist_file_path, "r") as bf:
                 for i in bf:
-                    blacklist.append(i.replace("\n", "").split(','))
+                    blacklist.append(tuple(i.replace("\n", "").split(',')))
 
         queue = Queue()
         with open(args.datasets_csv_in, "r") as datasets_mapping_csv:

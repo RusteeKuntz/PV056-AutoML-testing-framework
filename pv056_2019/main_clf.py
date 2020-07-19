@@ -168,7 +168,7 @@ def main():
         with open(conf.blacklist_file, "r") as bf:
             # read files from blacklist file and put them into the actual list
             for i in bf:
-                blacklist.append(i.replace("\n", "").split(','))
+                blacklist.append(tuple(i.replace("\n", "").split(',')))
 
         queue = Queue()
         print("FILLING THE QUEUE")
