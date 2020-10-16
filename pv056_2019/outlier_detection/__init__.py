@@ -3,6 +3,8 @@ from __future__ import absolute_import
 import numpy as np
 import pandas as pd
 from typing import Any, Dict
+
+from pv056_2019.outlier_detection.RFOEX import RFOEXMetric
 from sklearn.ensemble import IsolationForest
 from pv056_2019.outlier_detection.CL import CLMetric
 from pv056_2019.outlier_detection.CLD import CLDMetric
@@ -20,7 +22,6 @@ from pv056_2019.outlier_detection.DCP import DCPMetric
 from pv056_2019.outlier_detection.DS import DSMetric
 from pv056_2019.outlier_detection.KDN import KDNMetric
 from pv056_2019.outlier_detection.CODB import CODBMetric
-from pv056_2019.outlier_detection.RFOEX import RFOEXMetric
 from pv056_2019.outlier_detection.CLOF import CLOFMetric
 
 DETECTORS: Dict[str, Any] = {}

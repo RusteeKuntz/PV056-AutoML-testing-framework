@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 class RFOEXMetric:
 
-    def countRFOEX(self, df, classes, super):
+    def countRFOEX_old(self, df, classes, super):
 
         inst = len(df)
 

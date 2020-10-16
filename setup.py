@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+from Cython.Build import cythonize
+import sys
 
 setup(
     name="pv056_2019",
@@ -18,7 +20,8 @@ setup(
             "pv056-remove-outliers=pv056_2019.remove_outliers:main",
             "pv056-run-clf=pv056_2019.main_clf:main",
             "pv056-statistics=pv056_2019.statistics:main",
-        ]
+        ],
     },
     zip_safe=False,
+    ext_modules=cythonize("pv056_2019/outlier_detection/*.pyx", language_level="3"),
 )
