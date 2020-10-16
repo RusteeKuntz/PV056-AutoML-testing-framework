@@ -35,8 +35,9 @@ def main():
             print("Splitting:", dataframe._arff_data["relation"], flush=True)
             dataframe = dataframe.add_index_column()
             kfold = KFold(n_splits=5, shuffle=True, random_state=42)
-            for index, data_fold in enumerate(kfold.split(dataframe.index.values)):
-                train_index, test_index = data_fold
+            #for index, data_fold in enumerate(kfold.split(dataframe.index.values)):
+            for index in range(1):
+                train_index, test_index = dataframe.index.values, dataframe.index.values
 
                 train_frame = dataframe.select_by_index(train_index)
                 train_name = (
