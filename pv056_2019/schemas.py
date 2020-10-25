@@ -109,7 +109,7 @@ class RunClassifiersCongfigSchema(BaseModel):
 
 
 class StatisticsSchema(BaseModel):
-    results_dir: str
+    #results_dir: str
     #od_times_path: str
     #clf_times_path: str
     output_table: str

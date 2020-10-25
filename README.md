@@ -43,32 +43,81 @@ By default, you should place the downloaded datasets to the `data/datasets/` fol
 
 ## Usage
 If you have chosen to install this tester in the virtual environment, you must activate it to proceed.
-* *Pipeline 1:* split data -> run classifiers -> (optional) statistics
-* *Pipeline 2 (outlier detection):* split data -> apply outlier detectors -> remove outliers -> run classifiers -> (optional) statistics
+Virtual environment is activated by running `source venv/bin/activate` and deactivated by `deactivate`
 
+
+#### Brief commentary on the workflow structure
+It is recommended by starting by splitting the data. If you dont want to split the data using this framework,
+be aware that you will have to manually create a CSV file that contains tuples of paths to train files and their corresponding test files.
+
+If you dont want to use test files and you dont plan on analyzing differences, use dummy paths.
+The framework currently assumes having at least two columns in the input CSVs with paths to datasets,
+so if you don't satisfy this criteria when you are doing some part of the workflow manually.
+
+Available workflow steps
+ * **SPLIT** (executed once)
+ * **FS**, **OD** and **RM** (executed multiple times)
+ * **CLF** (executed once with preprocessed data and then optionally with original data)
+ * **STATS** (executed once)
+ * **GRAPH** (executed multiple times)
+
+**FS** step is not dependent on **OD** and **RM** steps and can be performed before or after those, any number of times.
+The **RM** step has to be performed exactly after the **OD** step, as it calculates with a special column that is only
+created and kept by the **OD** step. These two steps, **RM** and **OD** are tightly dependent on each other and have to be 
+performed together to get any meaningful results, but if you abide by that requirement, they together can be also performed
+multiple times independently of **FS** step.
+
+**NOTE!**<br/>*Keep in mind that the OD column and the column with the name ID are checked for by almost every step and is removed to prevent accidental
+influence on the performed steps.*
+
+#### Explanation of parameters of commands
+Each step has its corresponding command. All are described in detail in the following sections.
+They have a lot in common. Each step, except for the **SPLIT**, requires a parameter `-di` (*meaning "datasets input CSV"*) which should contain
+a path to a special CSV.
+
+The CSV has to contain a table of at least two columns.
+On each row, the first column contains a path to a file intended to train classifiers on and the second column contains a path to a file for testing the same classifier.
+
+The CSV files as described above are created in each step, except for the **STATS** and **GRAPH** steps, and contain paths to modified dataset files, that were created in that step.
+User needs to control where the resulting CSV file is created by providing the parameter `-do` (*meaning "datasets output CSV"*).
+
+In addition to input and out CSV paths, a path to a configuration JSON file is required in each step.
+The parameter for specifying path to a config JSON is `-c` (*meaning just "config"*).
+
+It should be noted, that the **STATS** step has an additional parameter, through which you can provide baseline classifiers for comparison.
+
+**NOTE!**
+<br/>Each command has a builtin `--help` parameter that shows the usage and required parameters.
 
 ### Split data
-Because we want to cross-validate every classifier, we need to split data into the five train-test tuples.  Before this was a part of weka classifiers, jet now, because we want to work with training datasets we need to do it manually.
+Because we want to cross-validate every classifier, we need to split data into train-test tuples.
+Before, this was a part of weka classifiers, yet now, because we want to work with training datasets, we need to do it manually.
+An *M\*K-fold cross-validation* is performed based on a configuration JSON. Basically it splits data into *K* folds *M* times.
+Resulting into *M\*K* different tuples of train-test files. These tuples will be referred to as splits.
 
-For this purpose, we have the `pv056-split-data`. As specified in its configuration file (see `config_split_example.json`) it will split datasets into five train-test tuples and generates CSV (`datasets.csv`) file which can be used for classification without any changes to the training splits.
+For this purpose, we have the `pv056-split-data`. As specified in its configuration file (see `configs/split/default.json`)
+it will split datasets into fifteen train-test tuples and generate a CSV file based on the `-do` parameter,
+which is then further used in the workflow.
 
 ```
-(venv)$ pv056-split-data --help
+(venv)$ pv056-split-data -h
 usage: pv056-split-data [-h] --config-file CONFIG_FILE --datasets-file
                         DATASETS_FILE
 
-Script splits datasets for cross-validation
+Script splits datasets for m*k-fold cross-validation. Script splits datasets
+m-times into k folds.
 
 optional arguments:
   -h, --help            show this help message and exit
   --config-file CONFIG_FILE, -c CONFIG_FILE
                         JSON configuration
-  --datasets-file DATASETS_FILE, -d DATASETS_FILE
-                        Filename of output datasets config
+  --datasets-file DATASETS_FILE, -do DATASETS_FILE
+                        Filename of output datasets csv tracking files
+                        relationships
 ```
 #### Example usage
 ```
-(venv)$ pv056-split-data -c configs/split/default.json -d datasets.csv
+(venv)$ pv056-split-data -c configs/split/default.json -do datasets-split.csv
 ```
 
 #### Example config file
@@ -78,20 +127,36 @@ optional arguments:
     * Directory where generated **train** datasets should be saved
 * *test_split_dir*
     * Directory where generated **test** datasets should be saved
+* *k_of_folds*
+    * The number of folds for a generally known k-fold cross-validation.
+* *m_of_repeats*
+    * Specifies how many different k-fold splits shall be generated.
+    * If set to one, data will be split for a basic k-fold cross-validation.
+    * Each time a different seed is used, derived deterministically from the random seed.
+* *random_state*
+    * Optional parameter
+    * Specifies a seed for the splitting algorithm.
+    * By default it is set to 42. (*See the code*)
 
 ```json
 {
-    "data_path": "data/datasets/",
-    "train_split_dir": "data/train_split/",
-    "test_split_dir": "data/test_split/"
+  "data_path": "data/datasets/",
+  "train_split_dir": "data/train_split/",
+  "test_split_dir": "data/test_split/",
+  "m_of_repeats": 3,
+  "k_of_folds": 5
 }
 ```
 
 ### Apply outlier detection methods
-To apply outlier detection methods to all training splits, we have the `pv056-apply-od-methods`. This script takes all the training splits from the `train_split_dir` (it will only take files which basename ends with `_train.arff`) and adds a column with outlier detection value. It will generate new training file for every outlier detection method!
+To apply outlier detection methods to all training splits, we have the `pv056-apply-od-methods`.
+This script takes all the training files as described by the first column of the input CSV
+and adds a column with outlier detection value. It will generate new training file for every outlier detection method
+specified in the configuration JSON file!
 ```
 (venv)$ pv056-apply-od-methods --help
 usage: pv056-apply-od-methods [-h] --config-file CONFIG_FILE
+                              [-do DATASETS_CSV_OUT] -di DATASETS_CSV_IN
 
 Apply outlier detection methods to training data
 
@@ -99,30 +164,35 @@ optional arguments:
   -h, --help            show this help message and exit
   --config-file CONFIG_FILE, -c CONFIG_FILE
                         JSON configuration
+  -do DATASETS_CSV_OUT, --datasets-csv-out DATASETS_CSV_OUT
+                        Path to a csv file which contains result files
+                        mappings and their new configurations histories, as
+                        modified by this step.
+  -di DATASETS_CSV_IN, --datasets-csv-in DATASETS_CSV_IN
+                        Path to csv file that contains previous data files
+                        mappings, locations and configurations.
 ```
 #### Example usage
 ```
-(venv)$ pv056-apply-od-methods -c configs/od/default.json
+(venv)$ pv056-apply-od-methods -c configs/od/default.json -di "datasets-split.csv -do "datasets-od.csv"
 ```
 
 #### Example config file
-* *train_split_dir*
-    * Directory with splitted **train** datasets
 * *train_od_dir*
     * Directory where generated **train** datasets with outlier detection values should be saved
 * *n_jobs*
     * number of parallel workers
+    * You need to have multiple processing units to actually speed up the calculations.
 * *times_output*
-    * path to file where the run times should be stored
+    * path to file where the run times should be stored.
 * *od_methods*
-    * List with Outlier detection methods
-    * Outlier detection method schema:
+    * List with Outlier detection methods, each methos is described by a two-valued schema.
+    * The schema is as follows:
         * *name* - OD name
         * *parameters* - Dictionary "parameter_name": "value"
 
 ```json
 {
-    "train_split_dir": "data/train_split/",
     "train_od_dir": "data/train_od/",
     "n_jobs": 2,
     "times_output": "outputs/od_times.csv",
@@ -193,15 +263,19 @@ Example:
 }
 ```
 
-* New methods for outlier detection coming soon!
+* New methods for outlier detection coming sooner or later, probably later!
 
 
 ### Remove outliers
-As the name suggests, this script will remove the biggest outliers from each training split with outlier detection value. Based on his configuration it will generate CSV file (`datasets.csv`) which can be then used for running the weka classifiers.
+As the name suggests, this script will remove the biggest outliers from each training split with outlier detection values.
+It is absolutely necessary for this step that the dataset files contain a column with outlier detection score values.
+These score values are generated by the **OD** step and are discarded by every other step to avoid interference with classification or feature selection.
+
 ```
 (venv)$ pv056-remove-outliers  --help
-usage: pv056-remove-outliers [-h] --config-file CONFIG_FILE --datasets-file
-                             DATASETS_FILE
+usage: pv056-remove-outliers [-h] --config-file CONFIG_FILE --datasets-csv-in
+                             DATASETS_CSV_IN --datasets-csv-out
+                             DATASETS_CSV_OUT
 
 Removes the percentage of the largest outliers.
 
@@ -209,30 +283,28 @@ optional arguments:
   -h, --help            show this help message and exit
   --config-file CONFIG_FILE, -c CONFIG_FILE
                         JSON configuration
-  --datasets-file DATASETS_FILE, -d DATASETS_FILE
-                        Filename of output datasets config
+  --datasets-csv-in DATASETS_CSV_IN, -di DATASETS_CSV_IN
+                        CSV file with input dataset split mappings and
+                        configuration histories
+  --datasets-csv-out DATASETS_CSV_OUT, -do DATASETS_CSV_OUT
+                        CSV containing resulting dataset split mappings and
+                        updated configuration histories
 ```
 #### Example usage
 ```
-(venv)$ pv056-remove-outliers  -c configs/rm/default.json -d datasets.csv
+(venv)$ pv056-remove-outliers  -c configs/rm/default.json -di "datasets-od.csv" -do "datasets-rm.csv"
 ```
 
 #### Example config file
-* *test_split_dir*
-    * Directory with splitted **test** datasets
 * *train_od_dir*
     * generated **train** datasets with outlier detection values
 * *train_removed_dir*
     * Directory where train data with **removed** outliers should be saved
-* *keep_original*
-    * Setting this to true will produce baseline datasets as well,
-    ie. datasets without any instances removed (default: `true`)
 * *percentage*
     * How many percents of the largest outliers should be removed (0.0-100.0)
     * int or List[int]
 ```json
 {
-    "test_split_dir": "data/test_split/",
     "train_od_dir": "data/train_od/",
     "train_removed_dir": "data/train_removed/",
     "keep_original": true,
@@ -244,18 +316,114 @@ optional arguments:
 }
 ```
 
-
-
-### Run weka classifiers
-To run a weka classifier using this framework, first setup virtual environment, install required modules and download weka tool.
-1) Activate your virtual Python environment with this project.
-2) Generate `datasets.csv` file using `pv056-split-data` or `pv056-remove-outliers` (See [Split data](#split-data) and [Remove outliers](#remove-outliers) )
-3) Create a `config_clf_example.json` file, with weka classifiers and their configuration (See [Config file for weka classifiers](#example-of-config-file-for-weka-classifiers))
-5) Run `pv056-run-clf` script, see command below
+### Perform feature selection (FS step)
+At this point, the feature selection step allows you to run various WEKA or SCIKIT methods for feature selection.
+Current implementation allows you to specify a library, its method and parameters.
 
 ```
-(venv)$ pv056-run-clf --help
-usage: pv056-run-clf [-h] -c CONFIG_CLF -d DATASETS_CSV
+(venv)$ pv056-evaluate-features --help
+usage: pv056-evaluate-features [-h] -c CONFIG_FS [-do DATASETS_CSV_OUT] -di
+                               DATASETS_CSV_IN
+
+PV056-AutoML-testing-framework
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CONFIG_FS, --config-fs CONFIG_FS
+                        path to feature selection config file
+  -do DATASETS_CSV_OUT, --datasets-csv-out DATASETS_CSV_OUT
+                        path to a csv file which contains datasets used for FS
+                        and their respective result files
+  -di DATASETS_CSV_IN, --datasets-csv-in DATASETS_CSV_IN
+                        Path to csv file that contains previous data files
+                        mappings, locations and for example OD configurations
+```
+#### Example usage
+```
+(venv)$ pv056-evaluate-features -c configs/fs/default.json -di "datasets-rm.csv" -do "datasets-fs.csv"
+```
+
+#### Example of a config file
+* *output_folder_path*
+    * The directory where the result files are stored.
+* *weka_jar_path*
+    * Path to a WEKA jar file
+* *blacklist_file_path*
+    * Path to a file containing blacklisted combinations of dataset and FS method
+* *selection_methods*
+    * List[] of of feature selection method configurations.
+    * Each FS method config in the list has to follow a schema. The schema contains parameter
+    *source_library* which specifies which library to pick selection method from.
+     Currently two libraries are available: `WEKA` and `SCIKIT`
+    * In case of feature selection, the implementation usually requires two methods.
+    One method usually divides features into special subsets or creates rankings,
+     the other method selects which features to actually filter out.
+     The parameter names `fs_method`, `score_func` in WEKA and `eval_class`, `search_class` in WEKA
+     follow the naming and structure of the methods in their respective libraries.
+     It is advised to look into the documentation of said libraries to gain basic understanding of how to use them.
+     To make it easier, here are links to [SCIKIT feature selection package documentation](https://scikit-learn.org/stable/modules/classes.html#module-sklearn.feature_selection)
+     and to the [WEKA documentation index](https://weka.sourceforge.io/doc.stable-3-8/) where you can search for specific method details.
+     It is also recommended to install and explore the WEKA GUI to gain basic understanding of how the methods interact
+     and which parameters they use.
+    * *leave_attributes_binarized*
+        * This is a special parameter specific for SCIKIT only. You will probably not need to use it,
+        but in case you have very large numbers of categorical attributes with very large domains,
+        setting this attribute to false might help reduce the calculation times of subsequent steps.
+        Before using this, read the implementation details and how it works in my [thesis](https://is.muni.cz/th/eh6aj/) in the chapter 4.3.2 (page 15)
+        
+
+
+```
+{
+  "output_folder_path": "data/fs_outputs/",
+  "weka_jar_path": "data/java/weka.jar",
+  "blacklist_file_path": "data/fs_blacklist.csv",
+  "selection_methods": [
+    {
+      "source_library": "SCIKIT",
+      "leave_attributes_binarized": true,
+      "fs_method": {
+        "name": "SelectFpr",
+        "parameters": {
+          "alpha": 0.2
+        }
+      },
+      "score_func": {
+        "name": "chi2",
+        "parameters": {}
+      }
+    },
+    {
+      "source_library": "WEKA",
+      "eval_class": {
+        "name": "weka.attributeSelection.InfoGainAttributeEval",
+        "parameters": {}
+      },
+      "search_class": {
+        "name": "weka.attributeSelection.Ranker",
+        "parameters": {
+          "T": 5E-3,
+          "N": -1
+        }
+      }
+    }
+  ]
+}
+```
+
+
+### Run weka classifiers (CLF step)
+As in other steps, to run this step, you need to have an input CSV with train and test filepaths columns
+and optionally additional columns with paths to JSON files with configurations of preprocessing steps applied to the train files.
+As usual, the path to the input CSV is specified via the  `--datasets-csv-in` or `-di` parameter.
+The other parameter, `--datasets-csv-out` or `-do` will specify a filepath to the output CSV.
+The output CSV here will contain paths to files with predictions of the trained classifiers and paths to JSON files
+with complete list of configurations of used preprocessing steps. 
+
+```
+(venv) aura:/var/tmp/AutoMLref>$ pv056-run-clf --help
+usage: pv056-run-clf [-h] -c CONFIG_CLF -di DATASETS_CSV_IN -do
+                     DATASETS_CSV_OUT
 
 PV056-AutoML-testing-framework
 
@@ -263,13 +431,16 @@ optional arguments:
   -h, --help            show this help message and exit
   -c CONFIG_CLF, --config-clf CONFIG_CLF
                         path to classifiers config file
-  -d DATASETS_CSV, --datasets-csv DATASETS_CSV
-                        Path to csv with data files
+  -di DATASETS_CSV_IN, --datasets-csv-in DATASETS_CSV_IN
+                        Path to csv with train/test/configs filepaths.
+  -do DATASETS_CSV_OUT, --datasets-csv-out DATASETS_CSV_OUT
+                        Path to csv with predictions, test files, configs
+                        filepaths.
 ```
 
 #### Example usage
 ```
-(venv)$ pv056-run-clf -c configs/clf/default.json -d datasets.csv
+(venv)$ pv056-run-clf -c configs/clf/default.json -di "datasets-fs.csv" -do "datasets-clf.csv"
 ```
 
 #### Example of config file for weka classifiers
@@ -342,9 +513,18 @@ optional arguments:
 ### Count accuracy
 To count accuracy simply run `pv056-statistics` script. Script will put it all together
 and generate output in csv format (see example below).
+What you need to specify is the path to a results CSV from a **CLF** step as a `--datasets-csv-in` or `-di`
+parameter, and optional baseline results CSV, from a different **CLF** step, to compare it to.
+The parameter to specify a path to the baseline CSV is `--datasets-csv-baseline` or `-db`.
+
+**NOTE!**<br/>
+Right now the intended use is that the baseline **CLF** step is performed on the unprocessed train splits.
+It was not tested for comparing any baseline. For details look into the code. It might work, but it is not guaranteed.
 ```
 (venv)$ pv056-statistics --help
-usage: pv056-statistics [-h] --config-file CONFIG_FILE
+usage: pv056-statistics [-h] --config-file CONFIG_FILE --datasets-csv-in
+                        DATASETS_CSV_IN
+                        [--datasets-csv-baseline DATASETS_CSV_BASELINE]
 
 Script for counting basic statistic (Accuracy, )
 
@@ -352,41 +532,68 @@ optional arguments:
   -h, --help            show this help message and exit
   --config-file CONFIG_FILE, -c CONFIG_FILE
                         JSON configuration
+  --datasets-csv-in DATASETS_CSV_IN, -di DATASETS_CSV_IN
+                        CSV file with paths to predictions, test files and
+                        configurations histories
+  --datasets-csv-baseline DATASETS_CSV_BASELINE, -db DATASETS_CSV_BASELINE
+                        CSV file with paths to predictions, test files and
+                        configurations histories
 ```
 #### Example usage
 ```
-pv056-statistics -c configs/stats/default.json
+pv056-statistics -c configs/stats/default.json -di datasets-clf.csv -db -datasets-base.csv
 ```
 
 #### Example of config file for statistics
-* *results_dir*
-    * directory with predictions generated by ```pv056-run-clf```
-* *od_times_path*
-    * path to file with OD run times generated by ```pv056-apply-od-methods```
-* *clf_times_path*
-    * path to file with classification run times generated by ```pv056-run-clf```
+* *output_table*
+    * path to a CSV file where the completed statistics will be saved.
 * *aggregate*
     * whether to aggregate values across folds (using *mean*)
-* *pattern*
-    * regex pattern which of the files in ```results_dir``` should be taken into account
+* *pattern(removed)* 
+    * regex pattern which of the files should be taken into account
     (e.g. when you are only interested in the results on some datasets)
+    * this feature was removed during the changes I have made.
+    The files are now not loaded from a directory, but from a CSV file
+     and the CSV can be easily modified to obtain the same functionality.
+    * The feature can be added back, if it would be demanded by users.
+    
+```JSON
+{
+  "output_table": "outputs/results.csv",
+  "aggregate": true,
+  "pattern": ".*"
+}
+```
 
 #### Example output
 ```
-(venv)$ pv056-statistics -c configs/stats/default.json
-dataset,clf,clf_family,clf_params,od_name,od_params,removed,accuracy,od_time,clf_time,total_time
-zoo,J48,trees,[],IsolationForest,{behaviour: new; contamination: auto; random_state: 123},0.5,0.92048,0.12022,0.91727,1.0375
-zoo,J48,trees,[],IsolationForest,{behaviour: new; contamination: auto; random_state: 123},1.0,0.92048,0.12022,0.89028,1.0105
-zoo,J48,trees,[],IsolationForest,{behaviour: new; contamination: auto; random_state: 123},10.0,0.92048,0.12022,0.85894,0.97916
-zoo,J48,trees,[],LOF,{contamination: auto},0.5,0.92048,0.05723,0.84975,0.90698
-zoo,J48,trees,[],LOF,{contamination: auto},1.0,0.92048,0.05723,0.86782,0.92505
-zoo,J48,trees,[],LOF,{contamination: auto},10.0,0.90048,0.05723,0.83007,0.88731
-zoo,RandomForest,trees,[-I 1000],IsolationForest,{behaviour: new; contamination: auto; random_state: 123},0.5,0.94048,0.12022,1.12301,1.24323
-zoo,RandomForest,trees,[-I 1000],IsolationForest,{behaviour: new; contamination: auto; random_state: 123},1.0,0.96048,0.12022,1.20243,1.32265
-zoo,RandomForest,trees,[-I 1000],IsolationForest,{behaviour: new; contamination: auto; random_state: 123},10.0,0.95048,0.12022,1.25996,1.38018
-zoo,RandomForest,trees,[-I 1000],LOF,{contamination: auto},0.5,0.94048,0.05723,1.24674,1.30397
-zoo,RandomForest,trees,[-I 1000],LOF,{contamination: auto},1.0,0.94048,0.05723,1.23285,1.29009
-zoo,RandomForest,trees,[-I 1000],LOF,{contamination: auto},10.0,0.95048,0.05723,1.22809,1.28532
+(venv)$ cat outputs/results.csv
+dataset,clf,clf_family,clf_params,step_0,step_1,step_2,step_3,accuracy,accuracy_base,gain
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': -5.0},"{'eval_class': {'name': 'weka.attributeSelection.CfsSubsetEval', 'parameters': {'E': 4, 'L': True, 'M': True, 'P': 3, 'Z': True}}, 'search_class': {'name': 'weka.attributeSelection.BestFirst', 'parameters': {'N': 5, 'S': 3}}, 'source_library': 'WEKA'}",0.79621,0.79691,0.0007000000000000339
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': -5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': False, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.77951,0.79691,0.01739999999999997
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': -5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': True, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.80512,0.79691,-0.00820999999999994
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': 5.0},"{'eval_class': {'name': 'weka.attributeSelection.CfsSubsetEval', 'parameters': {'E': 4, 'L': True, 'M': True, 'P': 3, 'Z': True}}, 'search_class': {'name': 'weka.attributeSelection.BestFirst', 'parameters': {'N': 5, 'S': 3}}, 'source_library': 'WEKA'}",0.80679,0.79691,-0.00988
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': 5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': False, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.77728,0.79691,0.019630000000000036
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': 5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': True, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.81347,0.79691,-0.01656000000000002
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': -5.0},"{'eval_class': {'name': 'weka.attributeSelection.CfsSubsetEval', 'parameters': {'E': 4, 'L': True, 'M': True, 'P': 3, 'Z': True}}, 'search_class': {'name': 'weka.attributeSelection.BestFirst', 'parameters': {'N': 5, 'S': 3}}, 'source_library': 'WEKA'}",0.79621,0.79691,0.0007000000000000339
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': -5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': False, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.77951,0.79691,0.01739999999999997
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': -5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': True, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.80512,0.79691,-0.00820999999999994
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': 5.0},"{'eval_class': {'name': 'weka.attributeSelection.CfsSubsetEval', 'parameters': {'E': 4, 'L': True, 'M': True, 'P': 3, 'Z': True}}, 'search_class': {'name': 'weka.attributeSelection.BestFirst', 'parameters': {'N': 5, 'S': 3}}, 'source_library': 'WEKA'}",0.80345,0.79691,-0.00653999999999999
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': 5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': False, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.78229,0.79691,0.014619999999999966
+anneal,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': 5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': True, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.81793,0.79691,-0.02102000000000004
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': -5.0},"{'eval_class': {'name': 'weka.attributeSelection.CfsSubsetEval', 'parameters': {'E': 4, 'L': True, 'M': True, 'P': 3, 'Z': True}}, 'search_class': {'name': 'weka.attributeSelection.BestFirst', 'parameters': {'N': 5, 'S': 3}}, 'source_library': 'WEKA'}",0.62168,0.62629,0.004610000000000003
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': -5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': False, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.65044,0.62629,-0.024150000000000005
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': -5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': True, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.62832,0.62629,-0.0020299999999999763
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': 5.0},"{'eval_class': {'name': 'weka.attributeSelection.CfsSubsetEval', 'parameters': {'E': 4, 'L': True, 'M': True, 'P': 3, 'Z': True}}, 'search_class': {'name': 'weka.attributeSelection.BestFirst', 'parameters': {'N': 5, 'S': 3}}, 'source_library': 'WEKA'}",0.60619,0.62629,0.020100000000000007
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': 5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': False, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.61947,0.62629,0.006820000000000048
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'CODB', 'parameters': {'jar_path': 'data/java/WEKA-CODB.jar'}}",{'RM': 5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': True, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.61947,0.62629,0.006820000000000048
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': -5.0},"{'eval_class': {'name': 'weka.attributeSelection.CfsSubsetEval', 'parameters': {'E': 4, 'L': True, 'M': True, 'P': 3, 'Z': True}}, 'search_class': {'name': 'weka.attributeSelection.BestFirst', 'parameters': {'N': 5, 'S': 3}}, 'source_library': 'WEKA'}",0.62168,0.62629,0.004610000000000003
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': -5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': False, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.65044,0.62629,-0.024150000000000005
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': -5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': True, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.62832,0.62629,-0.0020299999999999763
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': 5.0},"{'eval_class': {'name': 'weka.attributeSelection.CfsSubsetEval', 'parameters': {'E': 4, 'L': True, 'M': True, 'P': 3, 'Z': True}}, 'search_class': {'name': 'weka.attributeSelection.BestFirst', 'parameters': {'N': 5, 'S': 3}}, 'source_library': 'WEKA'}",0.62168,0.62629,0.004610000000000003
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': 5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': False, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.62389,0.62629,0.0024000000000000687
+audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': 5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': True, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.62389,0.62629,0.0024000000000000687
+
 ```
 
 ## All-in-one script
@@ -404,7 +611,7 @@ script takes care of it, as well as deactivating it after the script finishes*
 
 #### Example usage
 ```
-$ scripts/script.sh
+>$ sh scripts/script.sh
 05/12/2019-17:21:33 - Splitting data...
 05/12/2019-17:21:35 - SPLIT done.
 
@@ -424,11 +631,24 @@ Script finished.
 
 ```
 
+If you want to execute the scripts on remote servers and you are new to unix, it might be handy to look
+into the `disown` command and `&` operator. With those you can execute the command to run in background even if the session
+is terminated. You also need to redirect all outputs, so you have it at hand when the script finishes.
+You will also probably want to ot take up all the server resources, sou might as well want to use the `nice` command (for example if you are on faculty servers)
+You can do it as follows:
+
+```
+$ nice -n 14 sh scripts/script.sh > file_for_outputs.log 2>&1 & disown
+```
+the above command will execute your workflow (as programmed in the `scripts/script.sh` file), redirects stdout to the `file_for_outputs.log`
+file and also redirects the stderr to the stdout, so you should have all the eventual warnings and errors, or just logs, in one file.
 ### Checking progress
 Depending on your setup, the script may take a long time to finish. In order to check how far the script got,
 you should peek into the `od_times.csv` and `clf_times.csv` files generated during execution for the progress
 on outlier detection and classification, respectively.
 These files list the datasets already processed with the time it took for each of them.
+Also, some logging was added as a part of the standard output during the execution, so you should be able to see
+how many jobs were completed by the workers already in some parallel steps, such as FS, or CLF.
 
 ## Reporting problems
 All encountered problems regarding running the script should be posted to the subject [forum](https://is.muni.cz/auth/discussion/predmetove/fi/jaro2020/PV056/). This is mainly

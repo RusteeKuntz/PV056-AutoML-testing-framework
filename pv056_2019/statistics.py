@@ -27,6 +27,7 @@ def calculate_accuracy(prediction_file):
 
 
 def main():
+    # here we build a parser for the arguments passed from the commandline
     parser = argparse.ArgumentParser(
         description="Script for counting basic statistic (Accuracy, )"
     )
@@ -38,6 +39,7 @@ def main():
 
     args = vars(parser.parse_args())
 
+    # open configuration JSON for this step
     with open(args["config_file"]) as json_file:
         statistic_conf: StatisticsSchema = StatisticsSchema(**json.load(json_file))
 
