@@ -174,7 +174,7 @@ optional arguments:
 ```
 #### Example usage
 ```
-(venv)$ pv056-apply-od-methods -c configs/od/default.json -di "datasets-split.csv -do "datasets-od.csv"
+(venv)$ pv056-apply-od-methods -c configs/od/default.json -di "datasets-split.csv" -do "datasets-od.csv"
 ```
 
 #### Example config file
@@ -302,17 +302,14 @@ optional arguments:
     * Directory where train data with **removed** outliers should be saved
 * *percentage*
     * How many percents of the largest outliers should be removed (0.0-100.0)
+    * If you want to remove the observations that are least anomalous instead, use negative values.
     * int or List[int]
 ```json
 {
     "train_od_dir": "data/train_od/",
     "train_removed_dir": "data/train_removed/",
     "keep_original": true,
-    "percentage": [
-        0.5,
-        5,
-        10
-    ]
+    "percentage": [ 1, 2, 5, -1, -2, -5 ]
 }
 ```
 
