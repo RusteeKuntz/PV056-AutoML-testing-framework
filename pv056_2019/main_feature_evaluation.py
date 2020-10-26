@@ -18,14 +18,14 @@ debugging = False
 
 def run_scikit_stuff(args: ScikitFSSchema, df: DataFrameArff, output_file_path: str):
 
-    print("Selection began for", df.arff_data().relation)
+    #print("Selection began for", df.arff_data().relation)
     fs_frame = df.select_features_with_sklearn(
         setup_sklearn_fs_class(args.fs_method, args.score_func),
         args.leave_attributes_binarized
     )
 
     fs_frame.arff_dump(output_file_path)
-    print("Dump completed.")
+    #print("Dump completed.")
 
 
 def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binarized_test_files, timeout):
