@@ -37,7 +37,7 @@ class TDMetric:
 
         values = np.empty([0, 0])
 
-        estimator = DecisionTreeClassifier(min_impurity_split=minimum_impurity_split)
+        estimator = DecisionTreeClassifier(min_impurity_decrease=minimum_impurity_split)
         estimator.fit(df, classes)
 
         n_nodes = estimator.tree_.node_count
