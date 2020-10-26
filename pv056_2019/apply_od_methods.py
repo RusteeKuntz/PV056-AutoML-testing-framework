@@ -57,17 +57,17 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
                 print("AFTER " + od_job.setting.name, flush=True)
 
             od_frame.arff_dump(od_job.output_filepath)
-
+            print("DUMPED " + od_job.setting.name, flush=True)
             #print(od_job.input_filepath)
             #file_split = os.path.basename(od_job.output_filepath).split("_")
 
 
             with open(times_file, "a") as tf:
-                print(od_job.dataset + "," + od_job.fold + "," + od_job.hex + "," + str(od_time), file=tf)
+                print(od_job.dataset + "," + od_job.fold + "," + od_job.hex + "," + str(od_time), file=tf, flush=True)
             # here we are saving outputs to a second, unique file, which serves as a backup when overwriting previous file
             with open(backup_ts, "a") as tf:
-                print(od_job.dataset + "," + od_job.fold + "," + od_job.hex + "," + str(od_time), file=tf)
-
+                print(od_job.dataset + "," + od_job.fold + "," + od_job.hex + "," + str(od_time), file=tf, flush=True)
+            print("TIMES WRITTEN " + od_job.setting.name, flush=True)
         except Exception as exc:
             print(
                 "CAUGHT Error:\n\t{} {}\n\t".format(
@@ -194,6 +194,7 @@ def main():
     try:
         sys.warnoptions = []
         [process.start() for process in pool]
+        sys.warnoptions = old_warnopts
         [process.join() for process in pool]
     except KeyboardInterrupt:
         [process.terminate() for process in pool]
