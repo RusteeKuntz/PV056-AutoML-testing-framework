@@ -166,15 +166,16 @@ def main():
         # create concurrency safe list for sharing between threads/processes
         blacklist = manager.list()
         counter = manager.Value('i', 0)
-        with open(conf.blacklist_file, "r") as bf:
-            # read files from blacklist file and put them into the actual list
-            for i in bf:
-                blacklist.append(tuple(i.replace("\n", "").split(',')))
+        if conf.blacklist_file is not None:
+            with open(conf.blacklist_file, "r") as bf:
+                # read files from blacklist file and put them into the actual list
+                for i in bf:
+                    blacklist.append(tuple(i.replace("\n", "").split(',')))
 
         queue = Queue()
         print("FILLING THE QUEUE")
         clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets, args.datasets_csv_out)
-        print("BACK IN MAIN")
+        print("QUEUE FILLED")
 
         # TODO xbajger: previously, here as an arg to weka_worker a "backup_ts" file was supplied. It shan't be needed
         pool = [Process(target=weka_worker, args=(queue, blacklist, conf.timeout, conf.times_output, backup_ts, counter)) for _ in range(conf.n_jobs)]
