@@ -193,24 +193,70 @@ optional arguments:
 
 ```json
 {
-    "train_od_dir": "data/train_od/",
-    "n_jobs": 2,
-    "times_output": "outputs/od_times.csv",
-    "od_methods": [
-        {
-            "name": "IsolationForest",
-            "parameters": {
-                "contamination": "auto",
-                "behaviour": "new"
-            }
-        },
-        {
-            "name": "LOF",
-            "parameters": {
-                "contamination": "auto"
-            }
-        }
-    ]
+  "train_od_dir": "data/train_od/",
+  "n_jobs": 20,
+  "times_output": "data/od_times.csv",
+  "od_methods": [
+    {
+      "name": "IsolationForest",
+      "parameters": {
+        "contamination": "auto",
+        "behaviour": "new",
+        "random_state": 123
+      }
+    },
+    {
+      "name": "LOF",
+      "parameters": {
+        "contamination": "auto"
+      }
+    },
+    {
+      "name": "CODB",
+      "parameters": {
+        "jar_path": "data/java/WEKA-CODB.jar"
+      }
+    },
+    {
+      "name": "ClassLikelihood",
+      "parameters": {}
+    },
+    {
+      "name": "NearestNeighbors",
+      "parameters": {}
+    },
+    {
+      "name": "ClassLikelihoodDifference",
+      "parameters": {}
+    },
+    {
+      "name": "KDN",
+      "parameters": {}
+    },
+    {
+      "name": "DS",
+      "parameters": {}
+    },
+    {
+      "name": "TD",
+      "parameters": {}
+    },
+    {
+      "name": "TDWithPrunning",
+      "parameters": {}
+    },
+    {
+      "name": "OneClassSVM",
+      "parameters": {
+        "gamma": "scale"
+      }
+    },
+    {
+      "name": "EllipticEnvelope",
+      "parameters": {
+      }
+    }
+  ]
 }
 ```
 

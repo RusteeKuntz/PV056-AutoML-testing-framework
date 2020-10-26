@@ -8,7 +8,7 @@ class DCPMetric:
 
         values = np.empty([0, 0])
 
-        estimator = DecisionTreeClassifier(min_impurity_split=minimum_impurity_split)
+        estimator = DecisionTreeClassifier(min_impurity_decrease=minimum_impurity_split)
         estimator.fit(df, classes)
         leafsIndexes = estimator.apply(df, check_input=True)
 
