@@ -46,18 +46,20 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
         try:
             dataframe = DataLoader._load_arff_file(od_job.input_filepath)
 
-            # here we check if the OD setting is empty (that means we have hit a baseline file setting)
+            # here we check if the OD setting is empty
             if od_job.setting.name == NONE_STR:
-                # skip outlier detection for baseline file and just dump it straight to the destination path
+                # skip outlier detection and just dump it straight to the destination path
                 od_frame = dataframe
                 od_time = 0
             else:
+                print("BEFORE " + od_job.setting.name, flush=True)
                 od_frame, od_time = dataframe.apply_outlier_detector(od_job.setting)
+                print("AFTER " + od_job.setting.name, flush=True)
 
             od_frame.arff_dump(od_job.output_filepath)
 
             #print(od_job.input_filepath)
-            file_split = os.path.basename(od_job.output_filepath).split("_")
+            #file_split = os.path.basename(od_job.output_filepath).split("_")
 
 
             with open(times_file, "a") as tf:
@@ -83,6 +85,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
                 file=sys.stderr,
                 flush=True
             )
+
 
 
 def main():
