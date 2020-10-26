@@ -193,8 +193,6 @@ def main():
     try:
         sys.warnoptions = []
         [process.start() for process in pool]
-        sys.warnoptions = old_warnopts
-        [process.join() for process in pool]
     except KeyboardInterrupt:
         [process.terminate() for process in pool]
         print("\nInterupted!", flush=True, file=sys.stderr)
@@ -202,6 +200,7 @@ def main():
         # here I revert back the warn options
         sys.warnoptions = old_warnopts
 
+    [process.join() for process in pool]
     print("Done")
 
 
