@@ -68,7 +68,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
 
         except Exception as exc:
             print(
-                "Error:\n\t{} {}\n\t".format(
+                "CAUGHT Error:\n\t{} {}\n\t".format(
                     od_job.setting.name, os.path.basename(od_job.input_filepath)
                 ),
                 exc,
@@ -76,7 +76,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
                 flush=True,
             )
         except RuntimeWarning as any_warning:
-            print("Runtime Warning:\n\t{} {}\n\t".format(
+            print("CAUGHT Runtime Warning:\n\t{} {}\n\t".format(
                     od_job.setting.name, os.path.basename(od_job.input_filepath)
                 ),
                 any_warning,
