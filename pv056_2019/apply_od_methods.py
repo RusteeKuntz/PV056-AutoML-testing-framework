@@ -75,6 +75,14 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
                 file=sys.stderr,
                 flush=True,
             )
+        except RuntimeWarning as any_warning:
+            print("Runtime Warning:\n\t{} {}\n\t".format(
+                    od_job.setting.name, os.path.basename(od_job.input_filepath)
+                ),
+                any_warning,
+                file=sys.stderr,
+                flush=True
+            )
 
 
 def main():
