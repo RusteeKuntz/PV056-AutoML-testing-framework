@@ -130,12 +130,12 @@ def main():
     queue = Queue()
     # last considered setting is a baseline setting, which is basically empty
     # TODO: Remove limit to 30 datasets
-    counter = 0
+    #counter = 0
     with open(args["datasets_csv_out"], "w", encoding="UTF-8") as output_csv:
         # TODO xbajger: Creating baseline files just for OD step is currently disabled. Considered useless.
         for od_settings in conf.od_methods: #+ [OutlierDetectorSchema(**{"name": NONE_STR, "parameters": {}})]:
-            if counter >= 30:
-                pass  # continue
+            #if counter >= 30:
+            #    pass  # continue
             # if the setting is empty (None) take it as baseline setting and mark it by appropriate hex string
             if od_settings.name == NONE_STR:
                 hex_name = BASELINE_NAME
@@ -174,16 +174,15 @@ def main():
                     input_filepath=train_file_path,
                     output_filepath=file_save_path
                 ))
-                counter += 1
+                #counter += 1
 
-    pool = [Process(target=od_worker, args=(queue, conf.times_output, backup_ts,)) for _ in range(conf.n_jobs)]
-
-    try:
-        [process.start() for process in pool]
-        [process.join() for process in pool]
-    except KeyboardInterrupt:
-        [process.terminate() for process in pool]
-        print("\nInterupted!", flush=True, file=sys.stderr)
+    with [Process(target=od_worker, args=(queue, conf.times_output, backup_ts,)) for _ in range(conf.n_jobs)] as pool:
+        try:
+            [process.start() for process in pool]
+            [process.join() for process in pool]
+        except KeyboardInterrupt:
+            [process.terminate() for process in pool]
+            print("\nInterupted!", flush=True, file=sys.stderr)
 
     print("Done")
 
