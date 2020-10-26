@@ -75,6 +75,14 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
                 file=sys.stderr,
                 flush=True,
             )
+        except RuntimeWarning as any_warning:
+            print("Runtime Warning:\n\t{} {}\n\t".format(
+                    od_job.setting.name, os.path.basename(od_job.input_filepath)
+                ),
+                any_warning,
+                file=sys.stderr,
+                flush=True
+            )
 
 
 def main():
@@ -176,13 +184,14 @@ def main():
                 ))
                 #counter += 1
 
-    with [Process(target=od_worker, args=(queue, conf.times_output, backup_ts,)) for _ in range(conf.n_jobs)] as pool:
-        try:
-            [process.start() for process in pool]
-            [process.join() for process in pool]
-        except KeyboardInterrupt:
-            [process.terminate() for process in pool]
-            print("\nInterupted!", flush=True, file=sys.stderr)
+    pool = [Process(target=od_worker, args=(queue, conf.times_output, backup_ts,)) for _ in range(conf.n_jobs)]
+
+    try:
+        [process.start() for process in pool]
+        [process.join() for process in pool]
+    except KeyboardInterrupt:
+        [process.terminate() for process in pool]
+        print("\nInterupted!", flush=True, file=sys.stderr)
 
     print("Done")
 
