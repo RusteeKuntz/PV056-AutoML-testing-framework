@@ -85,8 +85,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
                 file=sys.stderr,
                 flush=True
             )
-
-
+    print("QUEUE EMPTY")
 
 def main():
     parser = argparse.ArgumentParser(
