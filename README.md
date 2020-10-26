@@ -278,6 +278,10 @@ optional arguments:
 | **Random** | Random OD score | seed |
 | **CODB** | CODB | See below |
 
+**NOTE!**<br/>
+The DCP detector currently causes the processes to hang, so it is advise to use it carefully and check if all files are really created.
+The main process after completion has to be terminated manually.
+
 
 #### CODB
 * path to CODB jar file jar_path, must be defined
