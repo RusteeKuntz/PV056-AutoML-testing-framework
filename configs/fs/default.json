@@ -7,47 +7,14 @@
       "source_library": "SCIKIT",
       "leave_attributes_binarized": true,
       "fs_method": {
-        "name": "SelectFpr",
+        "name": "SelectKBest",
         "parameters": {
-          "alpha": 0.2
+          "k": 4
         }
       },
       "score_func": {
-        "name": "chi2",
+        "name": "f_classif",
         "parameters": {}
-      }
-    },
-    {
-      "source_library": "SCIKIT",
-      "leave_attributes_binarized": false,
-      "fs_method": {
-        "name": "SelectFpr",
-        "parameters": {
-          "alpha": 0.2
-        }
-      },
-      "score_func": {
-        "name": "chi2",
-        "parameters": {}
-      }
-    },
-    {
-      "source_library": "WEKA",
-      "eval_class": {
-        "name": "weka.attributeSelection.CfsSubsetEval",
-        "parameters": {
-          "M": true,
-          "L": true,
-          "Z": true,
-          "P": 3,
-          "E": 4
-        }
-      },
-      "search_class": {
-        "name": "weka.attributeSelection.BestFirst",
-        "parameters": {
-          "N": 5
-        }
       }
     },
     {
