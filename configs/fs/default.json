@@ -27,7 +27,7 @@
         "name": "weka.attributeSelection.Ranker",
         "parameters": {
           "T": 5E-3,
-          "N": -1
+          "N": "50%"
         }
       }
     }
