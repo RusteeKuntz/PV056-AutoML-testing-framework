@@ -37,15 +37,13 @@ def weka_worker(queue,
     while not queue.empty():
         this_counter = counter.get()
         counter.set(counter.get() + 1)
-        print("Popping command " + str(this_counter) + " from queue")
+        print("Starting job number " + str(this_counter) + ".")
         command_with_info: CLFCommandWithInfo = queue.get()
         args = command_with_info.args
         time_diff: float
 
-        #file_split = args[6].split("/")[-1].split("_")
         dataset = command_with_info.dataset  # file_split[0]
         clf = command_with_info.clf_classname  # args[16].split(".")[-1]
-        #print("BLACKLIST: ", blacklist, "\nTUPLE: ", (clf, dataset), (clf, dataset) in blacklist)
         if (clf, dataset) not in blacklist:
             try:
                 time_start = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
@@ -67,7 +65,7 @@ def weka_worker(queue,
             except subprocess.TimeoutExpired:
                 time_diff = timeout
                 blacklist.append((clf, dataset))
-                print(clf, dataset, "TIMED OUT! Appending combination to a temporary blacklist. Continuing.")
+                print(clf, dataset, "TIMED OUT! Appending combination to a temporary blacklist and continuing.")
         else:
             time_diff = timeout
             print("Combination", clf, "and", dataset, "is blacklisted.")
@@ -115,7 +113,7 @@ def main():
         required=True,
     )
     args = parser.parse_args()
-    print("starting CLF step")
+    print("Starting CLF step...")
 
     with open(args.config_clf, "r") as config_file:
         conf = RunClassifiersCongfigSchema(**json.load(config_file))
@@ -173,9 +171,9 @@ def main():
                     blacklist.append(tuple(i.replace("\n", "").split(',')))
 
         queue = Queue()
-        print("FILLING THE QUEUE")
+        print("Filling up the jobs queue for parallel processing...")
         clf_man.fill_queue_and_create_configs(queue, conf.classifiers, datasets, args.datasets_csv_out)
-        print("QUEUE FILLED")
+        print("Starting individual workers...")
 
         # TODO xbajger: previously, here as an arg to weka_worker a "backup_ts" file was supplied. It shan't be needed
         pool = [Process(target=weka_worker, args=(queue, blacklist, conf.timeout, conf.times_output, backup_ts, counter)) for _ in range(conf.n_jobs)]
@@ -187,7 +185,7 @@ def main():
             [process.terminate() for process in pool]
             print("\nInterupted!", flush=True, file=sys.stderr)
 
-    print("Done")
+    print("CLF Done")
 
 
 if __name__ == "__main__":

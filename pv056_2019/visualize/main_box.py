@@ -55,7 +55,7 @@ def print_boxplots(data: pd.DataFrame,
                    show_fliers: bool = False
                    ):
     if convert_col_related_from_json and extract_col_related is None:
-        print("Converting col_related from JSON")
+        print("Converting column for X axis from JSON")
 
         if isinstance(col_related, List):
             for col in col_related:
@@ -156,7 +156,7 @@ def print_boxplots(data: pd.DataFrame,
     _ax.tick_params(axis='y', labelsize=22  # *scale
                     )
 
-    print("Creating legend")
+    print("Creating the legend")
     # custom legend elements gymnastics (it is really awful, but I coudl not find better solution)
     # TODO: This is wrong. Replace the arrays with markerstyle objects
     markers = [mean_marker, "o"]
@@ -207,7 +207,6 @@ def main():
                                                                                                               str) else " ") + conf.separate_graphs_for_different_values_in_column + "."
 
     else:
-        print("Calling the print method..")
         print_boxplots(data=df,
                        graph_filename=out_fp,
                        col_examined=conf.col_examined,

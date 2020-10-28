@@ -201,7 +201,6 @@ def main():
     print("Starting graph creation, parsing arguments.")
     parser = setup_arguments()
     args = parser.parse_args()
-    print("args parsed")
     with open(args.config_graph, "r") as conf_file:
         conf = GraphScatterStepSchema(**json.load(conf_file))
 
