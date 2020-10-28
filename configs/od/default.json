@@ -1,6 +1,6 @@
 {
   "train_od_dir": "data/train_od/",
-  "n_jobs": 5,
+  "n_jobs": 20,
   "times_output": "data/od_times.csv",
   "od_methods": [
     {
@@ -41,10 +41,6 @@
     },
     {
       "name": "DS",
-      "parameters": {}
-    },
-    {
-      "name": "DCP",
       "parameters": {}
     },
     {

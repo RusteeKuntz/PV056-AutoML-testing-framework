@@ -105,45 +105,29 @@ class DataFrameArff(pd.DataFrame):
             else:
                 encoded_dataframe = encoded_dataframe.join(new)
 
-        # here we convert result into DataFrameArff to keep arff metadata TODO: Here starts the newer implememtation
-        # new_columns = convert_multiindex_to_index(encoded_dataframe.columns)
-        #
-        # arff_data = ArffData(relation=self._arff_data["relation"] + "_binarized",
-        #                      description=self._arff_data["description"],
-        #                      attributes=[(name, 'NUMERIC') for name in new_columns],
-        #                      data=encoded_dataframe.values)
-        # return DataFrameArff(arff_data=arff_data.__dict__)
+        return encoded_dataframe
 
-        return encoded_dataframe # TODO: This was old return value
 
     def binarize_cat_feats_and_normalize(self, keep_class: bool=False)->'DataFrameArff':
         bin_df: pd.DataFrame = self._binarize_categorical_values()
-        #print("BIN_DF:", bin_df.columns)
 
         new_columns = convert_multiindex_to_index(bin_df.columns)
-        #print("NEW COLUMNS:", new_columns)
         _relation = self._arff_data["relation"] + "-binarized-normalized"
         _attributes = [(name, 'NUMERIC') for name in new_columns]
         # if we want to keep the class column among the binarized data, we have to add it back,
         # because it is not retained during binarisation
-        #print("DEBUG")
-        #print(self.columns[-1])
         if keep_class:
 
             _relation += "with-class"
             _attributes.append(self._arff_data["attributes"][-1])
             bin_df.insert(loc=len(new_columns), column=self.columns[-1], value=self[self.columns[-1]])
-            #print("KEEP")
         else:
-            #print("DO NOT KEEP")
             _relation += "-class-removed"
-        #print("ATTRIBUTES", _attributes)
         arff_data = ArffData(relation=_relation,
                              description="", #self._arff_data["description"],  # TODO: description is truncated here
                              attributes=_attributes,
                              data=bin_df.values)
         _df = DataFrameArff(arff_data=arff_data)
-        #print("DONE OK")
         return _df
 
 
@@ -224,9 +208,7 @@ class DataFrameArff(pd.DataFrame):
         if ID_NAME in self.columns:
             self.drop(ID_NAME, 1, inplace=True)
             self._arff_data["attributes"] = [x for x in self._arff_data["attributes"] if x[0] != ID_NAME]
-            #colnames = self.columns
-            #print(ID_NAME, "deleted for dataset: ", self._arff_data["relation"])
-            #print(self)
+
         bin_df: pd.DataFrame = self._binarize_categorical_values()
 
         # split data and classes. We rely on the fact that classes are in the last column
@@ -238,17 +220,13 @@ class DataFrameArff(pd.DataFrame):
         # time_start_children = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
 
         # fit selector to the dataset (this basically looks at the dataset and identifies useful features)
-        #print("TRAIN DATA", x, sep="\n")
-        #print("TEST DATA", y, sep="\n")
         selector.fit(x, y)
 
         selected_features_indexes = selector.get_support()
-        # print(selected_features_indexes)
 
         # here we are indexing the binarized, filtered dataset by a list of bools.
         trans_df: pd.DataFrame = x.iloc[:, selected_features_indexes]
 
-        #print(trans_df)
         nmi: pd.MultiIndex = trans_df.columns
 
         if not leave_binarized:
@@ -263,7 +241,6 @@ class DataFrameArff(pd.DataFrame):
             # also, we need to sort the indexes list, bcs the order is significant when determining which column has
             # which values
             selected_feature_indexes_list.sort()
-            # print(selected_feature_indexes_list)
             final_df = self.iloc[:, selected_feature_indexes_list]
 
             # change the ARFF data so that they contain updated data
@@ -277,17 +254,6 @@ class DataFrameArff(pd.DataFrame):
             new_frame_arff: DataFrameArff = DataFrameArff(arff_data=arff_data)
 
         else:
-            # new_columns = convert_multiindex_to_index(nmi)
-            #
-            # arff_data = {
-            #     "relation": self._arff_data["relation"],
-            #     "description": "", # self._arff_data["description"], # description takes space --> unnecessary
-            #     "attributes": [(name, 'NUMERIC') for name in new_columns],
-            #     "data": trans_df.values
-            # }
-            # print("FREAKING HERE MATE")
-            # print(bin_df)
-            # print(self.columns)
 
             new_frame_arff: DataFrameArff = add_arff_metadata_to_pandas_dataframe(trans_df, ArffData(**self._arff_data))
             new_frame_arff.insert(value=self[self.columns[-1]], column=self.columns[-1], loc=len(new_frame_arff.columns))
@@ -347,13 +313,9 @@ class DataLoader:
 
     @staticmethod
     def _load_arff_file(file_path: str) -> DataFrameArff:
-        #print("trying to open ", end="")
         with open(file_path) as arff_file:
-            #print("and load and arff", os.path.basename(file_path), end=" ")
             data = arff.load(arff_file)
-            #print("and then close it ", end="")
             arff_file.close()
-            #print("and return", end="")
             return DataFrameArff(arff_data=data)
 
 
@@ -369,7 +331,6 @@ class DataLoader:
 def convert_multiindex_to_index(mi: pd.MultiIndex) -> [str]:
     # setup dictionary that will contain column names of column created by binarisation in lists under keys by their
     # original columns names before binarisation
-    #print(mi)
     columns = {}
     for i in range(len(mi)):
         original_colname = mi.levels[0][mi.codes[0][i]]  # this extracts the original name of column

@@ -1,14 +1,13 @@
 {
-  "sort_by_column": "clf",
-  "col_examined": "accuracy",
-  "col_related": "step_2",
-  "col_grouped_by": ["step_1", "step_3"],
-  "legend_title": "Testing legend title",
-  "title": "This is a testing graph",
-  "x_title": "This is a title for X axis",
-  "y_title": "This is a title for Y axis",
-  "convert_col_related_from_json": false,
-  "extract_col_grouped_by": "name",
-  "extract_col_related": "name",
-  "dpi": 400
+  "col_examined": "gain",
+  "col_related": "step_1",
+  "col_grouped_by": ["step_2", "step_3"],
+  "legend_title": "Legend title specified by user\nallows linebreaks",
+  "title": "Evaluation of accuracy gain across multiple configurations",
+  "x_title": "Title for X axis",
+  "y_title": "Accuracy gain",
+  "convert_col_related_from_json": true,
+  "dpi": 200,
+  "width_multiplier": 1.1,
+  "height_multiplier": 1
 }

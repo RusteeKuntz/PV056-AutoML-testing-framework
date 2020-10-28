@@ -278,6 +278,10 @@ optional arguments:
 | **Random** | Random OD score | seed |
 | **CODB** | CODB | See below |
 
+**NOTE!**<br/>
+The DCP detector currently causes the processes to hang, so it is advise to use it carefully and check if all files are really created.
+The main process after completion has to be terminated manually.
+
 
 #### CODB
 * path to CODB jar file jar_path, must be defined
@@ -638,6 +642,89 @@ audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 
 audiology,DecisionTable,rules,[],"{'data_path': 'data/datasets/', 'k_of_folds': 2, 'm_of_repeats': 2, 'random_state': 42, 'test_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/test_split/', 'train_split_dir': '/var/tmp/xbajger/BAKPR/data_exp/train_split/'}","{'name': 'IsolationForest', 'parameters': {'behaviour': 'new', 'contamination': 'auto', 'random_state': 123}}",{'RM': 5.0},"{'fs_method': {'name': 'SelectFpr', 'parameters': {'alpha': 0.2}}, 'leave_attributes_binarized': True, 'score_func': {'name': 'chi2', 'parameters': {}}, 'source_library': 'SCIKIT'}",0.62389,0.62629,0.0024000000000000687
 
 ```
+
+### Generate graphs
+To gain detailed understanding of this feature, refer to the chapter 5.3.6 (page 36) of my [bachelor thesis](https://is.muni.cz/auth/th/eh6aj/).
+You need to specify graph configuration to determine the layout and visualisation targets, input data (result CSV from a workflow) and destination for the final PNG.
+```
+(venv) aura:/var/tmp/AutoMLref>$ pv056-graph-scatter --help
+Starting graph creation, parsing arguments.
+usage: pv056-graph-scatter [-h] -c CONFIG_GRAPH [-o OUTPUT_PNG] -di
+                           DATASETS_CSV_IN
+
+PV056-AutoML-testing-framework
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CONFIG_GRAPH, --config-graph CONFIG_GRAPH
+                        path to visualisation config file
+  -o OUTPUT_PNG, --output-png OUTPUT_PNG
+                        path to a png file which contains visualized results
+                        in a nice graph
+  -di DATASETS_CSV_IN, --datasets-csv-in DATASETS_CSV_IN
+                        Path to csv file that contains results from a workflow
+```
+```
+(venv) aura:/var/tmp/AutoMLref>$ pv056-graph-box --help
+Starting to create boxplot, parsing arguments...
+usage: pv056-graph-box [-h] -c CONFIG_GRAPH [-o OUTPUT_PNG] -di
+                       DATASETS_CSV_IN
+
+PV056-AutoML-testing-framework
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CONFIG_GRAPH, --config-graph CONFIG_GRAPH
+                        path to visualisation config file
+  -o OUTPUT_PNG, --output-png OUTPUT_PNG
+                        path to a png file which contains visualized results
+                        in a nice graph
+  -di DATASETS_CSV_IN, --datasets-csv-in DATASETS_CSV_IN
+                        Path to csv file that contains results from a workflow
+```
+#### Example usage
+```
+(venv)$ pv056-graph-scatter -c configs/graph/default_scatter.json -di outputs/results.csv -o my_scatterplot.png
+```
+```
+(venv)$ pv056-graph-box -c configs/graph/default_box.json -di outputs/results.csv -o my_boxplot.png
+```
+
+#### Example configurations
+Scatterplot configuration:
+```
+{
+  "col_examined": "gain",
+  "col_related": "step_1",
+  "col_grouped_by": ["step_2", "step_3"],
+  "legend_title": "Legend title specified by user\nallows linebreaks",
+  "title": "Evaluation of accuracy gain across multiple configurations",
+  "x_title": "Title for X axis",
+  "y_title": "Accuracy gain",
+  "convert_col_related_from_json": true,
+  "dpi": 200,
+  "width_multiplier": 1.1,
+  "height_multiplier": 1
+}
+```
+Boxplot configuration:
+```
+{
+  "sort_by_column": "accuracy",
+  "col_examined": "gain",
+  "col_related": "step_1",
+  "title": "Main title desribing the graph",
+  "x_title": "Configurations of step 1 (you must know which one it was)",
+  "y_title": "Gain in accuracy",
+  "sort_func_name": "inv_mean",
+  "extract_col_related": "name",
+  "show_fliers": true,
+  "dpi": 300,
+  "width_multiplier": 0.8,
+  "height_multiplier": 1
+}
+```
+
 
 ## All-in-one script
 To make the script easier to use, we have created a runnable shell script which runs the full

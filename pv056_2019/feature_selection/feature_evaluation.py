@@ -151,8 +151,8 @@ class FeatureSelectionManager:
                             sc.parameters["N"] = n_param
                             wfs_conf.search_class = sc
 
-                            print("Shape of dataset", train_path, f_count, n_param)
-                            print("Replaced %")
+                            #print("Shape of dataset", train_path, f_count, n_param)
+                            #print("Replaced %")
 
 
                     # here we prepare filters for currently useless columns that should not be considered for FS

@@ -35,10 +35,10 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
         #train_file_path = od_job.input_filepath
         #file_save_path = od_job.output_filepath
 
-        print(
+        print("Working on ",
             od_job.setting.name + ":",
             os.path.basename(od_job.input_filepath),
-            "->",
+            "-->",
             os.path.basename(od_job.output_filepath),
             flush=True,
         )
@@ -52,12 +52,10 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
                 od_frame = dataframe
                 od_time = 0
             else:
-                print("BEFORE " + od_job.setting.name, flush=True)
                 od_frame, od_time = dataframe.apply_outlier_detector(od_job.setting)
-                print("AFTER " + od_job.setting.name, flush=True)
 
             od_frame.arff_dump(od_job.output_filepath)
-            print("DUMPED " + od_job.setting.name, flush=True)
+
             #print(od_job.input_filepath)
             #file_split = os.path.basename(od_job.output_filepath).split("_")
 
@@ -67,7 +65,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
             # here we are saving outputs to a second, unique file, which serves as a backup when overwriting previous file
             with open(backup_ts, "a") as tf:
                 print(od_job.dataset + "," + od_job.fold + "," + od_job.hex + "," + str(od_time), file=tf, flush=True)
-            print("TIMES WRITTEN " + od_job.setting.name, flush=True)
+
         except Exception as exc:
             print(
                 "CAUGHT Error:\n\t{} {}\n\t".format(
@@ -85,7 +83,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
                 file=sys.stderr,
                 flush=True
             )
-    print("QUEUE EMPTY")
+    print("One of the workers reached an empty queue")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -189,18 +187,19 @@ def main():
     pool = [Process(target=od_worker, args=(queue, conf.times_output, backup_ts,)) for _ in range(conf.n_jobs)]
 
     # this is some medium level hacking. I am manually patching the sys.warnoptions then reverting it back
-    old_warnopts = sys.warnoptions
+    #old_warnopts = sys.warnoptions
     try:
         sys.warnoptions = []
         [process.start() for process in pool]
+        [process.join() for process in pool]
     except KeyboardInterrupt:
         [process.terminate() for process in pool]
         print("\nInterupted!", flush=True, file=sys.stderr)
-    finally:
+    #finally:
         # here I revert back the warn options
-        sys.warnoptions = old_warnopts
+        #sys.warnoptions = old_warnopts
 
-    [process.join() for process in pool]
+
     print("Done")
 
 

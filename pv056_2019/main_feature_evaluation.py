@@ -36,10 +36,9 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
         dataset = os.path.basename(command.input_path).split("_")[0]
         eval_method = command.eval_method_name
 
-        print("Popped command for", eval_method, "-->", dataset, "from queue.")
+        print("Processing FS for", eval_method, "-->", dataset, ".")
 
         # I believe it does not make sense to blacklist search methods.
-        #print("FSBLACKLIST\n", blacklist, "\nEVAL METHOD and DATASET: ", (eval_method, dataset))
         if not (eval_method, dataset) in blacklist:
             if command.is_cmd:
                 try:
@@ -54,6 +53,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
                     if results.returncode < 0:
                         print(eval_method, dataset, "TERMINATED externally. Skipping")
                         continue
+                    # Useful debug prints. Uncomment if you are desperately debugging this code
                     #print("ERR:", eval_method, dataset, results.stderr)
                     #print("DONE?")
                     # print("RESULTS OMFG")
@@ -65,7 +65,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
                     time_end = resource.getrusage(resource.RUSAGE_CHILDREN)[0]
                     time_diff = time_end - time_start
                 except subprocess.TimeoutExpired:
-                    print(eval_method, dataset, "reached the timeout. TERMINATED on TIMEOUT")
+                    print(eval_method, dataset, "reached the timeout and was terminated.")
                     time_diff = timeout
                     blacklist.append((eval_method, dataset))
                     continue  # continue on timeout
@@ -99,7 +99,8 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
                             bin_test_df.arff_dump(bin_test_file_path)
                             binarized_test_files[bin_test_file_path] = True
                         else:
-                            print("Test files already binarized for", eval_method, dataset)
+                            pass
+                            #print("Test files already binarized for", eval_method, dataset)
                         # here we overwrite the old test path for this particular file
                         # (old path is still used in non-binarized datasets)
                         command.mapping_csv_line = ",".join(
@@ -117,16 +118,16 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
 
                     # If thread is still active
                     if p.is_alive():
-                        print(eval_method, dataset, "reached the timeout, killing it...")
+                        print(eval_method, dataset, "reached the timeout and is being terminated.")
 
                         # Terminate
                         p.terminate()
                         p.join()
                         fs_time = timeout
-                        print(eval_method, dataset, "TERMINATED on TIMEOUT")
+                        #print(eval_method, dataset, "TERMINATED on TIMEOUT")
                         continue  # if timeout,
                     elif p.exitcode < 0:
-                        print(eval_method, dataset, "TERMINATED externally with exitcode", p.exitcode, "Skipping")
+                        print(eval_method, dataset, "was terminated externally with exitcode", p.exitcode, "Skipping")
                         continue
 
 
@@ -163,7 +164,7 @@ def fs_worker(queue: Queue, mapping_csv: TextIO, blacklist: [(str, str)], binari
                     raise NotImplementedError()
 
             # log the finish of specific command
-            print("Completed: ", eval_method, dataset)
+            print("Completed FS for ", eval_method, "on file", dataset, ".")
             #fs_frame.arff_dump(command.output_file_path)
 
             # We write the line into the datasets mapping CSV only if the preprocessing is actually done
@@ -243,7 +244,7 @@ def main():
                 # print(" ".join(command.args))
                 queue.put(command)
 
-        print("queue filled")
+        print("Queue filled! Initializing individual workers for parallel processing...")
 
         # get a file handle to write preprocessed datasets and their configuration histories to. File gets closed later
         fs_mapping_csv = open(fs_mapping_csv_path, "w", encoding="UTF-8")
@@ -251,10 +252,8 @@ def main():
         pool = [Process(target=fs_worker, args=(queue, fs_mapping_csv, blacklist, binarized_test_files, conf.timeout)) for _ in
                 range(conf.n_jobs)]
 
-        print("Starting processes")
         try:
             [process.start() for process in pool]
-            print("Processes started, joining them...", flush=True)
             # join below will result in waiting for all above processes to finish before continuing
             [process.join() for process in pool]
         except KeyboardInterrupt:
