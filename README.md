@@ -806,6 +806,43 @@ Boxplot configuration:
 }
 ```
 
+#### Example outputs
+Scatterplot
+```
+Starting graph creation, parsing arguments.
+Reading results
+Sorting dataset.
+data prepared
+Printing scatterplot to:  example_scatterplot.png
+Ticks ok
+Converting from json
+Data are not interpretable as JSON.
+Plot prepared, preparing groups
+Sorting groups
+Adding scatter subplots
+Adding ticks, legend and labels
+-0.20972
+0.15030999999999994
+Saving figures to example_scatterplot.png
+DONE
+```
+Boxplot
+```
+Starting to create boxplot, parsing arguments...
+Reading results
+Sorting dataset.
+Extracting related column.
+Grouping data for boxplots
+Setting labels, figure size, ticks and other stuff...
+Figure created.
+Axes created
+sorting boxplots
+Creating the graph...
+Creating the legend
+Saving figure to example_boxplot.png .
+DONE
+```
+
 
 ## All-in-one script
 To make the script easier to use, we have created a runnable shell script which runs the full
