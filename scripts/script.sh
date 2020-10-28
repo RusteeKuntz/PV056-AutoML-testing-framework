@@ -81,7 +81,7 @@ printf "%s - GRAPH done.\n\n" "$NOW"
 nowf
 TIMESTAMP_SCATTER="$NOWF"
 printf "%s - Creating scatterplot\n" "$NOW"
-pv056-graph-box -c configs/graph/default_scatter.json -di "outputs/results.csv" -o "$FILE_GRAPH_SCATTER" > "logs/log-scatter-$TIMESTAMP_SCATTER.csv"
+pv056-graph-scatter -c configs/graph/default_scatter.json -di "outputs/results.csv" -o "$FILE_GRAPH_SCATTER" > "logs/log-scatter-$TIMESTAMP_SCATTER.csv"
 now
 printf "%s - GRAPH done.\n\n" "$NOW"
 
