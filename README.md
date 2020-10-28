@@ -147,6 +147,14 @@ optional arguments:
   "k_of_folds": 5
 }
 ```
+#### Example output
+```
+Splitting: weather
+Splitting: Weather
+Splitting: zoo
+Splitting: abalone
+Done
+```
 
 ### Apply outlier detection methods
 To apply outlier detection methods to all training splits, we have the `pv056-apply-od-methods`.
@@ -250,15 +258,25 @@ optional arguments:
       "parameters": {
         "gamma": "scale"
       }
-    },
-    {
-      "name": "EllipticEnvelope",
-      "parameters": {
-      }
     }
   ]
 }
 ```
+#### Example output
+```
+Working on  IsolationForest: weather_2-1_90a...ain.arff --> weather_2-1_90a...a880a9ff_train.arff
+Working on  IsolationForest: weather_3-0_909...ain.arff --> weather_3-0_90a...a880a9ff_train.arff
+Working on  IsolationForest: weather_3-2_90a...ain.arff --> weather_3-2_90a...a880a9ff_train.arff
+Working on  IsolationForest: weather_2-0_90a...ain.arff --> weather_2-0_90a...a880a9ff_train.arff
+.
+.
+.
+One of the workers reached an empty queue
+One of the workers reached an empty queue
+One of the workers reached an empty queue
+Done
+```
+
 
 #### Outlier detector names and parameters:
 | Name | Full name | Parameters |
@@ -362,6 +380,22 @@ optional arguments:
     "percentage": [ 1, 2, 5, -1, -2, -5 ]
 }
 ```
+#### Example output
+```
+Removing [0.5, 2.0, 5.0, -0.5, -2.0, -5.0]%
+    data/train_od/weather_2-1_90a29a4d22830e7af8d582b68775e47c_FSf618edfe86acc6636049013b543b8a86_OD-414bd82745e9a87176dd4401a880a9ff_train.arff 0.5%
+    data/train_od/weather_2-1_90a29a4d22830e7af8d582b68775e47c_FSf618edfe86acc6636049013b543b8a86_OD-414bd82745e9a87176dd4401a880a9ff_train.arff 2.0%
+    data/train_od/weather_2-1_90a29a4d22830e7af8d582b68775e47c_FSf618edfe86acc6636049013b543b8a86_OD-414bd82745e9a87176dd4401a880a9ff_train.arff 5.0%
+    .
+    .
+    .
+    data/train_od/abalone_0-0_90a29a4d22830e7af8d582b68775e47c_FS2e4d042a1485be0d036bb56351342a4c_OD-9b61d27acb971cb642c93a0a0c4f2ed7_train.arff -0.5%
+    data/train_od/abalone_0-0_90a29a4d22830e7af8d582b68775e47c_FS2e4d042a1485be0d036bb56351342a4c_OD-9b61d27acb971cb642c93a0a0c4f2ed7_train.arff -2.0%
+    data/train_od/abalone_0-0_90a29a4d22830e7af8d582b68775e47c_FS2e4d042a1485be0d036bb56351342a4c_OD-9b61d27acb971cb642c93a0a0c4f2ed7_train.arff -5.0%
+Done
+
+```
+
 
 ### Perform feature selection (FS step)
 At this point, the feature selection step allows you to run various WEKA or SCIKIT methods for feature selection.
@@ -424,19 +458,19 @@ optional arguments:
 {
   "output_folder_path": "data/fs_outputs/",
   "weka_jar_path": "data/java/weka.jar",
-  "blacklist_file_path": "data/fs_blacklist.csv",
+  "blacklist_file_path": "fs_blacklist.csv",
   "selection_methods": [
     {
       "source_library": "SCIKIT",
       "leave_attributes_binarized": true,
       "fs_method": {
-        "name": "SelectFpr",
+        "name": "SelectKBest",
         "parameters": {
-          "alpha": 0.2
+          "k": 4
         }
       },
       "score_func": {
-        "name": "chi2",
+        "name": "f_classif",
         "parameters": {}
       }
     },
@@ -450,12 +484,31 @@ optional arguments:
         "name": "weka.attributeSelection.Ranker",
         "parameters": {
           "T": 5E-3,
-          "N": -1
+          "N": "50%"
         }
       }
     }
   ]
 }
+```
+#### Example output
+```
+Starting feature selection step
+Queue filled! Initializing individual workers for parallel processing...
+Processing FS for f_classif --> weather .
+Binarizing test data for f_classif weather
+Processing FS for f_classif --> weather .
+.
+.
+.
+Completed FS for  f_classif on file abalone .
+Processing FS for weka.attributeSelection.InfoGainAttributeEval --> abalone .
+Completed FS for  weka.attributeSelection.InfoGainAttributeEval on file abalone .
+Completed FS for  f_classif on file abalone .
+Processing FS for weka.attributeSelection.InfoGainAttributeEval --> abalone .
+Completed FS for  weka.attributeSelection.InfoGainAttributeEval on file abalone .
+Done
+
 ```
 
 
@@ -555,6 +608,26 @@ optional arguments:
         }
     ]
 }
+```
+#### Example output
+```
+Starting CLF step...
+Filling up the jobs queue for parallel processing...
+25902 of total jobs will be generated for 8634 files and 3 classifiers.
+Queue filled up!
+Starting individual workers...
+Starting job number 8.
+8. job done.
+Starting job number 1.
+1. job done.
+Starting job number 0.
+0. job done.
+Starting job number 3.
+3. job done.
+.
+.
+.
+
 ```
 
 ### Count accuracy

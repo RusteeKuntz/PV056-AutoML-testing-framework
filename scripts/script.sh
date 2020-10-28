@@ -74,14 +74,14 @@ printf "%s - STATS done.\n\n" "$NOW"
 nowf
 TIMESTAMP_BOX="$NOWF"
 printf "%s - Creating boxplot\n" "$NOW"
-pv056-statistics -c configs/graph/default_box.json -di "outputs/results.csv" -o "$FILE_GRAPH_BOX" > "logs/log-box-$TIMESTAMP_BOX.csv"
+pv056-graph-box -c configs/graph/default_box.json -di "outputs/results.csv" -o "$FILE_GRAPH_BOX" > "logs/log-box-$TIMESTAMP_BOX.csv"
 now
 printf "%s - GRAPH done.\n\n" "$NOW"
 
 nowf
 TIMESTAMP_SCATTER="$NOWF"
 printf "%s - Creating scatterplot\n" "$NOW"
-pv056-statistics -c configs/graph/default_scatter.json -di "outputs/results.csv" -o "$FILE_GRAPH_SCATTER" > "logs/log-scatter-$TIMESTAMP_SCATTER.csv"
+pv056-graph-box -c configs/graph/default_scatter.json -di "outputs/results.csv" -o "$FILE_GRAPH_SCATTER" > "logs/log-scatter-$TIMESTAMP_SCATTER.csv"
 now
 printf "%s - GRAPH done.\n\n" "$NOW"
 

@@ -56,11 +56,6 @@
       "parameters": {
         "gamma": "scale"
       }
-    },
-    {
-      "name": "EllipticEnvelope",
-      "parameters": {
-      }
     }
   ]
 }
