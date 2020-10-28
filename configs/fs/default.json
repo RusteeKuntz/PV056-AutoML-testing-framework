@@ -1,7 +1,7 @@
 {
   "output_folder_path": "data/fs_outputs/",
   "weka_jar_path": "data/java/weka.jar",
-  "blacklist_file_path": "data/fs_blacklist.csv",
+  "blacklist_file_path": "fs_blacklist.csv",
   "selection_methods": [
     {
       "source_library": "SCIKIT",
