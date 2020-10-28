@@ -1,6 +1,6 @@
 source venv/bin/activate
 
-printf "Initializing automation workflow script..."
+printf "Initializing automation workflow script...\n"
 FILE_DATASET_SPLIT="datasets-split-exp.csv"
 FILE_DATASET_FS="datasets-fs-exp.csv"
 FILE_DATASET_OD="datasets-od-exp.csv"
