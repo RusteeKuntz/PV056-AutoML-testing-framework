@@ -555,8 +555,12 @@ optional arguments:
 ```
 
 #### Example usage
-```
+```shell script
 (venv)$ pv056-run-clf -c configs/clf/default.json -di "datasets-fs.csv" -do "datasets-clf.csv"
+```
+To create baseline predictions for comparison in the **STATS** step, run the step again for unprocessed files:
+```shell script
+(venv)$ pv056-run-clf -c configs/clf/default.json -di "datasets-split.csv" -do "datasets-base.csv"
 ```
 
 #### Example of config file for weka classifiers
