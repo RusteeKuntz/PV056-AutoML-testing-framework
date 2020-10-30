@@ -1,22 +1,9 @@
 {
   "output_folder_path": "data/fs_outputs/",
   "weka_jar_path": "data/java/weka.jar",
+  "n_jobs": 20,
   "blacklist_file_path": "fs_blacklist.csv",
   "selection_methods": [
-    {
-      "source_library": "SCIKIT",
-      "leave_attributes_binarized": true,
-      "fs_method": {
-        "name": "SelectKBest",
-        "parameters": {
-          "k": 4
-        }
-      },
-      "score_func": {
-        "name": "chi2",
-        "parameters": {}
-      }
-    },
     {
       "source_library": "WEKA",
       "eval_class": {

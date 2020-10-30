@@ -429,6 +429,8 @@ optional arguments:
     * The directory where the result files are stored.
 * *weka_jar_path*
     * Path to a WEKA jar file
+* *n_jobs* 
+    * Number of parallel workers.
 * *blacklist_file_path*
     * Path to a file containing blacklisted combinations of dataset and FS method
 * *selection_methods*
@@ -458,22 +460,9 @@ optional arguments:
 {
   "output_folder_path": "data/fs_outputs/",
   "weka_jar_path": "data/java/weka.jar",
+  "n_jobs": 20,
   "blacklist_file_path": "fs_blacklist.csv",
   "selection_methods": [
-    {
-      "source_library": "SCIKIT",
-      "leave_attributes_binarized": true,
-      "fs_method": {
-        "name": "SelectKBest",
-        "parameters": {
-          "k": 4
-        }
-      },
-      "score_func": {
-        "name": "f_classif",
-        "parameters": {}
-      }
-    },
     {
       "source_library": "WEKA",
       "eval_class": {
@@ -491,6 +480,33 @@ optional arguments:
   ]
 }
 ```
+Example configuration with SCIKIT method (methods could be in one JSON together,
+but it takes too long for a demo run, so we left it separated)
+```
+{
+  "output_folder_path": "data/fs_outputs/",
+  "weka_jar_path": "data/java/weka.jar",
+  "n_jobs": 20,
+  "blacklist_file_path": "fs_blacklist.csv",
+  "selection_methods": [
+    {
+      "source_library": "SCIKIT",
+      "leave_attributes_binarized": true,
+      "fs_method": {
+        "name": "SelectKBest",
+        "parameters": {
+          "k": 4
+        }
+      },
+      "score_func": {
+        "name": "chi2",
+        "parameters": {}
+      }
+    }
+  ]
+}
+```
+
 #### Example output
 ```
 Starting feature selection step
@@ -669,7 +685,7 @@ optional arguments:
 ```
 #### Example usage
 ```
-pv056-statistics -c configs/stats/default.json -di datasets-clf.csv -db -datasets-base.csv
+pv056-statistics -c configs/stats/default.json -di datasets-clf.csv -db datasets-base.csv
 ```
 
 #### Example of config file for statistics
