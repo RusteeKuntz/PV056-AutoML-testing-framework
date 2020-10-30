@@ -271,9 +271,6 @@ Working on  IsolationForest: weather_2-0_90a...ain.arff --> weather_2-0_90a...a8
 .
 .
 .
-One of the workers reached an empty queue
-One of the workers reached an empty queue
-One of the workers reached an empty queue
 Done
 ```
 

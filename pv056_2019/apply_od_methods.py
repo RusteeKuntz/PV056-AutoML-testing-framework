@@ -83,7 +83,6 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
                 file=sys.stderr,
                 flush=True
             )
-    print("One of the workers reached an empty queue")
 
 def main():
     parser = argparse.ArgumentParser(
