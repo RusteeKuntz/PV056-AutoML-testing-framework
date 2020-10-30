@@ -1,0 +1,22 @@
+{
+  "output_folder_path": "data/fs_outputs/",
+  "weka_jar_path": "data/java/weka.jar",
+  "n_jobs": 20,
+  "blacklist_file_path": "fs_blacklist.csv",
+  "selection_methods": [
+    {
+      "source_library": "WEKA",
+      "eval_class": {
+        "name": "weka.attributeSelection.InfoGainAttributeEval",
+        "parameters": {}
+      },
+      "search_class": {
+        "name": "weka.attributeSelection.Ranker",
+        "parameters": {
+          "T": 5E-3,
+          "N": "50%"
+        }
+      }
+    }
+  ]
+}
