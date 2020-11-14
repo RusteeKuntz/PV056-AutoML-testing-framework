@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import csv
+import traceback
 from datetime import datetime
 from hashlib import md5
 from multiprocessing import Process, Queue
@@ -69,7 +70,7 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
         except Exception as exc:
             print(
                 "CAUGHT Error:\n\tMethod: {}\n\tFile: {}\n\t, Trace: {}".format(
-                    od_job.setting.name, os.path.basename(od_job.input_filepath), exc.__traceback__
+                    od_job.setting.name, os.path.basename(od_job.input_filepath), "".join(traceback.TracebackException.from_exception(exc).format())
                 ),
                 exc,
                 file=sys.stderr,
