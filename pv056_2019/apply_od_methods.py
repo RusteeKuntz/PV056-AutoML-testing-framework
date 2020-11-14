@@ -68,8 +68,8 @@ def od_worker(queue: Queue, times_file: str, backup_ts):
 
         except Exception as exc:
             print(
-                "CAUGHT Error:\n\t{} {}\n\t".format(
-                    od_job.setting.name, os.path.basename(od_job.input_filepath)
+                "CAUGHT Error:\n\tMethod: {}\n\tFile: {}\n\t, Trace: {}".format(
+                    od_job.setting.name, os.path.basename(od_job.input_filepath), exc.__traceback__
                 ),
                 exc,
                 file=sys.stderr,
