@@ -119,11 +119,14 @@ def print_boxplots(data: pd.DataFrame,
     if min_y_val is None:
         min_y_val = data[col_examined].min()
     _y_tick = (max_y_val - min_y_val) / (40*height_multiplier)
-    if min_y_val < 0:
-        y_ticks = np.concatenate([np.arange(0, min_y_val - _y_tick, -_y_tick)[::-1], np.arange(0, max_y_val, _y_tick)])
+    if min_y_val == max_y_val:
+        y_ticks = np.array([min_y_val])
     else:
-        print(min_y_val, max_y_val, _y_tick)
-        y_ticks = [np.arange(min_y_val, max_y_val, _y_tick)]
+        if min_y_val < 0:
+            y_ticks = np.concatenate([np.arange(0, min_y_val - _y_tick, -_y_tick)[::-1], np.arange(0, max_y_val, _y_tick)])
+        else:
+            print(min_y_val, max_y_val, _y_tick)
+            y_ticks = [np.arange(min_y_val, max_y_val, _y_tick)]
     print("Figure created.")
     # Create a figure instance
     _fig = plt.figure(figsize=figsize)
