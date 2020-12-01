@@ -78,7 +78,7 @@ def weka_worker(queue,
         od_hex = ""  # file_split[2]
         rm = ""  # file_split[3].split("-")[1]
 
-        row_string = ",".join([dataset, fold, clf, clf_fam, clf_hex, command_with_info.settings.replace(",", ";"), str(time_diff)])
+        row_string = ",".join([dataset, fold, clf, clf_fam, clf_hex, ''.join(command_with_info.settings.replace(",", ";").split()), str(time_diff)])
         with open(times_file, "a") as tf:
             print(row_string, file=tf)
         with open(backup_ts, "a") as tf:
